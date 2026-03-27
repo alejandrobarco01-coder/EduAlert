@@ -1,0 +1,76 @@
+[
+  {
+    "id": 1,
+    "email": "admin@uceva.edu.co",
+    "password": "Admin@2024",
+    "name": "Dr. Roberto Álvarez",
+    "role": "admin",
+    "department": "Rectoría"
+  },
+  {
+    "id": 2,
+    "email": "tutor@uceva.edu.co",
+    "password": "Tutor@2024",
+    "name": "Mg. Patricia Londoño",
+    "role": "tutor",
+    "department": "Ciencias de la Salud"
+  },
+  {
+    "id": 3,
+    "email": "coord@uceva.edu.co",
+    "password": "Coord@2024",
+    "name": "Dra. Ana Luz Pérez",
+    "role": "coordinator",
+    "department": "Ciencias Jurídicas"
+  },
+  {
+    "id": 4,
+    "email": "bienestar@uceva.edu.co",
+    "password": "Bienestar@2024",
+    "name": "Dr. Bienestar Asesor",
+    "role": "welfare",
+    "department": "Bienestar Universitario"
+  },
+  {
+    "id": 1774401245110,
+    "name": "Pablo Persistente",
+    "email": "pablo@uceva.edu.co",
+    "password": "Password@123",
+    "role": "coordinator",
+    "department": "Facultad de Ciencias Administrativas, Económicas y Contables"
+  },
+  {
+    "id": 1774401588487,
+    "name": "alejandro",
+    "email": "alejandro@uceva.edu.co",
+    "password": "Alejandro/7245",
+    "role": "tutor",
+    "department": "Facultad de Ingeniería",
+    "status": "inactive"
+  },
+  {
+    "id": 1774404571674,
+    "name": "Carlos PRO",
+    "email": "carlos@uceva.edu.co",
+    "role": "tutor",
+    "department": "Ingenier",
+    "password": ""
+  },
+  {
+    "id": 1774404597644,
+    "name": "Carlos CRUD",
+    "email": "carlos@uceva.edu.co",
+    "role": "tutor",
+    "department": "Ingenieria",
+    "password": "Password@123",
+    "status": "inactive"
+  },
+  {
+    "id": 1774404625751,
+    "name": "Carlos CRUD",
+    "email": "carlos@uceva.edu.co",
+    "role": "tutor",
+    "department": "Ingenieria",
+    "password": "Password@123"
+  }
+]
