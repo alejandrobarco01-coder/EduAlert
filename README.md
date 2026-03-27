@@ -20,7 +20,7 @@
 - **React Router 7** (Navegación)
 - **Context API** (Gestión de Autenticación)
 
-## 📦 Instalación y Uso
+## 📦 Instalación y Uso 
 
 1. **Clonar el repositorio:**
    ```bash
