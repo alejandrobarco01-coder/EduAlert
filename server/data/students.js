@@ -81,7 +81,7 @@ const studentsDB = [
   {
     id: 8,
     name: 'Julián Cardona Mejía',
-    program: 'Bacteriología',
+    program: 'Ingeniería Industrial',
     semester: 4,
     email: 'j.cardona@uceva.edu.co',
     avatar: 'JC',

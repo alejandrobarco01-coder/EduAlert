@@ -1,5 +1,6 @@
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
+import factorsRouter from './routes/factors.js';
 import cors from 'cors';
 import express from 'express';
 import { gzip } from 'node:zlib';
@@ -57,6 +58,7 @@ app.use('/api', (req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/students', studentsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/factors', factorsRouter);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

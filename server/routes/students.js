@@ -1,6 +1,8 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor } from '../data/students.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
+import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
+import { getAllFactors } from '../data/factors.js';
 
 const router = express.Router();
 
@@ -102,10 +104,44 @@ router.patch('/:id/tutor', authorizeRoles('admin', 'coordinator'), (req, res) =>
     return res.status(404).json({ success: false, message: 'Estudiante no encontrado' });
   }
 
-  import('../data/students.js').then(module => {
-    const updated = module.assignTutor(id, tutorId);
+  try {
+    const updated = assignTutor(id, tutorId);
     res.json({ success: true, data: updated });
+  } catch (err) {
+    console.error('Error in assignTutor:', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
+// ─── GET /api/students/:id/factors ── Factores asignados a un estudiante ─────
+router.get('/:id/factors', (req, res) => {
+  const id = Number(req.params.id);
+  const factorIds = getFactorsForStudent(id);
+  const allFactors = getAllFactors();
+  
+  const studentFactors = allFactors.filter(f => factorIds.includes(f.id));
+
+  res.json({
+    success: true,
+    data: studentFactors,
   });
+});
+
+// ─── POST /api/students/:id/factors ── Actualizar factores de un estudiante ──
+router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), async (req, res) => {
+  const id = Number(req.params.id);
+  const { factorIds } = req.body;
+
+  if (!Array.isArray(factorIds)) {
+    return res.status(400).json({ success: false, message: 'factorIds debe ser un array' });
+  }
+
+  try {
+    const updatedIds = await setFactorsForStudent(id, factorIds);
+    res.json({ success: true, data: updatedIds });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error guardando factores' });
+  }
 });
 
 export default router;

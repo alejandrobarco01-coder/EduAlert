@@ -265,3 +265,98 @@ export async function assignTutorAPI(studentId, tutorId) {
   return json.data;
 }
 
+/**
+ * Fetch a student's assigned factors
+ */
+export async function fetchStudentFactors(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/factors`, { headers });
+  if (!res.ok) throw new Error('Error al obtener factores asignados');
+  const json = await res.json();
+  return json.data;
+}
+
+/**
+ * Save (replace) a student's assigned factors
+ */
+export async function saveStudentFactors(studentId, factorIds) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/factors`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ factorIds }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al guardar factores');
+  return json.data;
+}
+
+// ─── Factors Management API ──────────────────────────────────────────────────
+
+export async function fetchFactors() {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/factors`, { headers });
+  if (!res.ok) throw new Error('Error al obtener factores');
+  return await res.json();
+}
+
+export async function createFactorAPI(factorData) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/factors`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(factorData),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al crear factor');
+  return json;
+}
+
+export async function updateFactorAPI(id, factorData) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/factors/${id}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(factorData),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al actualizar factor');
+  return json;
+}
+
+export async function deleteFactorAPI(id) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = { 'Authorization': `Bearer ${user.token}` };
+
+  const res = await fetch(`${API_BASE}/factors/${id}`, {
+    method: 'DELETE',
+    headers,
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al eliminar factor');
+  return json;
+}
+

@@ -8,10 +8,12 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStudents } from '../hooks/useStudents';
-import { fetchAIRecommendations, fetchTutors, assignTutorAPI } from '../services/api';
+import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors } from '../services/api';
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
+import FactorsManagement from '../components/FactorsManagement';
+import FactorsChecklist from '../components/FactorsChecklist';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
@@ -22,27 +24,43 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   const [activeView, setActiveView] = useState('students');
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);  // Global search & UI
   const [globalSearch, setGlobalSearch] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [tutors, setTutors] = useState([]);
   const [pendingTutorId, setPendingTutorId] = useState(null);
+  const [allFactors, setAllFactors] = useState([]);
+  const [studentFactorsIds, setStudentFactorsIds] = useState([]);
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'coordinator') {
       fetchTutors().then(setTutors).catch(console.error);
     }
+    fetchFactors().then(setAllFactors).catch(console.error);
   }, [user]);
+
+  useEffect(() => {
+    if (selectedStudent) {
+      fetchStudentFactors(selectedStudent.id)
+        .then(factors => setStudentFactorsIds(factors.map(f => f.id)))
+        .catch(console.error);
+    } else {
+      setStudentFactorsIds([]);
+    }
+  }, [selectedStudent]);
 
   const handleAssignTutor = async () => {
     try {
       const tutorToAssign = pendingTutorId !== null ? pendingTutorId : selectedStudent.tutorId;
       await assignTutorAPI(selectedStudent.id, tutorToAssign);
-      closeStudentModal();
+      setSelectedStudent(prev => ({ ...prev, tutorId: tutorToAssign }));
+      setPendingTutorId(null);
       refetch();
+      alert('Tutor asignado con éxito a ' + selectedStudent.name);
     } catch (e) {
       console.error(e);
       alert('Error al asignar el tutor');
@@ -85,6 +103,7 @@ export default function DashboardPage() {
   const navItems = [
     { id: 'students', label: 'Estudiantes', icon: GraduationCap },
     { id: 'analytics', label: 'Analíticas', icon: BarChart2 },
+    ...(['admin', 'coordinator'].includes(user?.role) ? [{ id: 'factors', label: 'Factores', icon: ClipboardCheck }] : []),
     ...(user?.role === 'admin' ? [{ id: 'users', label: 'Usuarios', icon: Shield }] : []),
   ];
 
@@ -172,13 +191,33 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <button id="notifications-btn" className="relative p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors border border-gray-700">
+          <div className="flex items-center gap-2 ml-auto relative">
+            <button 
+              id="notifications-btn" 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors border border-gray-700"
+            >
               <Bell size={18} />
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                 {stats.high}
               </span>
             </button>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="absolute top-12 right-0 w-64 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-50 p-3 animate-fade-in origin-top-right">
+                <p className="text-sm font-bold text-white mb-2">Notificaciones</p>
+                {stats.high > 0 ? (
+                  <div className="p-3 bg-red-900/20 border border-red-900/40 rounded-lg">
+                    <p className="text-xs text-red-200">
+                      Hay <strong>{stats.high} estudiantes</strong> evaluados en riesgo alto que requieren atención inmediata.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 text-center py-2">No hay notificaciones</p>
+                )}
+              </div>
+            )}
           </div>
         </header>
 
@@ -244,7 +283,7 @@ export default function DashboardPage() {
                   <Calendar size={14} className="text-uceva-400" />
                   <span className="text-xs text-gray-400">Último cálculo: </span>
                   <span className="text-xs font-semibold text-white">
-                    {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    {new Date().toLocaleString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </div>
@@ -365,6 +404,7 @@ export default function DashboardPage() {
           )}
 
           {activeView === 'users' && user?.role === 'admin' && <UserManagement />}
+          {activeView === 'factors' && ['admin', 'coordinator'].includes(user?.role) && <FactorsManagement />}
         </main>
       </div>
 
@@ -376,7 +416,7 @@ export default function DashboardPage() {
           id="student-modal-overlay"
         >
           <div
-            className="glass-card w-full max-w-lg animate-slide-up"
+            className="glass-card w-full max-w-lg max-h-[95vh] overflow-y-auto custom-scrollbar animate-slide-up"
             onClick={e => e.stopPropagation()}
             id="student-modal"
           >
@@ -483,6 +523,21 @@ export default function DashboardPage() {
                   <p className="text-sm text-uceva-300">Sin alertas activas — Estudiante estable</p>
                 </div>
               )}
+
+              {/* Checklist de Factores */}
+              <FactorsChecklist 
+                factors={allFactors} 
+                studentFactorIds={studentFactorsIds} 
+                onSave={async (ids) => {
+                  try {
+                    await saveStudentFactors(selectedStudent.id, ids);
+                    setStudentFactorsIds(ids);
+                  } catch (e) {
+                    console.error('Error al guardar factores:', e);
+                    throw e; // Rethrow so the component can revert the UI state
+                  }
+                }} 
+              />
 
               {/* AI Recommendations Section */}
               <div className="mt-6 pt-6 border-t border-gray-800">
