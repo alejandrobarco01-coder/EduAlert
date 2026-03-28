@@ -1,4 +1,5 @@
 // ─── In-memory student database with CACHED risk index calculation ───────────
+import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
 
 const studentsDB = [
   {
@@ -170,6 +171,7 @@ export function calculateRiskIndex(student) {
 }
 
 export function getRiskLevel(riskIndex) {
+  if (riskIndex >= CRITICAL_RISK_THRESHOLD) return 'critical';
   if (riskIndex >= 60) return 'high';
   if (riskIndex >= 35) return 'medium';
   return 'low';
@@ -187,7 +189,8 @@ export function getAllStudents() {
 
   cachedStudents = studentsDB.map(student => {
     const riskIndex = calculateRiskIndex(student);
-    return { ...student, riskIndex, riskLevel: getRiskLevel(riskIndex) };
+    const updatedStudent = { ...student, riskIndex, riskLevel: getRiskLevel(riskIndex) };
+    return applyRules(updatedStudent);
   });
   cacheTimestamp = now;
 
@@ -210,11 +213,6 @@ export function queryStudents({ program, semester, riskLevel, search } = {}) {
   if (semester && semester !== 'Todos') {
     const sem = Number(semester);
     students = students.filter(s => s.semester === sem);
-  }
-
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
-    if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
   if (riskLevel && riskLevel !== 'Todos') {
@@ -311,12 +309,6 @@ export function queryStudentsAdvanced({
   if (semester && semester !== 'Todos') {
     const sem = Number(semester);
     if (!isNaN(sem)) students = students.filter(s => s.semester === sem);
-  }
-
-  // ─── Tutor filter ──────────────────────────────────────────────────────────
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
-    if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
   if (riskLevel && riskLevel !== 'Todos') {
