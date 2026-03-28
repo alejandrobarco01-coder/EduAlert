@@ -9,7 +9,7 @@ export default function LoginPage() {
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
 
-  const [form, setForm] = useState({ email: 'bienestar@uceva.edu.co', password: 'Bienestar@2024' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
 

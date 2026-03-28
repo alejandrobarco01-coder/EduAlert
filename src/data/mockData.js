@@ -94,7 +94,7 @@ export const mockStudents = [
   {
     id: 8,
     name: 'Julián Cardona Mejía',
-    program: 'Bacteriología',
+    program: 'Ingeniería Industrial',
     semester: 4,
     riskIndex: 29,
     riskLevel: 'low',
@@ -176,7 +176,7 @@ export const programs = [
   'Administración de Empresas',
   'Psicología',
   'Contaduría Pública',
-  'Bacteriología',
+  'Ingeniería Industrial',
   'Ingeniería Eléctrica',
 ];
 
