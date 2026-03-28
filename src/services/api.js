@@ -85,6 +85,27 @@ export async function fetchStudentStats() {
   setCache(url, json.data);
   return json.data;
 }
+
+/**
+ * Fetch risk history data — cached
+ */
+export async function fetchRiskHistory(months = 6) {
+  const url = `${API_BASE}/students/risk-history?months=${months}`;
+
+  const cached = getCached(url);
+  if (cached) return cached;
+
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error('Error al obtener historial de riesgo');
+  const json = await res.json();
+
+  setCache(url, json.data);
+  return json.data;
+}
+
 /**
  * Fetch students with advanced combined filters — cached
  * Supports: program, semester, riskLevel, search, gpaMin, gpaMax,

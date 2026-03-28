@@ -8,12 +8,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStudents } from '../hooks/useStudents';
-import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors } from '../services/api';
+import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors, fetchRiskHistory } from '../services/api';
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
 import FactorsManagement from '../components/FactorsManagement';
 import FactorsChecklist from '../components/FactorsChecklist';
+import RiskHistoryChart from '../components/RiskHistoryChart';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
@@ -35,12 +36,20 @@ export default function DashboardPage() {
   const [pendingTutorId, setPendingTutorId] = useState(null);
   const [allFactors, setAllFactors] = useState([]);
   const [studentFactorsIds, setStudentFactorsIds] = useState([]);
+  const [riskHistory, setRiskHistory] = useState([]);
+  const [riskHistoryLoading, setRiskHistoryLoading] = useState(true);
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'coordinator') {
       fetchTutors().then(setTutors).catch(console.error);
     }
     fetchFactors().then(setAllFactors).catch(console.error);
+    // Auto-cargar historial de riesgo al ingresar al módulo
+    setRiskHistoryLoading(true);
+    fetchRiskHistory(6)
+      .then(setRiskHistory)
+      .catch(console.error)
+      .finally(() => setRiskHistoryLoading(false));
   }, [user]);
 
   useEffect(() => {
@@ -267,6 +276,11 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-500 mt-0.5">Riesgo Bajo</p>
               </div>
             </div>
+          </div>
+
+          {/* Gráfica de Historial de Riesgo — visible en todas las vistas */}
+          <div className="mb-6">
+            <RiskHistoryChart data={riskHistory} loading={riskHistoryLoading} />
           </div>
 
           {/* Views */}
