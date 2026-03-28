@@ -1,5 +1,5 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory } from '../data/students.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';
@@ -28,6 +28,17 @@ router.get('/stats', (req, res) => {
   res.json({
     success: true,
     data: stats,
+  });
+});
+
+// ─── GET /api/students/risk-history ── Historial de riesgo ───────────────────
+router.get('/risk-history', (req, res) => {
+  const months = Number(req.query.months) || 6;
+  const history = getRiskHistory(months);
+
+  res.json({
+    success: true,
+    data: history,
   });
 });
 
