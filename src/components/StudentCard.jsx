@@ -19,6 +19,12 @@ const riskConfig = {
     icon: TrendingDown,
     bar: 'bg-red-500',
   },
+  critical: {
+    label: 'Riesgo Crítico',
+    className: 'badge-critical',
+    icon: AlertTriangle,
+    bar: 'bg-red-700 animate-pulse',
+  },
 };
 
 export default function StudentCard({ student, onClick }) {

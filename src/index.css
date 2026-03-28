@@ -67,6 +67,10 @@
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-900/60 text-red-300 border border-red-800/50;
   }
 
+  .badge-critical {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-600/20 text-red-400 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)] animate-pulse;
+  }
+
   .sidebar-item {
     @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-uceva-800/30 transition-all duration-200 cursor-pointer text-sm font-medium;
   }
