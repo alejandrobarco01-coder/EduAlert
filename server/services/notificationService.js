@@ -7,6 +7,7 @@
 import { appendFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { addNotificationEntry } from '../data/notifications.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOG_DIR = join(__dirname, '..', 'logs');
@@ -25,6 +26,14 @@ export async function sendNotification(student, message) {
   try {
     // 1. Simular envío de Correo (Log)
     await appendFile(NOTIF_LOG, emailLog);
+    await addNotificationEntry({
+      studentId: student.id,
+      studentName: student.name,
+      recipient: student.email,
+      type: 'email',
+      status: 'success',
+      message
+    });
     console.log(`✅ Email logged to ${NOTIF_LOG}`);
 
     // 2. Simular/Intentar Webhook (si está configurado)
@@ -43,6 +52,17 @@ export async function sendNotification(student, message) {
           message
         })
       });
+      
+      const status = response.ok ? 'success' : 'failed';
+      await addNotificationEntry({
+        studentId: student.id,
+        studentName: student.name,
+        recipient: webhookUrl,
+        type: 'webhook',
+        status,
+        message
+      });
+
       if (response.ok) {
         console.log('✅ Webhook triggered successfully.');
       } else {
