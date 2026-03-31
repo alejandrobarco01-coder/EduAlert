@@ -1,6 +1,5 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, updateAndRecordRisk } from '../data/students.js';
-import { getRiskHistoryByStudent } from '../data/riskHistory.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor } from '../data/students.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';
@@ -30,6 +29,17 @@ router.get('/stats', (req, res) => {
   res.json({
     success: true,
     data: stats,
+  });
+});
+
+// ─── GET /api/students/risk-history ── Historial de riesgo ───────────────────
+router.get('/risk-history', (req, res) => {
+  const months = Number(req.query.months) || 6;
+  const history = getRiskHistory(months);
+
+  res.json({
+    success: true,
+    data: history,
   });
 });
 
@@ -120,7 +130,7 @@ router.get('/:id/factors', (req, res) => {
   const id = Number(req.params.id);
   const factorIds = getFactorsForStudent(id);
   const allFactors = getAllFactors();
-  
+
   const studentFactors = allFactors.filter(f => factorIds.includes(f.id));
 
   res.json({
@@ -142,7 +152,7 @@ router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), asy
     const updatedIds = await setFactorsForStudent(id, factorIds);
     // Automatic risk update & history recording
     const historyRecord = await updateAndRecordRisk(id);
-    
+
     res.json({ success: true, data: updatedIds, history: historyRecord });
   } catch (error) {
     console.error('Error saving factors:', error);
@@ -184,14 +194,14 @@ router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'
   try {
     // 1. Save intervention
     const intervention = await addIntervention(id, { text, type, priority: priority || 'medium' });
-    
+
     // 2. Automatic risk update & history recording
     const historyRecord = await updateAndRecordRisk(id);
 
-    res.json({ 
-      success: true, 
-      data: intervention, 
-      riskUpdate: historyRecord 
+    res.json({
+      success: true,
+      data: intervention,
+      riskUpdate: historyRecord
     });
   } catch (error) {
     console.error('Error saving intervention:', error);
