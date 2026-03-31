@@ -1,4 +1,8 @@
 // ─── In-memory student database with CACHED risk index calculation ───────────
+import { getFactorsForStudent } from './studentFactors.js';
+import { getAllFactors } from './factors.js';
+import { saveRiskRecord } from './riskHistory.js';
+import { getInterventionsForStudent } from './interventions.js';
 
 const studentsDB = [
   {
@@ -161,12 +165,57 @@ export function calculateRiskIndex(student) {
   const maxAbsences = 25;
   const absenceRisk = Math.min(100, (student.absences / maxAbsences) * 100);
 
-  const maxAlerts = 4;
-  const alertRisk = Math.min(100, (student.alerts.length / maxAlerts) * 100);
+  // ─── Dynamic Factor Risk Calculation ──────────────────────────────────────
+  // Fetch factors assigned via checklist
+  const studentFactorIds = getFactorsForStudent(student.id);
+  const allFactors = getAllFactors();
+  const studentFactors = allFactors.filter(f => studentFactorIds.includes(f.id));
+  
+  // Calculate risk based on sum of weights (Max hypothetical weights set to 20 for scaling)
+  const maxFactorWeightSum = 20; 
+  const factorWeightSum = studentFactors.reduce((sum, f) => sum + (f.weight || 0), 0);
+  
+  // Merge traditional alerts with checklist factors for total impact
+  const totalAlertPoints = Math.max(student.alerts.length, studentFactors.length);
+  const maxAlertPoints = 5;
+  
+  const alertRisk = Math.min(100, (totalAlertPoints / maxAlertPoints) * 100);
+  const factorRiskValue = Math.min(100, (factorWeightSum / maxFactorWeightSum) * 100);
 
+  // ─── Interventions Benefit (Mitigating risk) ──────────────────────────────
+  // Each intervention reduces risk (-5 points each, max -20)
+  const studentInterventions = getInterventionsForStudent(student.id);
+  const interventionBenefit = Math.min(20, studentInterventions.length * 5);
+
+  // Combined score (Weights: GPA 35%, Absences 30%, Factors/Checklist 35%)
   return Math.round(
-    Math.max(0, Math.min(100, gpaRisk * 0.4 + absenceRisk * 0.35 + alertRisk * 0.25))
+    Math.max(0, Math.min(100, (gpaRisk * 0.35 + absenceRisk * 0.30 + factorRiskValue * 0.35) - interventionBenefit))
   );
+}
+
+/**
+ * Triggered when checklist or intervention is modified.
+ * Acceptance criteria: Registers new value in risk_estudiante, maintains history.
+ */
+export async function updateAndRecordRisk(studentId) {
+  const student = getStudentById(Number(studentId));
+  if (!student) return null;
+
+  // Recalculate with latest data
+  const newRiskValue = calculateRiskIndex(student);
+  
+  // Record in history
+  await saveRiskRecord(studentId, newRiskValue);
+  
+  // Invalidate cache
+  cacheTimestamp = 0;
+  statsCacheTimestamp = 0;
+  
+  return {
+    studentId,
+    riskValue: newRiskValue,
+    timestamp: new Date().toISOString()
+  };
 }
 
 export function getRiskLevel(riskIndex) {
@@ -200,7 +249,7 @@ export function getAllStudents() {
 /**
  * Fast filtered query — uses pre-computed search index
  */
-export function queryStudents({ program, semester, riskLevel, search } = {}) {
+export function queryStudents({ program, semester, riskLevel, search, tutorId } = {}) {
   let students = getAllStudents();
 
   if (program && program !== 'Todos') {
@@ -212,8 +261,8 @@ export function queryStudents({ program, semester, riskLevel, search } = {}) {
     students = students.filter(s => s.semester === sem);
   }
 
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
@@ -293,7 +342,7 @@ export function getStats() {
  * Supports: text search, exact matches, range filters, sorting, and pagination.
  */
 export function queryStudentsAdvanced({
-  program, semester, riskLevel, search,
+  program, semester, riskLevel, search, tutorId,
   gpaMin, gpaMax,
   absencesMin, absencesMax,
   riskMin, riskMax,
@@ -314,8 +363,8 @@ export function queryStudentsAdvanced({
   }
 
   // ─── Tutor filter ──────────────────────────────────────────────────────────
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 

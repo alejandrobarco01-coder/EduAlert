@@ -11,9 +11,12 @@ import { useStudents } from '../hooks/useStudents';
 import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors } from '../services/api';
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
+import FiltersPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
 import FactorsManagement from '../components/FactorsManagement';
 import FactorsChecklist from '../components/FactorsChecklist';
+import StudentRiskHistory from '../components/StudentRiskHistory';
+import StudentInterventions from '../components/StudentInterventions';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
@@ -532,13 +535,23 @@ export default function DashboardPage() {
                   try {
                     await saveStudentFactors(selectedStudent.id, ids);
                     setStudentFactorsIds(ids);
+                    refetch(); // Reload background to see updated risk
                   } catch (e) {
                     console.error('Error al guardar factores:', e);
                     throw e; // Rethrow so the component can revert the UI state
                   }
                 }} 
               />
+              
+              {/* Intervenciones */}
+              <StudentInterventions 
+                studentId={selectedStudent.id} 
+                onInterventionAdded={() => refetch()} 
+              />
 
+              {/* Histórico Evolutivo del Riesgo (Gráfica) */}
+              <StudentRiskHistory studentId={selectedStudent.id} />
+              
               {/* AI Recommendations Section */}
               <div className="mt-6 pt-6 border-t border-gray-800">
                 {!recommendations.length && !analyzing && (
