@@ -381,3 +381,43 @@ export async function deleteFactorAPI(id) {
   return json;
 }
 
+// ─── Interventions & Risk History API ───────────────────────────────────────
+
+export async function fetchRiskHistory(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/history`, { headers });
+  if (!res.ok) throw new Error('Error al obtener historial de riesgos');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchInterventions(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/interventions`, { headers });
+  if (!res.ok) throw new Error('Error al obtener intervenciones');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function saveIntervention(studentId, data) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/interventions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al guardar intervención');
+  return json;
+}
+
