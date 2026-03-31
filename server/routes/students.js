@@ -1,5 +1,6 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, updateAndRecordRisk, getRiskHistory } from '../data/students.js';
+import { getRiskHistoryByStudent } from '../data/riskHistory.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';

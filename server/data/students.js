@@ -1,4 +1,8 @@
-// ─── In-memory student database with CACHED risk index calculation ───────────
+import { getFactorsForStudent } from './studentFactors.js';
+import { getAllFactors } from './factors.js';
+import { saveRiskRecord } from './riskHistory.js';
+import { getInterventionsForStudent } from './interventions.js';
+import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
 
 const studentsDB = [
   {
@@ -259,8 +263,8 @@ export function queryStudents({ program, semester, riskLevel, search, tutorId } 
     students = students.filter(s => s.semester === sem);
   }
 
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
@@ -361,8 +365,8 @@ export function queryStudentsAdvanced({
   }
 
   // ─── Tutor filter ──────────────────────────────────────────────────────────
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 

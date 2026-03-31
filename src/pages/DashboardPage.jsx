@@ -15,6 +15,9 @@ import FiltersPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
 import FactorsManagement from '../components/FactorsManagement';
 import FactorsChecklist from '../components/FactorsChecklist';
+import StudentRiskHistory from '../components/StudentRiskHistory';
+import StudentInterventions from '../components/StudentInterventions';
+import RiskHistoryChart from '../components/RiskHistoryChart';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
