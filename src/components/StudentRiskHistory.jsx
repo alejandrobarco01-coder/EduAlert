@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine
 } from 'recharts';
-import { fetchRiskHistory } from '../services/api';
+import { fetchStudentRiskHistory } from '../services/api';
 import { Loader2 } from 'lucide-react';
 
 export default function StudentRiskHistory({ studentId }) {
@@ -20,7 +20,7 @@ export default function StudentRiskHistory({ studentId }) {
     if (!studentId) return;
     
     setLoading(true);
-    fetchRiskHistory(studentId)
+    fetchStudentRiskHistory(studentId)
       .then(history => {
         // Reverse array because DB returns newest first, but chart should show oldest to newest (left to right)
         const sorted = [...history].reverse();

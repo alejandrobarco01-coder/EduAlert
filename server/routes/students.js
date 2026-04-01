@@ -193,8 +193,9 @@ router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'
   }
 
   try {
-    // 1. Save intervention
-    const intervention = await addIntervention(id, { text, type, priority: priority || 'medium' });
+    // 1. Save intervention (including tutor relation from token)
+    const tutorId = req.user.id;
+    const intervention = await addIntervention(id, tutorId, { text, type, priority: priority || 'medium' });
 
     // 2. Automatic risk update & history recording
     const historyRecord = await updateAndRecordRisk(id);

@@ -6,15 +6,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = join(__dirname, 'studentInterventions.json');
 
 // ─── In-memory database for interventions ────────────────────────────────────
-let interventionsDB = {}; // studentId -> Array of interventions
+let interventionsDB = []; // Array of intervention objects
 
 // ─── Initial Load ────────────────────────────────────────────────────────────
 try {
   const data = await readFile(DB_PATH, 'utf-8');
   interventionsDB = JSON.parse(data);
+  if (!Array.isArray(interventionsDB)) {
+    console.log('  ⚠️ studentInterventions.json no es un array, reseteando.');
+    interventionsDB = [];
+  }
 } catch (err) {
-  console.log('  ℹ️ No existe studentInterventions.json, inicializando vacío.');
-  interventionsDB = {};
+  console.log('  ℹ️ No existe studentInterventions.json o está vacío, inicializando como array.');
+  interventionsDB = [];
 }
 
 /**
@@ -30,27 +34,28 @@ async function syncToDisk() {
 
 /**
  * Get all interventions for a student
+ * Acceptance Criteria: Relates via studentId field.
  */
 export function getInterventionsForStudent(studentId) {
-  return interventionsDB[String(studentId)] || [];
+  const sId = Number(studentId);
+  return interventionsDB.filter(i => i.studentId === sId);
 }
 
 /**
  * Add an intervention
- * Acceptance Criteria: Modifying interventions triggers risk recalculation (handled by route/service)
+ * Acceptance Criteria: Includes relation with student and tutor.
  */
-export async function addIntervention(studentId, interventionData) {
-  const sId = String(studentId);
-  if (!interventionsDB[sId]) interventionsDB[sId] = [];
-
+export async function addIntervention(studentId, tutorId, interventionData) {
   const newIntervention = {
     id: Date.now(),
+    studentId: Number(studentId),
+    tutorId: Number(tutorId),
     date: new Date().toISOString(),
     ...interventionData, // { text, type, priority }
     status: 'completed'
   };
 
-  interventionsDB[sId].push(newIntervention);
+  interventionsDB.push(newIntervention);
   await syncToDisk();
   
   return newIntervention;

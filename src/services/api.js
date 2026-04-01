@@ -383,7 +383,7 @@ export async function deleteFactorAPI(id) {
 
 // ─── Interventions & Risk History API ───────────────────────────────────────
 
-export async function fetchRiskHistory(studentId) {
+export async function fetchStudentRiskHistory(studentId) {
   const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
   const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
 
