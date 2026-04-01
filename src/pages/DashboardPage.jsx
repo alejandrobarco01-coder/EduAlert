@@ -41,6 +41,7 @@ export default function DashboardPage() {
   const [studentFactorsIds, setStudentFactorsIds] = useState([]);
   const [riskHistory, setRiskHistory] = useState([]);
   const [riskHistoryLoading, setRiskHistoryLoading] = useState(true);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0); // Increments to trigger re-fetch of student risk history
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'coordinator') {
@@ -547,8 +548,18 @@ export default function DashboardPage() {
                 studentFactorIds={studentFactorsIds}
                 onSave={async (ids) => {
                   try {
-                    await saveStudentFactors(selectedStudent.id, ids);
+                    const response = await saveStudentFactors(selectedStudent.id, ids);
                     setStudentFactorsIds(ids);
+                    // Update risk in modal immediately if API returned riskUpdate
+                    if (response?.riskUpdate) {
+                      setSelectedStudent(prev => ({
+                        ...prev,
+                        riskIndex: response.riskUpdate.riskValue,
+                        riskLevel: response.riskUpdate.riskLevel,
+                      }));
+                    }
+                    // Trigger risk history chart refresh
+                    setHistoryRefreshKey(k => k + 1);
                     refetch(); // Reload background to see updated risk
                   } catch (e) {
                     console.error('Error al guardar factores:', e);
@@ -560,11 +571,24 @@ export default function DashboardPage() {
               {/* Intervenciones */}
               <StudentInterventions
                 studentId={selectedStudent.id}
-                onInterventionAdded={() => refetch()}
+                onInterventionAdded={(riskUpdate) => {
+                  // Immediately update the selected student's risk in the modal
+                  if (riskUpdate) {
+                    setSelectedStudent(prev => ({
+                      ...prev,
+                      riskIndex: riskUpdate.riskValue,
+                      riskLevel: riskUpdate.riskLevel,
+                    }));
+                  }
+                  // Trigger risk history chart refresh
+                  setHistoryRefreshKey(k => k + 1);
+                  // Refetch background data (student list, stats)
+                  refetch();
+                }}
               />
 
               {/* Histórico Evolutivo del Riesgo (Gráfica) */}
-              <StudentRiskHistory studentId={selectedStudent.id} />
+              <StudentRiskHistory studentId={selectedStudent.id} refreshTrigger={historyRefreshKey} />
 
               {/* AI Recommendations Section */}
               <div className="mt-6 pt-6 border-t border-gray-800">

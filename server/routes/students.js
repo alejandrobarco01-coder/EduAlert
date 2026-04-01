@@ -151,10 +151,10 @@ router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), asy
 
   try {
     const updatedIds = await setFactorsForStudent(id, factorIds);
-    // Automatic risk update & history recording
-    const historyRecord = await updateAndRecordRisk(id);
+    // Automatic risk update & history recording (triggered by checklist change)
+    const historyRecord = await updateAndRecordRisk(id, 'checklist');
 
-    res.json({ success: true, data: updatedIds, history: historyRecord });
+    res.json({ success: true, data: updatedIds, riskUpdate: historyRecord });
   } catch (error) {
     console.error('Error saving factors:', error);
     res.status(500).json({ success: false, message: 'Error guardando factores' });
@@ -197,13 +197,15 @@ router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'
     const tutorId = req.user.id;
     const intervention = await addIntervention(id, tutorId, { text, type, priority: priority || 'medium' });
 
-    // 2. Automatic risk update & history recording
-    const historyRecord = await updateAndRecordRisk(id);
+    // 2. Automatic risk update & history recording (triggered by intervention)
+    const riskUpdate = await updateAndRecordRisk(id, 'intervention');
+
+    console.log(`[INTERVENTION → RISK] Student ${id}: ${riskUpdate?.previousRiskValue}% → ${riskUpdate?.riskValue}% (Δ${riskUpdate?.delta})`);
 
     res.json({
       success: true,
       data: intervention,
-      riskUpdate: historyRecord
+      riskUpdate
     });
   } catch (error) {
     console.error('Error saving intervention:', error);

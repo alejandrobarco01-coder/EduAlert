@@ -301,6 +301,7 @@ export async function fetchStudentFactors(studentId) {
 
 /**
  * Save (replace) a student's assigned factors
+ * Returns full response including { data, riskUpdate } for immediate UI update
  */
 export async function saveStudentFactors(studentId, factorIds) {
   const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
@@ -317,7 +318,12 @@ export async function saveStudentFactors(studentId, factorIds) {
 
   const json = await res.json();
   if (!res.ok) throw new Error('Error al guardar factores');
-  return json.data;
+
+  // Invalidate student caches so next fetch returns updated risk values
+  invalidateStudentCaches(studentId);
+
+  // Return full response so caller can read riskUpdate
+  return json;
 }
 
 // ─── Factors Management API ──────────────────────────────────────────────────
@@ -418,6 +424,26 @@ export async function saveIntervention(studentId, data) {
 
   const json = await res.json();
   if (!res.ok) throw new Error('Error al guardar intervención');
+
+  // Invalidate all student-related caches so subsequent
+  // fetches return updated risk values
+  invalidateStudentCaches(studentId);
+
   return json;
+}
+
+/**
+ * Invalidate all cached entries related to a specific student
+ * or general student listings (forces fresh data on next fetch)
+ */
+function invalidateStudentCaches(studentId) {
+  for (const key of cache.keys()) {
+    if (
+      key.includes('/students') ||
+      key.includes(`/students/${studentId}`)
+    ) {
+      cache.delete(key);
+    }
+  }
 }
 
