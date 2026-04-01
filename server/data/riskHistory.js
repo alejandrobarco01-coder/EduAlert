@@ -31,13 +31,20 @@ async function syncToDisk() {
 /**
  * Add a new record to risk_estudiante
  * Acceptance Criteria: Includes date and updated value, no overwriting, full history.
+ * @param {number|string} studentId
+ * @param {number} riskValue - the recalculated risk value
+ * @param {Object} metadata - optional metadata (triggerSource, previousRiskValue, riskLevel, delta)
  */
-export async function saveRiskRecord(studentId, riskValue) {
+export async function saveRiskRecord(studentId, riskValue, metadata = {}) {
   const newRecord = {
     id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
     studentId: Number(studentId),
     riskValue: Number(riskValue),
     timestamp: new Date().toISOString(),
+    triggerSource: metadata.triggerSource || 'unknown',
+    previousRiskValue: metadata.previousRiskValue ?? null,
+    riskLevel: metadata.riskLevel || null,
+    delta: metadata.delta ?? null,
   };
 
   riskHistoryDB.push(newRecord);

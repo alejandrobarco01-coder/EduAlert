@@ -12,7 +12,7 @@ import {
 import { fetchStudentRiskHistory } from '../services/api';
 import { Loader2 } from 'lucide-react';
 
-export default function StudentRiskHistory({ studentId }) {
+export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +37,7 @@ export default function StudentRiskHistory({ studentId }) {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [studentId]);
+  }, [studentId, refreshTrigger]);
 
   if (loading) {
     return (

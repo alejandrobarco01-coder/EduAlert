@@ -183,38 +183,61 @@ export function calculateRiskIndex(student) {
   const factorRiskValue = Math.min(100, (factorWeightSum / maxFactorWeightSum) * 100);
 
   // ─── Interventions Benefit (Mitigating risk) ──────────────────────────────
-  // Each intervention reduces risk (-5 points each, max -20)
+  // Each intervention reduces risk based on its priority:
+  //   high → -8 pts, medium → -5 pts, low → -3 pts
+  // Max benefit capped at -25 to prevent gaming
   const studentInterventions = getInterventionsForStudent(student.id);
-  const interventionBenefit = Math.min(20, studentInterventions.length * 5);
+  const PRIORITY_WEIGHT = { high: 8, medium: 5, low: 3 };
+  const interventionBenefit = Math.min(
+    25,
+    studentInterventions.reduce((sum, inv) => sum + (PRIORITY_WEIGHT[inv.priority] || 5), 0)
+  );
 
   // Combined score (Weights: GPA 35%, Absences 30%, Factors/Checklist 35%)
+  // Intervention benefit is subtracted as risk mitigation
+  const rawRisk = gpaRisk * 0.35 + absenceRisk * 0.30 + factorRiskValue * 0.35;
   return Math.round(
-    Math.max(0, Math.min(100, (gpaRisk * 0.35 + absenceRisk * 0.30 + factorRiskValue * 0.35) - interventionBenefit))
+    Math.max(0, Math.min(100, rawRisk - interventionBenefit))
   );
 }
 
 /**
  * Triggered when checklist or intervention is modified.
  * Acceptance criteria: Registers new value in risk_estudiante, maintains history.
+ * @param {number|string} studentId
+ * @param {'checklist'|'intervention'} triggerSource - what triggered the recalculation
  */
-export async function updateAndRecordRisk(studentId) {
+export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') {
   const student = getStudentById(Number(studentId));
   if (!student) return null;
 
-  // Recalculate with latest data
-  const newRiskValue = calculateRiskIndex(student);
+  // Capture the PREVIOUS risk value before recalculation
+  const previousRiskValue = student.riskIndex;
 
-  // Record in history
-  await saveRiskRecord(studentId, newRiskValue);
-
-  // Invalidate cache
+  // Invalidate cache FIRST so recalculation uses fresh data
   cacheTimestamp = 0;
   statsCacheTimestamp = 0;
+
+  // Recalculate with latest data (interventions + factors)
+  const newRiskValue = calculateRiskIndex(student);
+  const newRiskLevel = getRiskLevel(newRiskValue);
+
+  // Record in history with trigger metadata
+  const historyRecord = await saveRiskRecord(studentId, newRiskValue, {
+    triggerSource,
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+  });
 
   return {
     studentId,
     riskValue: newRiskValue,
-    timestamp: new Date().toISOString()
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+    triggerSource,
+    timestamp: historyRecord.timestamp,
   };
 }
 
