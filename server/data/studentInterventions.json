@@ -1,0 +1,32 @@
+{
+  "999": [
+    {
+      "id": 1775069949807,
+      "date": "2026-04-01T18:59:09.808Z",
+      "text": "Tutoría académica",
+      "type": "académica",
+      "status": "completed"
+    },
+    {
+      "id": 1775069949841,
+      "date": "2026-04-01T18:59:09.841Z",
+      "text": "Apoyo psicológico",
+      "type": "bienestar",
+      "status": "completed"
+    },
+    {
+      "id": 1775069949841,
+      "date": "2026-04-01T18:59:09.841Z",
+      "text": "Acuerdo financiero",
+      "type": "socioeconómico",
+      "status": "completed"
+    },
+    {
+      "id": 1775069949841,
+      "date": "2026-04-01T18:59:09.841Z",
+      "text": "Seguimiento familiar",
+      "type": "familiar",
+      "status": "completed"
+    }
+  ]
+}
