@@ -4,7 +4,7 @@ import {
   BookOpen, Users, AlertTriangle, TrendingUp, LogOut, Bell,
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
-  PhoneCall, Handshake, Award, ClipboardCheck
+  PhoneCall, Handshake, Award, ClipboardCheck, Sliders
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStudents } from '../hooks/useStudents';
@@ -18,6 +18,7 @@ import FactorsChecklist from '../components/FactorsChecklist';
 import StudentRiskHistory from '../components/StudentRiskHistory';
 import StudentInterventions from '../components/StudentInterventions';
 import RiskHistoryChart from '../components/RiskHistoryChart';
+import RiskRulesManagement from '../components/RiskRulesManagement';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
@@ -117,6 +118,7 @@ export default function DashboardPage() {
     { id: 'students', label: 'Estudiantes', icon: GraduationCap },
     { id: 'analytics', label: 'Analíticas', icon: BarChart2 },
     ...(['admin', 'coordinator'].includes(user?.role) ? [{ id: 'factors', label: 'Factores', icon: ClipboardCheck }] : []),
+    ...(['admin', 'coordinator'].includes(user?.role) ? [{ id: 'rules', label: 'Reglas de Riesgo', icon: Sliders }] : []),
     ...(user?.role === 'admin' ? [{ id: 'users', label: 'Usuarios', icon: Shield }] : []),
   ];
 
@@ -423,6 +425,7 @@ export default function DashboardPage() {
 
           {activeView === 'users' && user?.role === 'admin' && <UserManagement />}
           {activeView === 'factors' && ['admin', 'coordinator'].includes(user?.role) && <FactorsManagement />}
+          {activeView === 'rules' && ['admin', 'coordinator'].includes(user?.role) && <RiskRulesManagement />}
         </main>
       </div>
 

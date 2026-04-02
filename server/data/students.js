@@ -3,6 +3,7 @@ import { getAllFactors } from './factors.js';
 import { saveRiskRecord } from './riskHistory.js';
 import { getInterventionsForStudent } from './interventions.js';
 import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
+import { getRiskRules } from './riskRules.js';
 
 const studentsDB = [
   {
@@ -159,46 +160,50 @@ let cacheTimestamp = 0;
 const CACHE_TTL = 30_000; // 30 seconds in ms
 
 export function calculateRiskIndex(student) {
+  const rules = getRiskRules();
+  
   const maxGPA = 5.0;
-  const gpaRisk = ((maxGPA - student.gpa) / maxGPA) * 100;
+  const gpaScore = Math.min(100, Math.max(0, ((maxGPA - Number(student.gpa || 0)) / maxGPA) * 100));
 
   const maxAbsences = 25;
-  const absenceRisk = Math.min(100, (student.absences / maxAbsences) * 100);
+  const absenceScore = Math.min(100, (Number(student.absences || 0) / maxAbsences) * 100);
 
-  // ─── Dynamic Factor Risk Calculation ──────────────────────────────────────
-  // Fetch factors assigned via checklist
-  const studentFactorIds = getFactorsForStudent(student.id);
-  const allFactors = getAllFactors();
-  const studentFactors = allFactors.filter(f => studentFactorIds.includes(f.id));
+  // Factors Checklist Calculation
+  const assignedFactorIds = getFactorsForStudent(student.id) || [];
+  const allFactors = getAllFactors() || [];
+  let totalFactorWeight = 0;
+  
+  assignedFactorIds.forEach(fid => {
+    const factor = allFactors.find(f => f.id === Number(fid));
+    if (factor && factor.weight) {
+      totalFactorWeight += Number(factor.weight);
+    }
+  });
 
-  // Calculate risk based on sum of weights (Max hypothetical weights set to 20 for scaling)
-  const maxFactorWeightSum = 20;
-  const factorWeightSum = studentFactors.reduce((sum, f) => sum + (f.weight || 0), 0);
+  const maxFactorsWeight = rules.maxFactorsTotalWeight || 20;
+  const checklistScore = Math.min(100, (totalFactorWeight / maxFactorsWeight) * 100);
 
-  // Merge traditional alerts with checklist factors for total impact
-  const totalAlertPoints = Math.max(student.alerts.length, studentFactors.length);
-  const maxAlertPoints = 5;
+  // Interventions Calculation
+  const alertsCount = student.alerts ? student.alerts.length : 0;
+  const maxInterventions = rules.maxInterventionsCount || 4;
+  const alertScore = Math.min(100, (alertsCount / maxInterventions) * 100);
 
-  const alertRisk = Math.min(100, (totalAlertPoints / maxAlertPoints) * 100);
-  const factorRiskValue = Math.min(100, (factorWeightSum / maxFactorWeightSum) * 100);
-
-  // ─── Interventions Benefit (Mitigating risk) ──────────────────────────────
-  // Each intervention reduces risk based on its priority:
-  //   high → -8 pts, medium → -5 pts, low → -3 pts
-  // Max benefit capped at -25 to prevent gaming
-  const studentInterventions = getInterventionsForStudent(student.id);
+  // ─── Interventions Benefit (Risk mitigation) ──────────────────────────────
+  const studentInterventions = getInterventionsForStudent(student.id) || [];
   const PRIORITY_WEIGHT = { high: 8, medium: 5, low: 3 };
   const interventionBenefit = Math.min(
     25,
     studentInterventions.reduce((sum, inv) => sum + (PRIORITY_WEIGHT[inv.priority] || 5), 0)
   );
 
-  // Combined score (Weights: GPA 35%, Absences 30%, Factors/Checklist 35%)
-  // Intervention benefit is subtracted as risk mitigation
-  const rawRisk = gpaRisk * 0.35 + absenceRisk * 0.30 + factorRiskValue * 0.35;
-  return Math.round(
-    Math.max(0, Math.min(100, rawRisk - interventionBenefit))
-  );
+  const riskIndexRaw = 
+      (gpaScore * (rules.gpaWeight / 100)) + 
+      (absenceScore * (rules.absencesWeight / 100)) + 
+      (checklistScore * (rules.factorsWeight / 100)) + 
+      (alertScore * (rules.interventionsWeight / 100)) - 
+      interventionBenefit;
+
+  return Math.round(Math.max(0, Math.min(100, riskIndexRaw)));
 }
 
 /**
@@ -208,7 +213,7 @@ export function calculateRiskIndex(student) {
  * @param {'checklist'|'intervention'} triggerSource - what triggered the recalculation
  */
 export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') {
-  const student = getStudentById(Number(studentId));
+  const student = studentsDB.find(s => s.id === Number(studentId));
   if (!student) return null;
 
   // Capture the PREVIOUS risk value before recalculation
@@ -216,7 +221,6 @@ export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') 
 
   // Invalidate cache FIRST so recalculation uses fresh data
   cacheTimestamp = 0;
-  statsCacheTimestamp = 0;
 
   // Recalculate with latest data (interventions + factors)
   const newRiskValue = calculateRiskIndex(student);
