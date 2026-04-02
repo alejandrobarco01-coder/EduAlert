@@ -58,12 +58,35 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const val = payload[0].value;
+      const record = payload[0].payload;
+      const val = record.riskValue;
       const colorClass = val >= 60 ? 'text-red-400' : val >= 35 ? 'text-orange-400' : 'text-uceva-400';
+      const triggerLabel = record.trigger_source || record.triggerSource || 'Manual';
+      const factors = record.factores_detectados || [];
+
       return (
-        <div className="bg-gray-900 border border-gray-700 p-3 rounded-lg shadow-xl">
-          <p className="text-gray-300 text-xs mb-1">{label}</p>
-          <p className={`font-bold ${colorClass}`}>Riesgo: {val}%</p>
+        <div className="bg-gray-900/95 border border-gray-700/50 p-3 rounded-lg shadow-2xl backdrop-blur-md max-w-[220px]">
+          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 font-semibold">{label}</p>
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <span className={`font-bold text-lg ${colorClass}`}>{val}%</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700 capitalize">
+              {triggerLabel}
+            </span>
+          </div>
+          
+          {factors.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-800">
+              <p className="text-gray-500 text-[9px] mb-1 font-medium italic">Factores detectados:</p>
+              <ul className="space-y-0.5">
+                {factors.map((f, i) => (
+                  <li key={i} className="text-gray-300 text-[10px] flex items-start gap-1">
+                    <span className="mt-1 w-1 h-1 rounded-full bg-uceva-500 flex-shrink-0" />
+                    <span className="leading-tight">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       );
     }

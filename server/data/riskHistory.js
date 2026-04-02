@@ -1,79 +1,57 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, 'riskHistory.json');
-
-// ─── In-memory database for risk history ─────────────────────────────────────
-let riskHistoryDB = [];
-
-// ─── Initial Load ────────────────────────────────────────────────────────────
-try {
-  const data = await readFile(DB_PATH, 'utf-8');
-  riskHistoryDB = JSON.parse(data);
-} catch (err) {
-  console.log('  ℹ️ No existe riskHistory.json, inicializando vacío.');
-  riskHistoryDB = [];
-}
+import { 
+  createRiesgoEstudiante, 
+  getRiesgoByUsuarioId, 
+  getLatestRiesgoPerUsuario,
+  getAllRiesgoEstudiante
+} from './riesgoEstudiante.js';
 
 /**
- * Persist to disk
- */
-async function syncToDisk() {
-  try {
-    await writeFile(DB_PATH, JSON.stringify(riskHistoryDB, null, 2));
-  } catch (err) {
-    console.error('  ❌ Error persistiendo historial de riesgos:', err);
-  }
-}
-
-/**
- * Add a new record to risk_estudiante
- * Acceptance Criteria: Includes date and updated value, no overwriting, full history.
- * @param {number|string} studentId
- * @param {number} riskValue - the recalculated risk value
- * @param {Object} metadata - optional metadata (triggerSource, previousRiskValue, riskLevel, delta)
+ * Wrapper for backward compatibility. 
+ * Maps studentId -> usuario_id and riskValue -> valor_riesgo.
  */
 export async function saveRiskRecord(studentId, riskValue, metadata = {}) {
-  const newRecord = {
-    id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
-    studentId: Number(studentId),
-    riskValue: Number(riskValue),
-    timestamp: new Date().toISOString(),
-    triggerSource: metadata.triggerSource || 'unknown',
-    previousRiskValue: metadata.previousRiskValue ?? null,
-    riskLevel: metadata.riskLevel || null,
-    delta: metadata.delta ?? null,
-  };
-
-  riskHistoryDB.push(newRecord);
-  await syncToDisk();
-  
-  return newRecord;
+  // Mapping the old field names to the new ones required by the user
+  return await createRiesgoEstudiante({
+    usuario_id: studentId,
+    valor_riesgo: riskValue,
+    factores_detectados: metadata.factores_detectados || [], // Now supported
+    trigger_source: metadata.triggerSource,
+    valor_riesgo_anterior: metadata.previousRiskValue,
+    nivel_riesgo: metadata.riskLevel,
+    delta: metadata.delta
+  });
 }
 
 /**
- * Get full history for a student
+ * Wrapper for backward compatibility
  */
 export function getRiskHistoryByStudent(studentId) {
-  return riskHistoryDB
-    .filter(record => record.studentId === Number(studentId))
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const records = getRiesgoByUsuarioId(studentId);
+  return records.map(r => ({
+    ...r,
+    studentId: r.usuario_id,
+    timestamp: r.fecha_calculo,
+    riskValue: r.valor_riesgo,
+    triggerSource: r.trigger_source,
+    previousRiskValue: r.valor_riesgo_anterior,
+    riskLevel: r.nivel_riesgo
+  }));
 }
 
 /**
- * Get the latest record for each student
+ * Wrapper for backward compatibility
  */
 export function getLatestRiskRecords() {
-  const latest = {};
-  // Sort by timestamp desc to ensure we pick the first one (most recent) for each student
-  const sorted = [...riskHistoryDB].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const latest = getLatestRiesgoPerUsuario();
+  const legacyLatest = {};
   
-  for (const record of sorted) {
-    if (!latest[record.studentId]) {
-      latest[record.studentId] = record;
-    }
+  for (const [sId, record] of Object.entries(latest)) {
+    legacyLatest[sId] = {
+      ...record,
+      studentId: record.usuario_id,
+      timestamp: record.fecha_calculo,
+      riskValue: record.valor_riesgo
+    };
   }
-  return latest;
+  return legacyLatest;
 }
