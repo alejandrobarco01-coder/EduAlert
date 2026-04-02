@@ -1,8 +1,10 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, updateAndRecordRisk, getRiskHistory } from '../data/students.js';
+import { getRiskHistoryByStudent } from '../data/riskHistory.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';
+import { addIntervention, getInterventionsForStudent } from '../data/interventions.js';
 
 const router = express.Router();
 
@@ -129,7 +131,7 @@ router.get('/:id/factors', (req, res) => {
   const id = Number(req.params.id);
   const factorIds = getFactorsForStudent(id);
   const allFactors = getAllFactors();
-  
+
   const studentFactors = allFactors.filter(f => factorIds.includes(f.id));
 
   res.json({
@@ -149,9 +151,65 @@ router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), asy
 
   try {
     const updatedIds = await setFactorsForStudent(id, factorIds);
-    res.json({ success: true, data: updatedIds });
+    // Automatic risk update & history recording (triggered by checklist change)
+    const historyRecord = await updateAndRecordRisk(id, 'checklist');
+
+    res.json({ success: true, data: updatedIds, riskUpdate: historyRecord });
   } catch (error) {
+    console.error('Error saving factors:', error);
     res.status(500).json({ success: false, message: 'Error guardando factores' });
+  }
+});
+
+// ─── GET /api/students/:id/history ── Historial de riesgos (riesgo_estudiante) ─
+router.get('/:id/history', (req, res) => {
+  const id = Number(req.params.id);
+  const history = getRiskHistoryByStudent(id);
+
+  res.json({
+    success: true,
+    data: history,
+  });
+});
+
+// ─── GET /api/students/:id/interventions ── Listar intervenciones de un estudiante 
+router.get('/:id/interventions', (req, res) => {
+  const id = Number(req.params.id);
+  const interventions = getInterventionsForStudent(id);
+
+  res.json({
+    success: true,
+    data: interventions,
+  });
+});
+
+// ─── POST /api/students/:id/interventions ── Registrar una nueva intervención ─
+router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'), async (req, res) => {
+  const id = Number(req.params.id);
+  const { text, type, priority } = req.body;
+
+  if (!text) {
+    return res.status(400).json({ success: false, message: 'La descripción de la intervención es obligatoria' });
+  }
+
+  try {
+    // 1. Save intervention (including tutor relation from token)
+    const tutorId = req.user.id;
+    const intervention = await addIntervention(id, tutorId, { text, type, priority: priority || 'medium' });
+
+    // 2. Automatic risk update & history recording (triggered by intervention)
+    const riskUpdate = await updateAndRecordRisk(id, 'intervention');
+
+    console.log(`[INTERVENTION → RISK] Student ${id}: ${riskUpdate?.previousRiskValue}% → ${riskUpdate?.riskValue}% (Δ${riskUpdate?.delta})`);
+
+    res.json({
+      success: true,
+      data: intervention,
+      riskUpdate
+    });
+  } catch (error) {
+    console.error('Error saving intervention:', error);
+    res.status(500).json({ success: false, message: 'Error al registrar intervención' });
   }
 });
 

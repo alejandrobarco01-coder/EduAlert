@@ -1,8 +1,9 @@
-// ─── In-memory student database with CACHED risk index calculation ───────────
-import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
-import { getRiskRules } from './riskRules.js';
 import { getFactorsForStudent } from './studentFactors.js';
 import { getAllFactors } from './factors.js';
+import { saveRiskRecord } from './riskHistory.js';
+import { getInterventionsForStudent } from './interventions.js';
+import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
+import { getRiskRules } from './riskRules.js';
 
 const studentsDB = [
   {
@@ -187,13 +188,61 @@ export function calculateRiskIndex(student) {
   const maxInterventions = rules.maxInterventionsCount || 4;
   const alertScore = Math.min(100, (alertsCount / maxInterventions) * 100);
 
+  // ─── Interventions Benefit (Risk mitigation) ──────────────────────────────
+  const studentInterventions = getInterventionsForStudent(student.id) || [];
+  const PRIORITY_WEIGHT = { high: 8, medium: 5, low: 3 };
+  const interventionBenefit = Math.min(
+    25,
+    studentInterventions.reduce((sum, inv) => sum + (PRIORITY_WEIGHT[inv.priority] || 5), 0)
+  );
+
   const riskIndexRaw = 
       (gpaScore * (rules.gpaWeight / 100)) + 
       (absenceScore * (rules.absencesWeight / 100)) + 
       (checklistScore * (rules.factorsWeight / 100)) + 
-      (alertScore * (rules.interventionsWeight / 100));
+      (alertScore * (rules.interventionsWeight / 100)) - 
+      interventionBenefit;
 
   return Math.round(Math.max(0, Math.min(100, riskIndexRaw)));
+}
+
+/**
+ * Triggered when checklist or intervention is modified.
+ * Acceptance criteria: Registers new value in risk_estudiante, maintains history.
+ * @param {number|string} studentId
+ * @param {'checklist'|'intervention'} triggerSource - what triggered the recalculation
+ */
+export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') {
+  const student = studentsDB.find(s => s.id === Number(studentId));
+  if (!student) return null;
+
+  // Capture the PREVIOUS risk value before recalculation
+  const previousRiskValue = student.riskIndex;
+
+  // Invalidate cache FIRST so recalculation uses fresh data
+  cacheTimestamp = 0;
+
+  // Recalculate with latest data (interventions + factors)
+  const newRiskValue = calculateRiskIndex(student);
+  const newRiskLevel = getRiskLevel(newRiskValue);
+
+  // Record in history with trigger metadata
+  const historyRecord = await saveRiskRecord(studentId, newRiskValue, {
+    triggerSource,
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+  });
+
+  return {
+    studentId,
+    riskValue: newRiskValue,
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+    triggerSource,
+    timestamp: historyRecord.timestamp,
+  };
 }
 
 export function getRiskLevel(riskIndex) {
@@ -229,7 +278,7 @@ export function getAllStudents() {
 /**
  * Fast filtered query — uses pre-computed search index
  */
-export function queryStudents({ program, semester, riskLevel, search } = {}) {
+export function queryStudents({ program, semester, riskLevel, search, tutorId } = {}) {
   let students = getAllStudents();
 
   if (program && program !== 'Todos') {
@@ -239,6 +288,11 @@ export function queryStudents({ program, semester, riskLevel, search } = {}) {
   if (semester && semester !== 'Todos') {
     const sem = Number(semester);
     students = students.filter(s => s.semester === sem);
+  }
+
+  if (tutorId) {
+    const tId = Number(tutorId);
+    if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
   if (riskLevel && riskLevel !== 'Todos') {
@@ -317,7 +371,7 @@ export function getStats() {
  * Supports: text search, exact matches, range filters, sorting, and pagination.
  */
 export function queryStudentsAdvanced({
-  program, semester, riskLevel, search,
+  program, semester, riskLevel, search, tutorId,
   gpaMin, gpaMax,
   absencesMin, absencesMax,
   riskMin, riskMax,
@@ -335,6 +389,12 @@ export function queryStudentsAdvanced({
   if (semester && semester !== 'Todos') {
     const sem = Number(semester);
     if (!isNaN(sem)) students = students.filter(s => s.semester === sem);
+  }
+
+  // ─── Tutor filter ──────────────────────────────────────────────────────────
+  if (tutorId) {
+    const tId = Number(tutorId);
+    if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
   if (riskLevel && riskLevel !== 'Todos') {
@@ -530,7 +590,7 @@ export function assignTutor(studentId, tutorId) {
   const sId = Number(studentId);
   const tId = tutorId ? Number(tutorId) : null;
   const student = studentsDB.find(s => s.id === sId);
-  
+
   if (student) {
     student.tutorId = tId;
     // Invalidamos el cache

@@ -301,6 +301,7 @@ export async function fetchStudentFactors(studentId) {
 
 /**
  * Save (replace) a student's assigned factors
+ * Returns full response including { data, riskUpdate } for immediate UI update
  */
 export async function saveStudentFactors(studentId, factorIds) {
   const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
@@ -317,7 +318,12 @@ export async function saveStudentFactors(studentId, factorIds) {
 
   const json = await res.json();
   if (!res.ok) throw new Error('Error al guardar factores');
-  return json.data;
+
+  // Invalidate student caches so next fetch returns updated risk values
+  invalidateStudentCaches(studentId);
+
+  // Return full response so caller can read riskUpdate
+  return json;
 }
 
 // ─── Factors Management API ──────────────────────────────────────────────────
@@ -393,6 +399,18 @@ export async function fetchRiskRules() {
   return json.data;
 }
 
+// ─── Interventions & Risk History API ───────────────────────────────────────
+
+export async function fetchStudentRiskHistory(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/history`, { headers });
+  if (!res.ok) throw new Error('Error al obtener historial de riesgos');
+  const json = await res.json();
+  return json.data;
+}
+
 export async function updateRiskRulesAPI(rulesData) {
   const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
   const headers = {
@@ -427,5 +445,53 @@ export async function testRiskCalculationAPI(testStudentData) {
   const json = await res.json();
   if (!res.ok) throw new Error('Error al probar el cálculo');
   return json.data;
+}
+
+export async function fetchInterventions(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/interventions`, { headers });
+  if (!res.ok) throw new Error('Error al obtener intervenciones');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function saveIntervention(studentId, data) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/students/${studentId}/interventions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al guardar intervención');
+
+  // Invalidate all student-related caches so subsequent
+  // fetches return updated risk values
+  invalidateStudentCaches(studentId);
+
+  return json;
+}
+
+/**
+ * Invalidate all cached entries related to a specific student
+ * or general student listings (forces fresh data on next fetch)
+ */
+function invalidateStudentCaches(studentId) {
+  for (const key of cache.keys()) {
+    if (
+      key.includes('/students') ||
+      key.includes(`/students/${studentId}`)
+    ) {
+      cache.delete(key);
+    }
+  }
 }
 

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1774726931949,
+    "timestamp": "2026-03-28T19:42:11.948Z",
+    "studentId": 10,
+    "studentName": "Camilo Ávila Toro",
+    "recipient": "c.avila@uceva.edu.co",
+    "type": "email",
+    "status": "success",
+    "message": "⚠️ INTERVENCIÓN CRÍTICA: Riesgo ≥ 70%. Protocolo de retención activado."
+  },
+  {
+    "id": 1774726834252,
+    "timestamp": "2026-03-28T19:40:33.753Z",
+    "studentId": 10,
+    "studentName": "Camilo Ávila Toro",
+    "recipient": "c.avila@uceva.edu.co",
+    "type": "email",
+    "status": "success",
+    "message": "⚠️ INTERVENCIÓN CRÍTICA: Riesgo ≥ 70%. Protocolo de retención activado."
+  },
+  {
+    "id": 1774726832136,
+    "timestamp": "2026-03-28T19:40:31.613Z",
+    "studentId": 10,
+    "studentName": "Camilo Ávila Toro",
+    "recipient": "c.avila@uceva.edu.co",
+    "type": "email",
+    "status": "success",
+    "message": "⚠️ INTERVENCIÓN CRÍTICA: Riesgo ≥ 70%. Protocolo de retención activado."
+  }
+]

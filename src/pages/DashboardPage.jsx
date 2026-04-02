@@ -11,9 +11,12 @@ import { useStudents } from '../hooks/useStudents';
 import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors, fetchRiskHistory } from '../services/api';
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
+import FiltersPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
 import FactorsManagement from '../components/FactorsManagement';
 import FactorsChecklist from '../components/FactorsChecklist';
+import StudentRiskHistory from '../components/StudentRiskHistory';
+import StudentInterventions from '../components/StudentInterventions';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
 
@@ -39,6 +42,7 @@ export default function DashboardPage() {
   const [studentFactorsIds, setStudentFactorsIds] = useState([]);
   const [riskHistory, setRiskHistory] = useState([]);
   const [riskHistoryLoading, setRiskHistoryLoading] = useState(true);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0); // Increments to trigger re-fetch of student risk history
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'coordinator') {
@@ -203,8 +207,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-2 ml-auto relative">
-            <button 
-              id="notifications-btn" 
+            <button
+              id="notifications-btn"
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors border border-gray-700"
             >
@@ -303,10 +307,10 @@ export default function DashboardPage() {
                   </span>
                 </div>
               </div>
-              
+
               {user?.role === 'tutor' && (
                 <div className="mb-4">
-                  <button 
+                  <button
                     onClick={() => handleFilterChange('tutorId', filters.tutorId ? '' : user.id)}
                     className={`btn-secondary text-xs px-4 py-2 !w-auto ${filters.tutorId ? 'bg-uceva-800/80 text-white border-uceva-700/50' : ''}`}
                   >
@@ -477,8 +481,8 @@ export default function DashboardPage() {
                 </div>
                 {['admin', 'coordinator'].includes(user?.role) ? (
                   <div className="flex gap-2">
-                    <select 
-                      value={pendingTutorId !== null ? pendingTutorId : (selectedStudent.tutorId || '')} 
+                    <select
+                      value={pendingTutorId !== null ? pendingTutorId : (selectedStudent.tutorId || '')}
                       onChange={e => setPendingTutorId(e.target.value)}
                       className="input-field w-full text-sm py-2"
                     >
@@ -487,7 +491,7 @@ export default function DashboardPage() {
                         <option key={t.id} value={t.id}>{t.name} (Tutor)</option>
                       ))}
                     </select>
-                    <button 
+                    <button
                       onClick={handleAssignTutor}
                       className="btn-primary whitespace-nowrap !w-auto px-5"
                     >
@@ -497,7 +501,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="bg-gray-900/50 rounded-lg p-2.5 border border-gray-800">
                     <p className="text-sm text-gray-300">
-                      {selectedStudent.tutorId 
+                      {selectedStudent.tutorId
                         ? (tutors.find(t => t.id === selectedStudent.tutorId)?.name || 'Tutor ID: ' + selectedStudent.tutorId)
                         : <span className="text-gray-500 italic">No tiene un tutor asignado actualmente</span>}
                     </p>
@@ -542,19 +546,52 @@ export default function DashboardPage() {
               )}
 
               {/* Checklist de Factores */}
-              <FactorsChecklist 
-                factors={allFactors} 
-                studentFactorIds={studentFactorsIds} 
+              <FactorsChecklist
+                factors={allFactors}
+                studentFactorIds={studentFactorsIds}
                 onSave={async (ids) => {
                   try {
-                    await saveStudentFactors(selectedStudent.id, ids);
+                    const response = await saveStudentFactors(selectedStudent.id, ids);
                     setStudentFactorsIds(ids);
+                    // Update risk in modal immediately if API returned riskUpdate
+                    if (response?.riskUpdate) {
+                      setSelectedStudent(prev => ({
+                        ...prev,
+                        riskIndex: response.riskUpdate.riskValue,
+                        riskLevel: response.riskUpdate.riskLevel,
+                      }));
+                    }
+                    // Trigger risk history chart refresh
+                    setHistoryRefreshKey(k => k + 1);
+                    refetch(); // Reload background to see updated risk
                   } catch (e) {
                     console.error('Error al guardar factores:', e);
                     throw e; // Rethrow so the component can revert the UI state
                   }
-                }} 
+                }}
               />
+
+              {/* Intervenciones */}
+              <StudentInterventions
+                studentId={selectedStudent.id}
+                onInterventionAdded={(riskUpdate) => {
+                  // Immediately update the selected student's risk in the modal
+                  if (riskUpdate) {
+                    setSelectedStudent(prev => ({
+                      ...prev,
+                      riskIndex: riskUpdate.riskValue,
+                      riskLevel: riskUpdate.riskLevel,
+                    }));
+                  }
+                  // Trigger risk history chart refresh
+                  setHistoryRefreshKey(k => k + 1);
+                  // Refetch background data (student list, stats)
+                  refetch();
+                }}
+              />
+
+              {/* Histórico Evolutivo del Riesgo (Gráfica) */}
+              <StudentRiskHistory studentId={selectedStudent.id} refreshTrigger={historyRefreshKey} />
 
               {/* AI Recommendations Section */}
               <div className="mt-6 pt-6 border-t border-gray-800">

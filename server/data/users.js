@@ -92,7 +92,7 @@ export async function updateUser(id, updateData) {
 
   usersDB[index] = { ...usersDB[index], ...updateData };
   await syncToDisk();
-  
+
   const { password, ...safeUser } = usersDB[index];
   return safeUser;
 }
