@@ -381,3 +381,51 @@ export async function deleteFactorAPI(id) {
   return json;
 }
 
+// ─── Risk Rules API ──────────────────────────────────────────────────────────
+
+export async function fetchRiskRules() {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/rules/risk`, { headers });
+  if (!res.ok) throw new Error('Error al obtener reglas de riesgo');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function updateRiskRulesAPI(rulesData) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/rules/risk`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(rulesData),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al actualizar reglas');
+  return json.data;
+}
+
+export async function testRiskCalculationAPI(testStudentData) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/rules/risk/test`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ student: testStudentData }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error('Error al probar el cálculo');
+  return json.data;
+}
+

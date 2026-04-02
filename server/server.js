@@ -6,6 +6,7 @@ import express from 'express';
 import { gzip } from 'node:zlib';
 import { promisify } from 'node:util';
 import studentsRouter from './routes/students.js';
+import rulesRouter from './routes/rules.js';
 
 const gzipAsync = promisify(gzip);
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/students', studentsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/factors', factorsRouter);
+app.use('/api/rules', rulesRouter);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

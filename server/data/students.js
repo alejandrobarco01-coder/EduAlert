@@ -1,5 +1,8 @@
 // ─── In-memory student database with CACHED risk index calculation ───────────
 import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
+import { getRiskRules } from './riskRules.js';
+import { getFactorsForStudent } from './studentFactors.js';
+import { getAllFactors } from './factors.js';
 
 const studentsDB = [
   {
@@ -156,18 +159,41 @@ let cacheTimestamp = 0;
 const CACHE_TTL = 30_000; // 30 seconds in ms
 
 export function calculateRiskIndex(student) {
+  const rules = getRiskRules();
+  
   const maxGPA = 5.0;
-  const gpaRisk = ((maxGPA - student.gpa) / maxGPA) * 100;
+  const gpaScore = Math.min(100, Math.max(0, ((maxGPA - Number(student.gpa || 0)) / maxGPA) * 100));
 
   const maxAbsences = 25;
-  const absenceRisk = Math.min(100, (student.absences / maxAbsences) * 100);
+  const absenceScore = Math.min(100, (Number(student.absences || 0) / maxAbsences) * 100);
 
-  const maxAlerts = 4;
-  const alertRisk = Math.min(100, (student.alerts.length / maxAlerts) * 100);
+  // Factors Checklist Calculation
+  const assignedFactorIds = getFactorsForStudent(student.id) || [];
+  const allFactors = getAllFactors() || [];
+  let totalFactorWeight = 0;
+  
+  assignedFactorIds.forEach(fid => {
+    const factor = allFactors.find(f => f.id === Number(fid));
+    if (factor && factor.weight) {
+      totalFactorWeight += Number(factor.weight);
+    }
+  });
 
-  return Math.round(
-    Math.max(0, Math.min(100, gpaRisk * 0.4 + absenceRisk * 0.35 + alertRisk * 0.25))
-  );
+  const maxFactorsWeight = rules.maxFactorsTotalWeight || 20;
+  const checklistScore = Math.min(100, (totalFactorWeight / maxFactorsWeight) * 100);
+
+  // Interventions Calculation
+  const alertsCount = student.alerts ? student.alerts.length : 0;
+  const maxInterventions = rules.maxInterventionsCount || 4;
+  const alertScore = Math.min(100, (alertsCount / maxInterventions) * 100);
+
+  const riskIndexRaw = 
+      (gpaScore * (rules.gpaWeight / 100)) + 
+      (absenceScore * (rules.absencesWeight / 100)) + 
+      (checklistScore * (rules.factorsWeight / 100)) + 
+      (alertScore * (rules.interventionsWeight / 100));
+
+  return Math.round(Math.max(0, Math.min(100, riskIndexRaw)));
 }
 
 export function getRiskLevel(riskIndex) {
