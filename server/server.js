@@ -8,6 +8,7 @@ import { promisify } from 'node:util';
 import studentsRouter from './routes/students.js';
 import rulesRouter from './routes/rules.js';
 import notificationsRouter from './routes/notifications.js';
+import riesgoEstudianteRouter from './routes/riesgoEstudiante.js';
 
 const gzipAsync = promisify(gzip);
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/factors', factorsRouter);
 app.use('/api/rules', rulesRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/riesgo-estudiante', riesgoEstudianteRouter);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

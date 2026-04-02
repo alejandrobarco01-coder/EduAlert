@@ -226,12 +226,20 @@ export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') 
   const newRiskValue = calculateRiskIndex(student);
   const newRiskLevel = getRiskLevel(newRiskValue);
 
+  // Fetch detected factors for history traceability
+  const studentFactorIds = getFactorsForStudent(studentId);
+  const allFactors = getAllFactors();
+  const detectedFactors = allFactors
+    .filter(f => studentFactorIds.includes(f.id))
+    .map(f => f.name);
+
   // Record in history with trigger metadata
   const historyRecord = await saveRiskRecord(studentId, newRiskValue, {
     triggerSource,
     previousRiskValue,
     riskLevel: newRiskLevel,
     delta: newRiskValue - previousRiskValue,
+    factores_detectados: detectedFactors,
   });
 
   return {
