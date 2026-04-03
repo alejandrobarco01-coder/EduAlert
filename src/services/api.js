@@ -360,3 +360,39 @@ export async function deleteFactorAPI(id) {
   return json;
 }
 
+// ─── Interventions API ────────────────────────────────────────────────────────
+
+/**
+ * Fetch a student's interventions
+ */
+export async function fetchInterventions(studentId) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = user.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+
+  const res = await fetch(`${API_BASE}/interventions/${studentId}`, { headers });
+  if (!res.ok) throw new Error('Error al obtener intervenciones');
+  const json = await res.json();
+  return json.data;
+}
+
+/**
+ * Create a new intervention for a student
+ */
+export async function saveIntervention(studentId, interventionData) {
+  const user = JSON.parse(localStorage.getItem('edualert_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${user.token}`
+  };
+
+  const res = await fetch(`${API_BASE}/interventions/${studentId}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(interventionData),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Error al guardar intervención');
+  return json.data;
+}
+

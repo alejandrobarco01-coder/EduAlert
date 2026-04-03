@@ -8,12 +8,15 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStudents } from '../hooks/useStudents';
-import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors } from '../services/api';
+import { fetchAIRecommendations, fetchTutors, assignTutorAPI, fetchFactors, fetchStudentFactors, saveStudentFactors, fetchInterventions, saveIntervention } from '../services/api';
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
 import UserManagement from '../components/UserManagement';
 import FactorsManagement from '../components/FactorsManagement';
 import FactorsChecklist from '../components/FactorsChecklist';
+import InterventionForm from '../components/InterventionForm';
+import InterventionHistory from '../components/InterventionHistory';
+
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 
@@ -35,6 +38,9 @@ export default function DashboardPage() {
   const [pendingTutorId, setPendingTutorId] = useState(null);
   const [allFactors, setAllFactors] = useState([]);
   const [studentFactorsIds, setStudentFactorsIds] = useState([]);
+  const [interventions, setInterventions] = useState([]);
+  const [loadingInterventions, setLoadingInterventions] = useState(false);
+
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'coordinator') {
@@ -45,13 +51,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (selectedStudent) {
+      setLoadingInterventions(true);
       fetchStudentFactors(selectedStudent.id)
         .then(factors => setStudentFactorsIds(factors.map(f => f.id)))
         .catch(console.error);
+        
+      fetchInterventions(selectedStudent.id)
+        .then(setInterventions)
+        .catch(console.error)
+        .finally(() => setLoadingInterventions(false));
     } else {
       setStudentFactorsIds([]);
+      setInterventions([]);
     }
   }, [selectedStudent]);
+
 
   const handleAssignTutor = async () => {
     try {
@@ -89,6 +103,17 @@ export default function DashboardPage() {
       setAnalyzing(false);
     }
   };
+
+  const handleSaveIntervention = async (data) => {
+    try {
+      const newIntervention = await saveIntervention(selectedStudent.id, data);
+      setInterventions(prev => [newIntervention, ...prev]);
+    } catch (error) {
+      console.error('Error al guardar intervención:', error);
+      throw error;
+    }
+  };
+
 
   const closeStudentModal = () => {
     setSelectedStudent(null);
@@ -538,6 +563,21 @@ export default function DashboardPage() {
                   }
                 }} 
               />
+
+              {/* Sistema de Intervenciones */}
+              <InterventionForm 
+                studentId={selectedStudent.id} 
+                onSave={handleSaveIntervention} 
+              />
+              
+              {loadingInterventions ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 size={24} className="text-uceva-400 animate-spin" />
+                </div>
+              ) : (
+                <InterventionHistory interventions={interventions} />
+              )}
+
 
               {/* AI Recommendations Section */}
               <div className="mt-6 pt-6 border-t border-gray-800">

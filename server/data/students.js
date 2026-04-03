@@ -200,7 +200,7 @@ export function getAllStudents() {
 /**
  * Fast filtered query — uses pre-computed search index
  */
-export function queryStudents({ program, semester, riskLevel, search } = {}) {
+export function queryStudents({ program, semester, riskLevel, search, tutorId } = {}) {
   let students = getAllStudents();
 
   if (program && program !== 'Todos') {
@@ -212,8 +212,8 @@ export function queryStudents({ program, semester, riskLevel, search } = {}) {
     students = students.filter(s => s.semester === sem);
   }
 
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
@@ -297,7 +297,7 @@ export function queryStudentsAdvanced({
   gpaMin, gpaMax,
   absencesMin, absencesMax,
   riskMin, riskMax,
-  hasAlerts,
+  hasAlerts, tutorId,
   sortBy = 'riskIndex', sortOrder = 'desc',
   page, limit,
 } = {}) {
@@ -314,8 +314,8 @@ export function queryStudentsAdvanced({
   }
 
   // ─── Tutor filter ──────────────────────────────────────────────────────────
-  if (reqQuery?.tutorId) {
-    const tId = Number(reqQuery.tutorId);
+  if (tutorId) {
+    const tId = Number(tutorId);
     if (!isNaN(tId)) students = students.filter(s => s.tutorId === tId);
   }
 
