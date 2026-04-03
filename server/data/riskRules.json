@@ -1,0 +1,8 @@
+{
+  "gpaWeight": 25,
+  "absencesWeight": 25,
+  "factorsWeight": 30,
+  "interventionsWeight": 20,
+  "maxFactorsTotalWeight": 20,
+  "maxInterventionsCount": 4
+}

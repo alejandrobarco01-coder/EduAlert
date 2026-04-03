@@ -72,5 +72,13 @@
     "role": "tutor",
     "department": "Ingenieria",
     "password": "Password@123"
+  },
+  {
+    "id": 1775073592606,
+    "name": "Admin User",
+    "email": "tester@uceva.edu.co",
+    "password": "Admin123!",
+    "role": "coordinator",
+    "department": "Facultad de Ciencias Administrativas, Económicas y Contables"
   }
 ]

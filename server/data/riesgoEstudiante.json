@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1774736248552,
+    "usuario_id": 1,
+    "valor_riesgo": 46,
+    "fecha_calculo": "2026-03-28T22:17:28.176Z",
+    "factores_detectados": [],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1775073646774,
+    "usuario_id": 2,
+    "valor_riesgo": 43,
+    "fecha_calculo": "2026-04-01T20:00:46.614Z",
+    "factores_detectados": [],
+    "trigger_source": "intervention",
+    "valor_riesgo_anterior": 43,
+    "nivel_riesgo": "medium",
+    "delta": 0
+  },
+  {
+    "id": 1775073683358,
+    "usuario_id": 2,
+    "valor_riesgo": 40,
+    "fecha_calculo": "2026-04-01T20:01:22.523Z",
+    "factores_detectados": [],
+    "trigger_source": "intervention",
+    "valor_riesgo_anterior": 40,
+    "nivel_riesgo": "medium",
+    "delta": 0
+  },
+  {
+    "id": 1775108539285,
+    "usuario_id": 1,
+    "valor_riesgo": 82,
+    "fecha_calculo": "2026-04-02T05:42:18.400Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas"
+    ],
+    "trigger_source": "manual_test_antigravity",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": null,
+    "delta": null
+  }
+]

@@ -1,4 +1,9 @@
-// ─── In-memory student database with CACHED risk index calculation ───────────
+import { getFactorsForStudent } from './studentFactors.js';
+import { getAllFactors } from './factors.js';
+import { saveRiskRecord } from './riskHistory.js';
+import { getInterventionsForStudent } from './interventions.js';
+import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
+import { getRiskRules } from './riskRules.js';
 
 const studentsDB = [
   {
@@ -155,21 +160,101 @@ let cacheTimestamp = 0;
 const CACHE_TTL = 30_000; // 30 seconds in ms
 
 export function calculateRiskIndex(student) {
+  const rules = getRiskRules();
+  
   const maxGPA = 5.0;
-  const gpaRisk = ((maxGPA - student.gpa) / maxGPA) * 100;
+  const gpaScore = Math.min(100, Math.max(0, ((maxGPA - Number(student.gpa || 0)) / maxGPA) * 100));
 
   const maxAbsences = 25;
-  const absenceRisk = Math.min(100, (student.absences / maxAbsences) * 100);
+  const absenceScore = Math.min(100, (Number(student.absences || 0) / maxAbsences) * 100);
 
-  const maxAlerts = 4;
-  const alertRisk = Math.min(100, (student.alerts.length / maxAlerts) * 100);
+  // Factors Checklist Calculation
+  const assignedFactorIds = getFactorsForStudent(student.id) || [];
+  const allFactors = getAllFactors() || [];
+  let totalFactorWeight = 0;
+  
+  assignedFactorIds.forEach(fid => {
+    const factor = allFactors.find(f => f.id === Number(fid));
+    if (factor && factor.weight) {
+      totalFactorWeight += Number(factor.weight);
+    }
+  });
 
-  return Math.round(
-    Math.max(0, Math.min(100, gpaRisk * 0.4 + absenceRisk * 0.35 + alertRisk * 0.25))
+  const maxFactorsWeight = rules.maxFactorsTotalWeight || 20;
+  const checklistScore = Math.min(100, (totalFactorWeight / maxFactorsWeight) * 100);
+
+  // Interventions Calculation
+  const alertsCount = student.alerts ? student.alerts.length : 0;
+  const maxInterventions = rules.maxInterventionsCount || 4;
+  const alertScore = Math.min(100, (alertsCount / maxInterventions) * 100);
+
+  // ─── Interventions Benefit (Risk mitigation) ──────────────────────────────
+  const studentInterventions = getInterventionsForStudent(student.id) || [];
+  const PRIORITY_WEIGHT = { high: 8, medium: 5, low: 3 };
+  const interventionBenefit = Math.min(
+    25,
+    studentInterventions.reduce((sum, inv) => sum + (PRIORITY_WEIGHT[inv.priority] || 5), 0)
   );
+
+  const riskIndexRaw = 
+      (gpaScore * (rules.gpaWeight / 100)) + 
+      (absenceScore * (rules.absencesWeight / 100)) + 
+      (checklistScore * (rules.factorsWeight / 100)) + 
+      (alertScore * (rules.interventionsWeight / 100)) - 
+      interventionBenefit;
+
+  return Math.round(Math.max(0, Math.min(100, riskIndexRaw)));
+}
+
+/**
+ * Triggered when checklist or intervention is modified.
+ * Acceptance criteria: Registers new value in risk_estudiante, maintains history.
+ * @param {number|string} studentId
+ * @param {'checklist'|'intervention'} triggerSource - what triggered the recalculation
+ */
+export async function updateAndRecordRisk(studentId, triggerSource = 'unknown') {
+  const student = studentsDB.find(s => s.id === Number(studentId));
+  if (!student) return null;
+
+  // Capture the PREVIOUS risk value before recalculation
+  const previousRiskValue = student.riskIndex;
+
+  // Invalidate cache FIRST so recalculation uses fresh data
+  cacheTimestamp = 0;
+
+  // Recalculate with latest data (interventions + factors)
+  const newRiskValue = calculateRiskIndex(student);
+  const newRiskLevel = getRiskLevel(newRiskValue);
+
+  // Fetch detected factors for history traceability
+  const studentFactorIds = getFactorsForStudent(studentId);
+  const allFactors = getAllFactors();
+  const detectedFactors = allFactors
+    .filter(f => studentFactorIds.includes(f.id))
+    .map(f => f.name);
+
+  // Record in history with trigger metadata
+  const historyRecord = await saveRiskRecord(studentId, newRiskValue, {
+    triggerSource,
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+    factores_detectados: detectedFactors,
+  });
+
+  return {
+    studentId,
+    riskValue: newRiskValue,
+    previousRiskValue,
+    riskLevel: newRiskLevel,
+    delta: newRiskValue - previousRiskValue,
+    triggerSource,
+    timestamp: historyRecord.timestamp,
+  };
 }
 
 export function getRiskLevel(riskIndex) {
+  if (riskIndex >= CRITICAL_RISK_THRESHOLD) return 'critical';
   if (riskIndex >= 60) return 'high';
   if (riskIndex >= 35) return 'medium';
   return 'low';
@@ -187,7 +272,8 @@ export function getAllStudents() {
 
   cachedStudents = studentsDB.map(student => {
     const riskIndex = calculateRiskIndex(student);
-    return { ...student, riskIndex, riskLevel: getRiskLevel(riskIndex) };
+    const updatedStudent = { ...student, riskIndex, riskLevel: getRiskLevel(riskIndex) };
+    return applyRules(updatedStudent);
   });
   cacheTimestamp = now;
 
@@ -293,7 +379,7 @@ export function getStats() {
  * Supports: text search, exact matches, range filters, sorting, and pagination.
  */
 export function queryStudentsAdvanced({
-  program, semester, riskLevel, search,
+  program, semester, riskLevel, search, tutorId,
   gpaMin, gpaMax,
   absencesMin, absencesMax,
   riskMin, riskMax,
@@ -512,7 +598,7 @@ export function assignTutor(studentId, tutorId) {
   const sId = Number(studentId);
   const tId = tutorId ? Number(tutorId) : null;
   const student = studentsDB.find(s => s.id === sId);
-  
+
   if (student) {
     student.tutorId = tId;
     // Invalidamos el cache
@@ -521,6 +607,63 @@ export function assignTutor(studentId, tutorId) {
     return student;
   }
   return null;
+}
+
+/**
+ * Generates simulated risk history data for the last N months.
+ * Uses a deterministic seed based on student data so results are consistent
+ * within the same server session but show realistic variation.
+ */
+export function getRiskHistory(months = 6) {
+  const students = getAllStudents();
+  const now = new Date();
+  const history = [];
+
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  // Use a simple seeded pseudo-random for consistency
+  let seed = students.reduce((acc, s) => acc + s.id + s.absences, 42);
+  function seededRandom() {
+    seed = (seed * 16807 + 0) % 2147483647;
+    return (seed - 1) / 2147483646;
+  }
+
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+
+    // For the current month (i === 0), use real data
+    if (i === 0) {
+      const total = students.length;
+      const avgRisk = Math.round((students.reduce((a, s) => a + s.riskIndex, 0) / total) * 10) / 10;
+      const highCount = students.filter(s => s.riskLevel === 'high').length;
+      const mediumCount = students.filter(s => s.riskLevel === 'medium').length;
+      const lowCount = students.filter(s => s.riskLevel === 'low').length;
+
+      history.push({ month: monthLabel, avgRisk, highCount, mediumCount, lowCount, totalStudents: total });
+    } else {
+      // For past months, apply variation to simulate realistic trends
+      const variation = (seededRandom() - 0.45) * 12; // Slight upward bias to show improvement
+      const baseAvg = students.reduce((a, s) => a + s.riskIndex, 0) / students.length;
+      const pastAvg = Math.round(Math.max(10, Math.min(85, baseAvg + variation + i * 1.5)) * 10) / 10;
+
+      // Distribute risk levels based on pastAvg
+      const total = students.length;
+      const highPct = pastAvg >= 55 ? 0.35 + seededRandom() * 0.15 : pastAvg >= 40 ? 0.2 + seededRandom() * 0.1 : 0.1 + seededRandom() * 0.1;
+      const lowPct = pastAvg < 35 ? 0.4 + seededRandom() * 0.15 : pastAvg < 50 ? 0.25 + seededRandom() * 0.1 : 0.15 + seededRandom() * 0.1;
+
+      const highCount = Math.round(total * highPct);
+      const lowCount = Math.round(total * lowPct);
+      const mediumCount = total - highCount - lowCount;
+
+      history.push({ month: monthLabel, avgRisk: pastAvg, highCount, mediumCount, lowCount, totalStudents: total });
+    }
+  }
+
+  return history;
 }
 
 // ─── Warm up cache on module load ────────────────────────────────────────────
