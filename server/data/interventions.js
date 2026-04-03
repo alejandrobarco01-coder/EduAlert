@@ -1,62 +1,63 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, 'studentInterventions.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, 'studentInterventions.json');
 
-// ─── In-memory database for interventions ────────────────────────────────────
-let interventionsDB = []; // Array of intervention objects
+let interventionsDB = [];
 
-// ─── Initial Load ────────────────────────────────────────────────────────────
-try {
-  const data = await readFile(DB_PATH, 'utf-8');
-  interventionsDB = JSON.parse(data);
-  if (!Array.isArray(interventionsDB)) {
-    console.log('  ⚠️ studentInterventions.json no es un array, reseteando.');
-    interventionsDB = [];
-  }
-} catch (err) {
-  console.log('  ℹ️ No existe studentInterventions.json o está vacío, inicializando como array.');
-  interventionsDB = [];
-}
-
-/**
- * Persist to disk
- */
-async function syncToDisk() {
+// ─── Cargar datos iniciales ────────────────────────────────────────────
+async function loadDB() {
   try {
-    await writeFile(DB_PATH, JSON.stringify(interventionsDB, null, 2));
-  } catch (err) {
-    console.error('  ❌ Error persistiendo intervenciones:', err);
+    const data = await fs.readFile(DB_PATH, 'utf-8');
+    interventionsDB = JSON.parse(data);
+
+    if (!Array.isArray(interventionsDB)) {
+      console.log('⚠️ El archivo no es un array, reiniciando...');
+      interventionsDB = [];
+      await saveDB();
+    }
+  } catch (error) {
+    console.log('ℹ️ Archivo no existe, creando uno nuevo...');
+    interventionsDB = [];
+    await saveDB();
   }
 }
 
-/**
- * Get all interventions for a student
- * Acceptance Criteria: Relates via studentId field.
- */
-export function getInterventionsForStudent(studentId) {
-  const sId = Number(studentId);
-  return interventionsDB.filter(i => i.studentId === sId);
+// ─── Guardar datos ─────────────────────────────────────────────────────
+async function saveDB() {
+  await fs.writeFile(DB_PATH, JSON.stringify(interventionsDB, null, 2));
 }
 
-/**
- * Add an intervention
- * Acceptance Criteria: Includes relation with student and tutor.
- */
-export async function addIntervention(studentId, tutorId, interventionData) {
+// Inicializar
+await loadDB();
+
+// ─── Obtener intervenciones por estudiante ─────────────────────────────
+export function getInterventionsByStudent(studentId) {
+  const sId = Number(studentId);
+
+  return interventionsDB
+    .filter(i => i.studentId === sId)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+// ─── Agregar intervención ──────────────────────────────────────────────
+export async function addIntervention(studentId, tutorId, data) {
   const newIntervention = {
     id: Date.now(),
     studentId: Number(studentId),
     tutorId: Number(tutorId),
-    date: new Date().toISOString(),
-    ...interventionData, // { text, type, priority }
-    status: 'completed'
+    type: data.type,
+    description: data.description,
+    priority: data.priority || 'medium',
+    date: data.date || new Date().toISOString(),
+    status: 'completed',
+    createdAt: new Date().toISOString()
   };
 
   interventionsDB.push(newIntervention);
-  await syncToDisk();
-  
+  await saveDB();
+
   return newIntervention;
 }

@@ -383,7 +383,7 @@ export function queryStudentsAdvanced({
   gpaMin, gpaMax,
   absencesMin, absencesMax,
   riskMin, riskMax,
-  hasAlerts,
+  hasAlerts, tutorId,
   sortBy = 'riskIndex', sortOrder = 'desc',
   page, limit,
 } = {}) {
