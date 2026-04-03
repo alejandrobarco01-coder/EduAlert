@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../server.js';
+import { JWT_SECRET } from '../config.js';
 
 /**
  * Middleware para autenticar el token JWT en las peticiones

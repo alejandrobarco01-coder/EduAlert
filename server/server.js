@@ -14,8 +14,7 @@ import { promisify } from 'node:util';
 
 const gzipAsync = promisify(gzip);
 const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'edualert-secret-key-2024';
+import { JWT_SECRET, PORT } from './config.js';
 
 export { JWT_SECRET };
 

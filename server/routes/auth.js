@@ -1,7 +1,7 @@
 import express from 'express';
 import { findUserByEmail, createUser } from '../data/users.js';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../server.js';
+import { JWT_SECRET } from '../config.js';
 
 const router = express.Router();
 

@@ -1,10 +1,11 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, updateAndRecordRisk, getRiskHistory } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory } from '../data/students.js';
 import { getRiskHistoryByStudent } from '../data/riskHistory.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';
 import { addIntervention, getInterventionsForStudent } from '../data/interventions.js';
+import { triggerRiskCalculation } from '../events/riskEngine.js';
 
 const router = express.Router();
 
@@ -151,9 +152,10 @@ router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), asy
 
   try {
     const updatedIds = await setFactorsForStudent(id, factorIds);
-    // Automatic risk update & history recording (triggered by checklist change)
-    const historyRecord = await updateAndRecordRisk(id, 'checklist');
-
+    
+    // Disparar evento automático de cálculo de riesgo
+    const historyRecord = await triggerRiskCalculation(id, 'checklist');
+    
     res.json({ success: true, data: updatedIds, riskUpdate: historyRecord });
   } catch (error) {
     console.error('Error saving factors:', error);
@@ -197,8 +199,8 @@ router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'
     const tutorId = req.user.id;
     const intervention = await addIntervention(id, tutorId, { text, type, priority: priority || 'medium' });
 
-    // 2. Automatic risk update & history recording (triggered by intervention)
-    const riskUpdate = await updateAndRecordRisk(id, 'intervention');
+    // 2. Disparar evento automático de cálculo de riesgo
+    const riskUpdate = await triggerRiskCalculation(id, 'intervention');
 
     console.log(`[INTERVENTION → RISK] Student ${id}: ${riskUpdate?.previousRiskValue}% → ${riskUpdate?.riskValue}% (Δ${riskUpdate?.delta})`);
 

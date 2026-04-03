@@ -85,7 +85,7 @@ export default function RiskRulesManagement() {
     }
   };
 
-  const currentTotal = rules ? rules.gpaWeight + rules.absencesWeight + rules.factorsWeight + rules.interventionsWeight : 0;
+  const currentTotal = rules ? (rules.gpaWeight || 0) + (rules.absencesWeight || 0) + (rules.factorsWeight || 0) + (rules.interventionsWeight || 0) : 0;
 
   if (loading) {
     return (
@@ -118,13 +118,13 @@ export default function RiskRulesManagement() {
                   <label className="text-sm font-bold text-gray-200">
                     {item.label}
                   </label>
-                  <span className={`text-lg font-bold ${item.color}`}>{rules[item.id]}%</span>
+                  <span className={`text-lg font-bold ${item.color}`}>{rules?.[item.id]}%</span>
                 </div>
                 <p className="text-xs text-gray-500 mb-3">{item.desc}</p>
                 <input 
                   type="range" 
                   min="0" max="100" 
-                  value={rules[item.id]} 
+                  value={rules?.[item.id] || 0} 
                   onChange={(e) => handleRuleChange(item.id, e.target.value)}
                   className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-uceva-500"
                 />
@@ -155,7 +155,7 @@ export default function RiskRulesManagement() {
                    <input 
                       type="number" 
                       className="input-field w-full"
-                      value={rules.maxFactorsTotalWeight} 
+                      value={rules?.maxFactorsTotalWeight || 0} 
                       onChange={(e) => handleRuleChange('maxFactorsTotalWeight', e.target.value)}
                    />
                 </div>
@@ -164,7 +164,7 @@ export default function RiskRulesManagement() {
                    <input 
                       type="number" 
                       className="input-field w-full"
-                      value={rules.maxInterventionsCount} 
+                      value={rules?.maxInterventionsCount || 0} 
                       onChange={(e) => handleRuleChange('maxInterventionsCount', e.target.value)}
                    />
                 </div>

@@ -18,7 +18,7 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
 
   useEffect(() => {
     if (!studentId) return;
-    
+
     setLoading(true);
     fetchStudentRiskHistory(studentId)
       .then(history => {
@@ -26,8 +26,8 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
         const sorted = [...history].reverse();
         const chartData = sorted.map(record => ({
           ...record,
-          dateFormatted: new Date(record.timestamp).toLocaleDateString('es-ES', { 
-            month: 'short', 
+          dateFormatted: new Date(record.timestamp).toLocaleDateString('es-ES', {
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -73,7 +73,7 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
               {triggerLabel}
             </span>
           </div>
-          
+
           {factors.length > 0 && (
             <div className="mt-2 pt-2 border-t border-gray-800">
               <p className="text-gray-500 text-[9px] mb-1 font-medium italic">Factores detectados:</p>
@@ -99,19 +99,19 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
         <label className="text-sm font-medium text-gray-300">Evolución del Índice de Riesgo</label>
         <p className="text-[10px] text-gray-500 mt-0.5">Muestra cómo varía el riesgo con cada factor o intervención evaluada</p>
       </div>
-      
+
       <div className="h-56 w-full mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-            <XAxis 
-              dataKey="dateFormatted" 
+            <XAxis
+              dataKey="dateFormatted"
               tick={{ fill: '#9CA3AF', fontSize: 10 }}
               tickLine={false}
               axisLine={{ stroke: '#4B5563' }}
               minTickGap={30}
             />
-            <YAxis 
+            <YAxis
               tick={{ fill: '#9CA3AF', fontSize: 10 }}
               tickLine={false}
               axisLine={false}
@@ -119,14 +119,14 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
               ticks={[0, 35, 60, 100]}
             />
             <Tooltip content={<CustomTooltip />} />
-            
+
             {/* Threshold lines visually indicating risk levels */}
             <ReferenceLine y={60} stroke="#EF4444" strokeOpacity={0.2} strokeDasharray="3 3" />
             <ReferenceLine y={35} stroke="#F97316" strokeOpacity={0.2} strokeDasharray="3 3" />
 
-            <Line 
-              type="monotone" 
-              dataKey="riskValue" 
+            <Line
+              type="monotone"
+              dataKey="riskValue"
               stroke="#0ea5e9" /* uceva-500 equivalent */
               strokeWidth={3}
               dot={{ r: 4, fill: '#0ea5e9', strokeWidth: 0 }}
