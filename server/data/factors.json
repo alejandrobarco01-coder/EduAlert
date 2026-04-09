@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Bajo rendimiento académico",
+    "category": "Académico",
+    "weight": 5
+  },
+  {
+    "id": 2,
+    "name": "Inasistencias reiteradas",
+    "category": "Académico",
+    "weight": 3
+  },
+  {
+    "id": 3,
+    "name": "Problemas financieros",
+    "category": "Socioeconómico",
+    "weight": 4
+  },
+  {
+    "id": 4,
+    "name": "Falta de apoyo familiar",
+    "category": "Familiar",
+    "weight": 2
+  },
+  {
+    "id": 1774657452866,
+    "name": "Depresion",
+    "category": "Personal",
+    "weight": 5
+  }
+]

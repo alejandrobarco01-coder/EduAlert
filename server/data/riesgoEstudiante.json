@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1774000000001,
+    "usuario_id": 1,
+    "valor_riesgo": 38,
+    "fecha_calculo": "2026-02-15T10:00:00.000Z",
+    "factores_detectados": [],
+    "trigger_source": "checklist",
+    "nivel_riesgo": "low"
+  },
+  {
+    "id": 1774000000002,
+    "usuario_id": 2,
+    "valor_riesgo": 42,
+    "fecha_calculo": "2026-02-20T10:00:00.000Z",
+    "factores_detectados": ["Faltas"],
+    "trigger_source": "checklist",
+    "nivel_riesgo": "medium"
+  },
+  {
+    "id": 1774000000003,
+    "usuario_id": 3,
+    "valor_riesgo": 55,
+    "fecha_calculo": "2026-03-05T10:00:00.000Z",
+    "factores_detectados": ["Bajo rendimiento"],
+    "trigger_source": "checklist",
+    "nivel_riesgo": "medium"
+  },
+  {
+    "id": 1774000000004,
+    "usuario_id": 1,
+    "valor_riesgo": 48,
+    "fecha_calculo": "2026-03-12T10:00:00.000Z",
+    "factores_detectados": [],
+    "trigger_source": "intervention",
+    "nivel_riesgo": "medium"
+  },
+  {
+    "id": 1774736248552,
+    "usuario_id": 1,
+    "valor_riesgo": 46,
+    "fecha_calculo": "2026-03-28T22:17:28.176Z",
+    "factores_detectados": [],
+    "trigger_source": "checklist",
+    "nivel_riesgo": "medium"
+  },
+  {
+    "id": 1775073646774,
+    "usuario_id": 2,
+    "valor_riesgo": 43,
+    "fecha_calculo": "2026-04-01T20:00:46.614Z",
+    "factores_detectados": [],
+    "trigger_source": "intervention",
+    "nivel_riesgo": "medium"
+  },
+  {
+    "id": 1775254014429,
+    "usuario_id": 1,
+    "valor_riesgo": 62,
+    "fecha_calculo": "2026-04-03T22:06:53.598Z",
+    "factores_detectados": ["Inasistencias"],
+    "trigger_source": "intervention",
+    "nivel_riesgo": "high"
+  }
+]
