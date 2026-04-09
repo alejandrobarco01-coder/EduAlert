@@ -289,3 +289,35 @@ export async function testRiskCalculationAPI(selectedFactors) {
   if (!res.ok) throw new Error('Error en la simulación');
   return (await res.json()).data;
 }
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
+/**
+ * Preview the dynamic email template for a student (no email is sent).
+ * @param {number} studentId
+ * @returns {{ subject, text, html, student, factors }}
+ */
+export async function previewNotification(studentId) {
+  const res = await fetch(`${API_BASE}/notifications/preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ studentId })
+  });
+  if (!res.ok) throw new Error('Error generando vista previa');
+  return (await res.json()).data;
+}
+
+/**
+ * Manually sends an alert email to a student.
+ * @param {number} studentId
+ * @returns {{ timestamp, subject, recipient, studentName, factorsCount }}
+ */
+export async function sendNotificationAPI(studentId) {
+  const res = await fetch(`${API_BASE}/notifications/send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ studentId })
+  });
+  if (!res.ok) throw new Error('Error enviando notificación');
+  return (await res.json()).data;
+}
