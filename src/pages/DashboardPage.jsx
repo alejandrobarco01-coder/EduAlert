@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings
+  UserCheck, History, BrainCircuit, Settings, Mail
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +20,9 @@ import {
   saveStudentFactors,
   fetchInterventions,
   saveIntervention,
-  fetchRiskHistory
+  fetchRiskHistory,
+  previewNotification,
+  sendNotificationAPI
 } from '../services/api';
 
 import StudentCard from '../components/StudentCard';
@@ -32,6 +34,7 @@ import FactorsChecklist from '../components/FactorsChecklist';
 import InterventionForm from '../components/InterventionForm';
 import InterventionHistory from '../components/InterventionHistory';
 import StudentInterventions from '../components/StudentInterventions';
+import NotificationPreview from '../components/NotificationPreview';
 import StudentRiskHistory from '../components/StudentRiskHistory';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
@@ -597,6 +600,12 @@ export default function DashboardPage() {
                 icon={<BrainCircuit size={16} />}
                 label="IA"
               />
+              <ModalTab
+                active={activeModalTab === 'notification'}
+                onClick={() => setActiveModalTab('notification')}
+                icon={<Mail size={16} />}
+                label="Notificación"
+              />
             </div>
 
             {/* Modal Body */}
@@ -719,6 +728,21 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {activeModalTab === 'notification' && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-xl bg-uceva-900/40 border border-uceva-800/30 flex items-center justify-center">
+                      <Mail size={16} className="text-uceva-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Plantilla de Notificación</h3>
+                      <p className="text-[11px] text-gray-500">Correo generado dinámicamente con datos actuales del estudiante</p>
+                    </div>
+                  </div>
+                  <NotificationPreview student={selectedStudent} />
                 </div>
               )}
 
