@@ -20,6 +20,23 @@ router.post('/register', async (req, res) => {
     });
   }
 
+  // Validación de formato de correo
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'El formato del correo electrónico no es válido.',
+    });
+  }
+
+  // Validación de contraseña (mínimo 6 caracteres)
+  if (password.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: 'La contraseña debe tener al menos 6 caracteres.',
+    });
+  }
+
   // Verificar si ya existe
   const exists = findUserByEmail(email);
   if (exists) {
