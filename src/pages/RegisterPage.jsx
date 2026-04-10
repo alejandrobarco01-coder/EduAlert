@@ -18,7 +18,7 @@ const UCEVA_FACULTIES = [
 ];
 
 const PASSWORD_RULES = [
-  { label: 'Mínimo 8 caracteres', test: p => p.length >= 8 },
+  { label: 'Mínimo 6 caracteres', test: p => p.length >= 6 },
   { label: 'Al menos una mayúscula', test: p => /[A-Z]/.test(p) },
   { label: 'Al menos un número', test: p => /[0-9]/.test(p) },
   { label: 'Al menos un carácter especial', test: p => /[^A-Za-z0-9]/.test(p) },
@@ -61,6 +61,7 @@ export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [successMsg, setSuccessMsg] = useState('');
 
   const passStrength = PASSWORD_RULES.filter(r => r.test(form.password)).length;
   const isWeakPassword = form.password && passStrength < 3;
@@ -81,11 +82,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     const errs = validate();
     if (Object.keys(errs).length) { setFieldErrors(errs); return; }
     setFieldErrors({});
     const res = await register(form);
-    if (res.success) navigate('/dashboard', { replace: true });
+    if (res.success) {
+      setSuccessMsg('Registro exitoso. Creando cuenta...');
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1500);
+    }
   };
 
   const handleChange = (f, v) => {
@@ -121,6 +128,13 @@ export default function RegisterPage() {
             <div className="flex items-start gap-2.5 bg-red-900/20 border border-red-700/40 rounded-xl px-4 py-3 mb-5">
               <AlertCircle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
               <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="flex items-start gap-2.5 bg-green-900/20 border border-green-700/40 rounded-xl px-4 py-3 mb-5 text-left">
+              <CheckCircle size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
+              <p className="text-green-300 text-sm">{successMsg}</p>
             </div>
           )}
 
