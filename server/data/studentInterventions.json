@@ -64,5 +64,27 @@
     "date": "2026-04-05T20:00:41.843Z",
     "status": "completed",
     "createdAt": "2026-04-05T20:00:41.843Z"
+  },
+  {
+    "id": 1775922247658,
+    "studentId": 1,
+    "tutorId": 1775922190332,
+    "type": "cita",
+    "description": "short desc",
+    "priority": "medium",
+    "date": "2026-04-11T15:44:07.658Z",
+    "status": "completed",
+    "createdAt": "2026-04-11T15:44:07.658Z"
+  },
+  {
+    "id": 1775922563480,
+    "studentId": 1,
+    "tutorId": 1775922190332,
+    "type": "cita",
+    "description": "Esta es una descripciEsta es una descripcion corta.",
+    "priority": "medium",
+    "date": "2026-04-11T15:49:23.480Z",
+    "status": "completed",
+    "createdAt": "2026-04-11T15:49:23.480Z"
   }
 ]

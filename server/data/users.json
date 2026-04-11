@@ -88,5 +88,13 @@
     "password": "Admin123!",
     "role": "admin",
     "department": "Facultad de Ciencias Administrativas, Económicas y Contables"
+  },
+  {
+    "id": 1775922190332,
+    "name": "Test User",
+    "email": "test@uceva.edu.co",
+    "password": "Password123!",
+    "role": "tutor",
+    "department": "Facultad de Ciencias Básicas y Salud"
   }
 ]

@@ -27,6 +27,10 @@ router.post('/:studentId', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Faltan campos obligatorios (tipo, fecha, descripción)' });
   }
 
+  if (description.trim().length < 30) {
+    return res.status(400).json({ success: false, message: 'La descripción debe tener al menos 30 caracteres' });
+  }
+
   try {
     const newIntervention = await addIntervention(studentId, { type, date, description });
     res.status(201).json({ success: true, data: newIntervention });
