@@ -12,6 +12,8 @@ export default function StudentInterventions({ studentId, onInterventionAdded })
   const [type, setType] = useState('cita');
   const [priority, setPriority] = useState('medium');
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (!studentId) return;
     loadInterventions();
@@ -37,11 +39,27 @@ export default function StudentInterventions({ studentId, onInterventionAdded })
     }
   };
 
+  const validate = () => {
+    const newErrors = {};
+    if (!text || text.trim().length === 0) {
+      newErrors.text = 'La descripción es obligatoria.';
+    } else if (text.trim().length < 30) {
+      newErrors.text = `La descripción debe tener al menos 30 caracteres (tienes ${text.trim().length}).`;
+    }
+    
+    if (!type) newErrors.type = 'El tipo de intervención es obligatorio.';
+    if (!priority) newErrors.priority = 'La prioridad es obligatoria.';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!validate()) return;
     
     setSaving(true);
+    setErrors({});
     try {
       const response = await saveIntervention(studentId, { description: text, type, priority });
       setInterventions([response.data, ...interventions]); // Prepend new intervention
@@ -63,10 +81,19 @@ export default function StudentInterventions({ studentId, onInterventionAdded })
       }
     } catch (err) {
       console.error(err);
-      alert('Error guardando intervención');
+      if (err.response?.data?.message) {
+        setErrors({ form: err.response.data.message });
+      } else {
+        setErrors({ form: 'Error al registrar la intervención. Verifique los datos.' });
+      }
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleTextChange = (e) => {
+    setText(e.target.value);
+    if (errors.text) setErrors({ ...errors, text: null });
   };
 
   const getPriorityClass = (pri) => {
@@ -90,7 +117,7 @@ export default function StudentInterventions({ studentId, onInterventionAdded })
     <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-800/60 mt-5">
       <div className="mb-4">
         <label className="text-sm font-medium text-gray-300">Registro de Intervenciones</label>
-        <p className="text-[10px] text-gray-500 mt-0.5">Las intervenciones registradas reducen el nivel de riesgo automáticamente según su prioridad (Alta: -8%, Media: -5%, Baja: -3%).</p>
+        <p className="text-[10px] text-gray-500 mt-0.5">Las intervenciones registradas reducen el nivel de riesgo automáticamente según su prioridad (Alta: -8%, Media: -5%, Baja: -3%). La descripción debe tener al menos 30 caracteres.</p>
       </div>
 
       {/* Risk impact feedback banner */}
@@ -127,45 +154,64 @@ export default function StudentInterventions({ studentId, onInterventionAdded })
           </div>
         </div>
       )}
+      
+      {errors.form && (
+        <div className="mb-4 p-3 bg-red-900/20 border border-red-800/40 rounded-xl flex items-center gap-2 text-red-500 text-sm">
+          <AlertTriangle size={16} />
+          {errors.form}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="mb-5 bg-gray-900/40 p-3 rounded-xl border border-gray-800 focus-within:border-gray-600 transition-colors">
+      <form onSubmit={handleSubmit} className={`mb-5 bg-gray-900/40 p-3 rounded-xl border ${errors.text || errors.type || errors.priority ? 'border-red-500/50' : 'border-gray-800'} focus-within:border-gray-600 transition-colors`}>
         <div className="flex flex-col gap-2">
           <textarea 
             value={text} 
-            onChange={e => setText(e.target.value)} 
-            placeholder="Escribe los detalles de la intervención (ej. Cita con psicología completada)..."
-            className="w-full bg-transparent text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none min-h-[60px]"
+            onChange={handleTextChange} 
+            placeholder="Escribe los detalles de la intervención (mínimo 30 caracteres)..."
+            className={`w-full bg-transparent text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none min-h-[60px] ${errors.text ? 'placeholder-red-400/50' : ''}`}
           />
-          <div className="flex items-center justify-between border-t border-gray-800 pt-2 mt-1">
+          {errors.text && (
+            <p className="text-xs text-red-400 font-medium px-1 flex items-center gap-1">
+              <AlertTriangle size={12} /> {errors.text}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between border-t border-gray-800 pt-3 mt-1">
             <div className="flex items-center gap-2">
-              <select 
-                value={type} 
-                onChange={e => setType(e.target.value)}
-                className="bg-gray-800 text-xs text-gray-300 border border-gray-700 rounded-lg px-2 py-1 outline-none"
-              >
-                <option value="cita">Cita / Tutoría</option>
-                <option value="llamada">Llamada Familiar</option>
-                <option value="revision">Revisión Académica</option>
-                <option value="otro">Otro</option>
-              </select>
+              <div className="flex flex-col">
+                <select 
+                  value={type} 
+                  onChange={e => { setType(e.target.value); if (errors.type) setErrors({...errors, type: null}); }}
+                  className={`bg-gray-800 text-xs text-gray-300 border ${errors.type ? 'border-red-500' : 'border-gray-700'} rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-gray-500`}
+                >
+                  <option value="">Seleccionar Tipo</option>
+                  <option value="cita">Cita / Tutoría</option>
+                  <option value="llamada">Llamada Familiar</option>
+                  <option value="revision">Revisión Académica</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
               
-              <select 
-                value={priority} 
-                onChange={e => setPriority(e.target.value)}
-                className="bg-gray-800 text-xs text-gray-300 border border-gray-700 rounded-lg px-2 py-1 outline-none"
-              >
-                <option value="low">Baja ({getPriorityImpact('low')})</option>
-                <option value="medium">Media ({getPriorityImpact('medium')})</option>
-                <option value="high">Alta ({getPriorityImpact('high')})</option>
-              </select>
+              <div className="flex flex-col">
+                <select 
+                  value={priority} 
+                  onChange={e => { setPriority(e.target.value); if (errors.priority) setErrors({...errors, priority: null}); }}
+                  className={`bg-gray-800 text-xs text-gray-300 border ${errors.priority ? 'border-red-500' : 'border-gray-700'} rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-gray-500`}
+                >
+                  <option value="">Seleccionar Prioridad</option>
+                  <option value="low">Baja ({getPriorityImpact('low')})</option>
+                  <option value="medium">Media ({getPriorityImpact('medium')})</option>
+                  <option value="high">Alta ({getPriorityImpact('high')})</option>
+                </select>
+              </div>
             </div>
             
             <button 
               type="submit" 
-              disabled={saving || !text.trim()}
-              className="btn-primary !w-auto !py-1.5 !px-4 text-xs h-8 flex items-center"
+              disabled={saving}
+              className="btn-primary !w-auto !py-1.5 !px-5 text-xs h-9 flex items-center"
             >
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <><Send size={12} /><span>Registrar</span></>}
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <><Send size={14} className="mr-1.5" /><span>Registrar</span></>}
             </button>
           </div>
         </div>

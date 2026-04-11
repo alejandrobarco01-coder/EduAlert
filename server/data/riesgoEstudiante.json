@@ -13,7 +13,9 @@
     "usuario_id": 2,
     "valor_riesgo": 42,
     "fecha_calculo": "2026-02-20T10:00:00.000Z",
-    "factores_detectados": ["Faltas"],
+    "factores_detectados": [
+      "Faltas"
+    ],
     "trigger_source": "checklist",
     "nivel_riesgo": "medium"
   },
@@ -22,7 +24,9 @@
     "usuario_id": 3,
     "valor_riesgo": 55,
     "fecha_calculo": "2026-03-05T10:00:00.000Z",
-    "factores_detectados": ["Bajo rendimiento"],
+    "factores_detectados": [
+      "Bajo rendimiento"
+    ],
     "trigger_source": "checklist",
     "nivel_riesgo": "medium"
   },
@@ -58,8 +62,38 @@
     "usuario_id": 1,
     "valor_riesgo": 62,
     "fecha_calculo": "2026-04-03T22:06:53.598Z",
-    "factores_detectados": ["Inasistencias"],
+    "factores_detectados": [
+      "Inasistencias"
+    ],
     "trigger_source": "intervention",
     "nivel_riesgo": "high"
+  },
+  {
+    "id": 1775922248301,
+    "usuario_id": 1,
+    "valor_riesgo": 39,
+    "fecha_calculo": "2026-04-11T15:44:07.662Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas"
+    ],
+    "trigger_source": "intervention",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1775922563986,
+    "usuario_id": 1,
+    "valor_riesgo": 34,
+    "fecha_calculo": "2026-04-11T15:49:23.482Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas"
+    ],
+    "trigger_source": "intervention",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
   }
 ]
