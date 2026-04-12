@@ -122,9 +122,17 @@ export function getAllRiesgoEstudiante() {
  * @returns {Object[]}
  */
 export function getRiesgoByUsuarioId(usuarioId) {
+  const seen = new Set();
   return riesgoEstudianteDB
-    .filter(record => record.usuario_id === Number(usuarioId))
-    .sort((a, b) => new Date(b.fecha_calculo) - new Date(a.fecha_calculo));
+    .filter(record => {
+      if (record.usuario_id !== Number(usuarioId)) return false;
+      // Ensure no duplicates by ID or identical timestamp+value
+      const signature = `${record.id}_${record.fecha_calculo}_${record.valor_riesgo}`;
+      if (seen.has(signature)) return false;
+      seen.add(signature);
+      return true;
+    })
+    .sort((a, b) => new Date(a.fecha_calculo) - new Date(b.fecha_calculo));
 }
 
 /**
