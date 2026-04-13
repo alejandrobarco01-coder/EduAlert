@@ -22,11 +22,10 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
     setLoading(true);
     fetchStudentRiskHistory(studentId)
       .then(history => {
-        // Reverse array because DB returns newest first, but chart should show oldest to newest (left to right)
-        const sorted = [...history].reverse();
-        const chartData = sorted.map(record => ({
+        // Backend now returns chronological order (oldest to newest)
+        const chartData = history.map(record => ({
           ...record,
-          dateFormatted: new Date(record.timestamp).toLocaleDateString('es-ES', {
+          dateFormatted: new Date(record.fecha_calculo).toLocaleDateString('es-ES', {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
@@ -59,9 +58,9 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const record = payload[0].payload;
-      const val = record.riskValue;
+      const val = record.valor_riesgo;
       const colorClass = val >= 60 ? 'text-red-400' : val >= 35 ? 'text-orange-400' : 'text-uceva-400';
-      const triggerLabel = record.trigger_source || record.triggerSource || 'Manual';
+      const triggerLabel = record.trigger_source || 'Manual';
       const factors = record.factores_detectados || [];
 
       return (
@@ -97,7 +96,7 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
     <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-800/60 mt-5">
       <div className="mb-4">
         <label className="text-sm font-medium text-gray-300">Evolución del Índice de Riesgo</label>
-        <p className="text-[10px] text-gray-500 mt-0.5">Muestra cómo varía el riesgo con cada factor o intervención evaluada</p>
+        <p className="text-[10px] text-gray-500 mt-0.5">Visualización gráfica de los datos almacenados en riesgo_estudiante.</p>
       </div>
 
       <div className="h-56 w-full mt-2">
@@ -126,7 +125,7 @@ export default function StudentRiskHistory({ studentId, refreshTrigger = 0 }) {
 
             <Line
               type="monotone"
-              dataKey="riskValue"
+              dataKey="valor_riesgo"
               stroke="#0ea5e9" /* uceva-500 equivalent */
               strokeWidth={3}
               dot={{ r: 4, fill: '#0ea5e9', strokeWidth: 0 }}
