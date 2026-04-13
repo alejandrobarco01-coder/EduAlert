@@ -273,10 +273,10 @@ export async function deleteFactorAPI(id) {
 }
 
 export async function fetchStudentRiskHistory(studentId) {
-  const res = await fetch(`${API_BASE}/students/${studentId}/history`, {
+  const res = await fetch(`${API_BASE}/riesgo-estudiante/usuario/${studentId}`, {
     headers: getAuthHeaders()
   });
-  if (!res.ok) throw new Error('Error obteniendo historial de estudiante');
+  if (!res.ok) throw new Error('Error obteniendo historial de riesgo del estudiante');
   return (await res.json()).data;
 }
 
