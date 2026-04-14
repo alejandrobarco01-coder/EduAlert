@@ -25,7 +25,6 @@ export default function NotificationPreview({ student }) {
   const [sending, setSending]       = useState(false);
   const [sent, setSent]             = useState(null);   // { timestamp, subject }
   const [error, setError]           = useState(null);
-  const [activeTab, setActiveTab]   = useState('visual'); // 'visual' | 'text'
 
   const loadPreview = useCallback(async () => {
     setLoading(true);
@@ -144,59 +143,24 @@ export default function NotificationPreview({ student }) {
         </div>
       </div>
 
-      {/* ── Tab switcher (Visual / Texto plano) ────────────────────────── */}
-      <div className="flex bg-gray-900/50 border border-gray-800 rounded-xl p-1 gap-1">
-        <button
-          onClick={() => setActiveTab('visual')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'visual'
-              ? 'bg-uceva-700 text-white shadow-sm'
-              : 'text-gray-500 hover:text-gray-300'
-          }`}
-        >
-          <Eye size={13} /> Vista Visual
-        </button>
-        <button
-          onClick={() => setActiveTab('text')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'text'
-              ? 'bg-gray-800 text-white shadow-sm'
-              : 'text-gray-500 hover:text-gray-300'
-          }`}
-        >
-          <FileText size={13} /> Texto Plano
-        </button>
-      </div>
-
       {/* ── Preview body ────────────────────────────────────────────────── */}
-      {activeTab === 'visual' ? (
-        <div className="border border-gray-800 rounded-2xl overflow-hidden bg-gray-950">
-          <div className="px-4 py-2 bg-gray-900 border-b border-gray-800 flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-            <span className="text-[10px] text-gray-600 ml-2 font-mono">correo simulado · EduAlert</span>
-          </div>
-          <div className="overflow-auto max-h-96 custom-scrollbar">
-            <iframe
-              srcDoc={preview.html}
-              title="Email preview"
-              className="w-full border-none"
-              style={{ minHeight: '480px', background: '#030712' }}
-              sandbox="allow-same-origin"
-            />
-          </div>
+      <div className="border border-gray-800 rounded-2xl overflow-hidden bg-gray-950">
+        <div className="px-4 py-2 bg-gray-900 border-b border-gray-800 flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+          <span className="text-[10px] text-gray-600 ml-2 font-mono">correo simulado · EduAlert</span>
         </div>
-      ) : (
-        <div className="border border-gray-800 rounded-2xl overflow-hidden bg-gray-950">
-          <div className="px-4 py-2 bg-gray-900 border-b border-gray-800">
-            <span className="text-[10px] text-gray-600 font-mono">texto plano · versión alternativa</span>
-          </div>
-          <pre className="p-5 text-xs text-gray-400 leading-relaxed overflow-auto max-h-96 whitespace-pre-wrap custom-scrollbar font-mono">
-            {preview.text}
-          </pre>
+        <div className="overflow-auto max-h-96 custom-scrollbar">
+          <iframe
+            srcDoc={preview.html}
+            title="Email preview"
+            className="w-full border-none"
+            style={{ minHeight: '480px', background: '#030712' }}
+            sandbox="allow-same-origin"
+          />
         </div>
-      )}
+      </div>
 
       {/* ── Active factors list ─────────────────────────────────────────── */}
       {preview.factors.length > 0 && (

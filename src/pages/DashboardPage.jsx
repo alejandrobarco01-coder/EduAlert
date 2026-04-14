@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [globalSearch, setGlobalSearch] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [hasUnread, setHasUnread] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -108,6 +109,7 @@ export default function DashboardPage() {
     if (selectedStudent) {
       setLoadingInterventions(true);
       setActiveModalTab('factors');
+      setPendingTutorId(null);
 
       fetchStudentFactors(selectedStudent.id)
         .then(f => setStudentFactorsIds(f.map(x => x.id)))
@@ -137,6 +139,7 @@ export default function DashboardPage() {
       await assignTutorAPI(selectedStudent.id, tutorToAssign);
       setSelectedStudent(prev => ({ ...prev, tutorId: tutorToAssign }));
       setPendingTutorId(null);
+      refetch();
     } catch (e) {
       console.error(e);
     }
@@ -280,10 +283,66 @@ export default function DashboardPage() {
 
             <div className="h-8 w-px bg-gray-800 mx-2"></div>
 
-            <button className="relative p-2 text-gray-400 hover:text-white transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-gray-950"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={`relative p-2 transition-colors ${showNotifications ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+              >
+                <Bell size={20} />
+                {hasUnread && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-gray-950 animate-pulse"></span>}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute top-full mt-4 right-0 w-80 bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fade-in origin-top-right">
+                  <div className="p-4 border-b border-gray-800 bg-gray-900/50 flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Bell size={16} className="text-transparent bg-clip-text bg-gradient-to-r from-uceva-400 to-red-500" />
+                      Notificaciones
+                    </h3>
+                    {hasUnread && <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold shadow-sm">Nuevas</span>}
+                  </div>
+                  <div className="divide-y divide-gray-800 max-h-[300px] overflow-y-auto custom-scrollbar">
+                    <div className={`p-4 hover:bg-gray-800/80 transition-colors cursor-pointer group ${hasUnread ? 'bg-gray-900/40' : ''}`}>
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${hasUnread ? 'bg-red-500' : 'bg-gray-600'}`}></div>
+                        <div>
+                          <p className={`text-xs font-medium leading-relaxed ${hasUnread ? 'text-gray-300 group-hover:text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>
+                            Alerta del sistema: <span className={`${hasUnread ? 'text-red-400' : 'text-gray-400'} font-bold`}>1 estudiante</span> elevó su nivel de riesgo a crítico tras la última evaluación.
+                          </p>
+                          <p className="text-[10px] text-gray-500 mt-2 font-semibold">Hace 5 minutos</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 hover:bg-gray-800/80 transition-colors cursor-pointer group">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></div>
+                        <div>
+                          <p className="text-xs text-gray-400 font-medium group-hover:text-gray-300 leading-relaxed">
+                            Las reglas del motor de riesgo fueron actualizadas correctamente por un administrador.
+                          </p>
+                          <p className="text-[10px] text-gray-600 mt-2 font-semibold">Hace 2 horas</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3 border-t border-gray-800 bg-gray-950/50 text-center flex justify-between px-4">
+                    <button 
+                      onClick={() => setHasUnread(false)}
+                      disabled={!hasUnread}
+                      className={`text-[10px] font-bold transition-colors ${hasUnread ? 'text-uceva-400 hover:text-white' : 'text-gray-600 cursor-default'}`}
+                    >
+                      {hasUnread ? 'Marcar leídas' : 'Todo leído'}
+                    </button>
+                    <button 
+                      onClick={() => setShowNotifications(false)}
+                      className="text-[10px] text-gray-500 hover:text-gray-300 font-bold transition-colors"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
