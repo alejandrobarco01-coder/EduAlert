@@ -95,5 +95,64 @@
     "valor_riesgo_anterior": null,
     "nivel_riesgo": "low",
     "delta": null
+  },
+  {
+    "id": 1776133327370,
+    "usuario_id": 1,
+    "valor_riesgo": 37,
+    "fecha_calculo": "2026-04-14T02:22:06.466Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Falta de apoyo familiar"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1776133327747,
+    "usuario_id": 1,
+    "valor_riesgo": 43,
+    "fecha_calculo": "2026-04-14T02:22:07.490Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1776133330177,
+    "usuario_id": 1,
+    "valor_riesgo": 51,
+    "fecha_calculo": "2026-04-14T02:22:09.310Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar",
+      "Depresion"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1776134214153,
+    "usuario_id": 3,
+    "valor_riesgo": 0,
+    "fecha_calculo": "2026-04-14T02:36:53.462Z",
+    "factores_detectados": [],
+    "trigger_source": "intervention",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
   }
 ]

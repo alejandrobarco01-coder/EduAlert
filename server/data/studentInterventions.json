@@ -86,5 +86,16 @@
     "date": "2026-04-11T15:49:23.480Z",
     "status": "completed",
     "createdAt": "2026-04-11T15:49:23.480Z"
+  },
+  {
+    "id": 1776134213459,
+    "studentId": 3,
+    "tutorId": 1,
+    "type": "cita",
+    "description": "esta es una intervencion detallada de lo que sucede con camila herrera",
+    "priority": "medium",
+    "date": "2026-04-14T02:36:53.459Z",
+    "status": "completed",
+    "createdAt": "2026-04-14T02:36:53.459Z"
   }
 ]
