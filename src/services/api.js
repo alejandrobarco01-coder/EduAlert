@@ -104,8 +104,8 @@ export async function fetchTutors() {
 }
 
 export async function assignTutorAPI(studentId, tutorId) {
-  const res = await fetch(`${API_BASE}/students/${studentId}`, {
-    method: 'PUT',
+  const res = await fetch(`${API_BASE}/students/${studentId}/tutor`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeaders()
@@ -114,7 +114,9 @@ export async function assignTutorAPI(studentId, tutorId) {
   });
 
   if (!res.ok) throw new Error('Error asignando tutor');
-  return (await res.json()).data;
+  const json = await res.json();
+  invalidateStudentCaches(studentId);
+  return json.data;
 }
 
 // ─── FACTORS ─────────────────────────────────────────────────────────────────
@@ -284,7 +286,7 @@ export async function testRiskCalculationAPI(selectedFactors) {
   const res = await fetch(`${API_BASE}/rules/risk/test`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ factors: selectedFactors })
+    body: JSON.stringify({ student: selectedFactors })
   });
   if (!res.ok) throw new Error('Error en la simulación');
   return (await res.json()).data;
