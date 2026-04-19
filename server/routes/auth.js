@@ -1,5 +1,6 @@
 import express from 'express';
-import { findUserByEmail, createUser } from '../data/users.js';
+import { findUserByEmail, createUser, getAllUsers } from '../data/users.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
 
@@ -54,6 +55,15 @@ router.post('/register', async (req, res) => {
     role,
     department,
   });
+
+  // Si el usuario registrado es un estudiante, enviamos el correo de bienvenida de forma asíncrona
+  if (role === 'student' || role === 'estudiante') {
+    const allUsers = getAllUsers();
+    const availableTutor = allUsers.find(u => u.role === 'tutor') || { name: 'Por asignar' };
+    
+    // Fire-and-forget: el envío de correo no bloquea, ni revierte el registro si llegara a fallar
+    sendWelcomeEmail(email, name, availableTutor.name).catch(err => console.error('[Auth] Fallo en el envío de correo no bloqueante:', err));
+  }
 
   // Retornar éxito (sin password)
   const { password: _, ...safeUser } = newUser;
