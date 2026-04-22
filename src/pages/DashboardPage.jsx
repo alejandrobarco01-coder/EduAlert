@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail
+  UserCheck, History, BrainCircuit, Settings, Mail, Plus
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -38,6 +38,7 @@ import NotificationPreview from '../components/NotificationPreview';
 import StudentRiskHistory from '../components/StudentRiskHistory';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
+import StudentForm from '../components/StudentForm';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 const roleLabel = { admin: 'Administrador', tutor: 'Tutor', coordinator: 'Coordinador' };
@@ -71,6 +72,7 @@ export default function DashboardPage() {
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   const [activeModalTab, setActiveModalTab] = useState('factors');
+  const [showAddStudentForm, setShowAddStudentForm] = useState(false);
 
   useEffect(() => {
     // 1. Fetch data only if user role allows it
@@ -427,10 +429,24 @@ export default function DashboardPage() {
                     <div className="w-10 h-1 bg-gradient-to-r from-uceva-600 to-transparent rounded-full font-black"></div>
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.3em]">Listado General de Expedientes</h3>
                   </div>
-                  <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                    {students.length} Resultados encontrados
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setShowAddStudentForm(v => !v)}
+                      className="px-4 py-1.5 bg-uceva-600 hover:bg-uceva-500 rounded-full text-[10px] font-bold text-white uppercase tracking-widest transition-colors flex items-center gap-2"
+                    >
+                      <Plus size={14} /> Agregar Estudiante
+                    </button>
+                    <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden md:block">
+                      {students.length} Resultados encontrados
+                    </div>
                   </div>
                 </div>
+
+                {showAddStudentForm && (
+                  <div className="mb-8 animate-slide-up transition-all">
+                    <StudentForm onCancel={() => setShowAddStudentForm(false)} onSave={() => { setShowAddStudentForm(false); refetch(); }} />
+                  </div>
+                )}
 
                 {/* Students Grid */}
                 {loading ? (
