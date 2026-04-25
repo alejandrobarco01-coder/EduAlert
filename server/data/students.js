@@ -594,6 +594,45 @@ export function getStudentById(id) {
   return students.find(s => s.id === id) || null;
 }
 
+export function addStudent(data) {
+  const newId = Math.max(...studentsDB.map(s => s.id), 0) + 1;
+  const newStudent = {
+    id: newId,
+    name: data.name,
+    studentCode: data.studentCode || '',
+    faculty: data.faculty || '',
+    program: data.program || '',
+    semester: Number(data.semester) || 1,
+    email: data.email || '',
+    avatar: data.name ? data.name.substring(0, 2).toUpperCase() : 'NE',
+    absences: Number(data.absences) || 0,
+    gpa: Number(data.gpa) || 0,
+    alerts: data.alerts || [],
+    tutorId: data.tutorId || null
+  };
+  studentsDB.unshift(newStudent);
+  
+  // Update search index
+  searchIndex.set(newStudent.id, {
+    name: newStudent.name.toLowerCase(),
+    program: newStudent.program.toLowerCase(),
+    email: newStudent.email.toLowerCase(),
+  });
+
+  // Invalidate cache
+  cacheTimestamp = 0;
+  statsCacheTimestamp = 0;
+
+  const riskIndex = calculateRiskIndex(newStudent);
+  const riskLevel = getRiskLevel(riskIndex);
+  
+  return applyRules({
+    ...newStudent,
+    riskIndex,
+    riskLevel
+  });
+}
+
 export function assignTutor(studentId, tutorId) {
   const sId = Number(studentId);
   const tId = tutorId ? Number(tutorId) : null;

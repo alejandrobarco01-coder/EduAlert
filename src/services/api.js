@@ -97,6 +97,21 @@ export async function fetchUsers() {
   return (await res.json()).data;
 }
 
+export async function createStudentAPI(data) {
+  const res = await fetch(`${API_BASE}/students`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders()
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error creando estudiante');
+  const json = await res.json();
+  invalidateStudentCaches(null);
+  return json.data;
+}
+
 export async function fetchTutors() {
   const res = await fetch(`${API_BASE}/users/tutors`, { headers: getAuthHeaders() });
   if (!res.ok) throw new Error('Error tutores');

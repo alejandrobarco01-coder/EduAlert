@@ -1,5 +1,5 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory, addStudent } from '../data/students.js';
 import { getRiskHistoryByStudent } from '../data/riskHistory.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
@@ -12,6 +12,17 @@ const router = express.Router();
 // Todas las rutas de estudiantes requieren autenticación
 router.use(authenticateToken);
 
+
+// ─── POST /api/students ── Agregar un nuevo estudiante ──────────────────────
+router.post('/', authorizeRoles('admin', 'coordinator'), (req, res) => {
+  try {
+    const newStudent = addStudent(req.body);
+    res.status(201).json({ success: true, data: newStudent });
+  } catch (error) {
+    console.error('Error adding student:', error);
+    res.status(500).json({ success: false, message: 'Error agregando estudiante' });
+  }
+});
 
 // ─── GET /api/students ── Lista optimizada con filtros ───────────────────────
 router.get('/', (req, res) => {
