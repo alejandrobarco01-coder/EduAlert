@@ -1,0 +1,172 @@
+[
+  {
+    "id": 13,
+    "name": "Juan Pablo Arenas",
+    "studentCode": "202410005",
+    "faculty": "Facultad de Ingeniería",
+    "program": "Ingeniería de Sistemas",
+    "semester": 3,
+    "email": "j.arenas@uceva.edu.co",
+    "avatar": "JP",
+    "absences": 2,
+    "gpa": 4,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-04-25T20:29:14.780Z"
+  },
+  {
+    "id": 1,
+    "name": "Valentina Ospina Reyes",
+    "program": "Ingeniería de Sistemas",
+    "semester": 4,
+    "email": "v.ospina@uceva.edu.co",
+    "avatar": "VO",
+    "absences": 14,
+    "gpa": 2.8,
+    "alerts": [
+      "Inasistencias reiteradas",
+      "Bajo promedio académico"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Santiago Muñoz García",
+    "program": "Derecho",
+    "semester": 6,
+    "email": "s.munoz@uceva.edu.co",
+    "avatar": "SM",
+    "absences": 6,
+    "gpa": 3.5,
+    "alerts": [
+      "Dificultades socioeconómicas reportadas"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Camila Herrera Pinto",
+    "program": "Medicina",
+    "semester": 2,
+    "email": "c.herrera@uceva.edu.co",
+    "avatar": "CH",
+    "absences": 1,
+    "gpa": 4.2,
+    "alerts": []
+  },
+  {
+    "id": 4,
+    "name": "Andrés Castaño López",
+    "program": "Administración de Empresas",
+    "semester": 5,
+    "email": "a.castano@uceva.edu.co",
+    "avatar": "AC",
+    "absences": 18,
+    "gpa": 2.4,
+    "alerts": [
+      "Sin contacto con tutor",
+      "Pagos pendientes",
+      "Bajo rendimiento"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Mariana Salcedo Vargas",
+    "program": "Psicología",
+    "semester": 3,
+    "email": "m.salcedo@uceva.edu.co",
+    "avatar": "MS",
+    "absences": 2,
+    "gpa": 4,
+    "alerts": []
+  },
+  {
+    "id": 6,
+    "name": "Felipe Torres Ríos",
+    "program": "Ingeniería de Sistemas",
+    "semester": 7,
+    "email": "f.torres@uceva.edu.co",
+    "avatar": "FT",
+    "absences": 9,
+    "gpa": 3.1,
+    "alerts": [
+      "Carga laboral elevada detectada"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Laura Jiménez Bermúdez",
+    "program": "Contaduría Pública",
+    "semester": 1,
+    "email": "l.jimenez@uceva.edu.co",
+    "avatar": "LJ",
+    "absences": 11,
+    "gpa": 2.6,
+    "alerts": [
+      "Primera semana sin asistencia",
+      "Riesgo de abandono temprano"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Julián Cardona Mejía",
+    "program": "Ingeniería Industrial",
+    "semester": 4,
+    "email": "j.cardona@uceva.edu.co",
+    "avatar": "JC",
+    "absences": 3,
+    "gpa": 3.9,
+    "alerts": []
+  },
+  {
+    "id": 9,
+    "name": "Sofía Rendón Agudelo",
+    "program": "Medicina",
+    "semester": 8,
+    "email": "s.rendon@uceva.edu.co",
+    "avatar": "SR",
+    "absences": 7,
+    "gpa": 3.4,
+    "alerts": [
+      "Reportó dificultades familiares"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Camilo Ávila Toro",
+    "program": "Ingeniería Eléctrica",
+    "semester": 3,
+    "email": "c.avila@uceva.edu.co",
+    "avatar": "CA",
+    "absences": 22,
+    "gpa": 1.9,
+    "alerts": [
+      "Repitente",
+      "Sin matrícula financiera",
+      "Inasistencias críticas"
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Isabella Mora Castaño",
+    "program": "Derecho",
+    "semester": 9,
+    "email": "i.mora@uceva.edu.co",
+    "avatar": "IM",
+    "absences": 1,
+    "gpa": 4.5,
+    "alerts": []
+  },
+  {
+    "id": 12,
+    "name": "David Quintero Serna",
+    "program": "Administración de Empresas",
+    "semester": 2,
+    "email": "d.quintero@uceva.edu.co",
+    "avatar": "DQ",
+    "absences": 10,
+    "gpa": 3,
+    "alerts": [
+      "Bajo promedio en materias clave"
+    ],
+    "tutorId": null
+  }
+]

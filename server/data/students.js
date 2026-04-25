@@ -617,46 +617,126 @@ export function getStudentById(id) {
   return students.find(s => s.id === id) || null;
 }
 
+// ─── Server-side validation helper ──────────────────────────────────────────
+function validateStudentPayload(data) {
+  const errors = [];
+
+  // Required fields
+  if (!data.name || String(data.name).trim() === '') {
+    errors.push('El nombre del estudiante es obligatorio.');
+  }
+  if (!data.studentCode || String(data.studentCode).trim() === '') {
+    errors.push('El código de estudiante es obligatorio.');
+  }
+  if (!data.program || String(data.program).trim() === '') {
+    errors.push('El programa académico es obligatorio.');
+  }
+  if (!data.email || String(data.email).trim() === '') {
+    errors.push('El correo electrónico es obligatorio.');
+  } else {
+    // Basic e-mail format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(String(data.email).trim())) {
+      errors.push('El correo electrónico no tiene un formato válido.');
+    }
+  }
+
+  // Numeric range validations (only when provided)
+  const semester = Number(data.semester);
+  if (data.semester !== undefined && data.semester !== '') {
+    if (isNaN(semester) || semester < 1 || semester > 12) {
+      errors.push('El semestre debe ser un número entre 1 y 12.');
+    }
+  }
+
+  const gpa = Number(data.gpa);
+  if (data.gpa !== undefined && data.gpa !== '') {
+    if (isNaN(gpa) || gpa < 0 || gpa > 5) {
+      errors.push('El promedio (GPA) debe estar entre 0.0 y 5.0.');
+    }
+  }
+
+  const absences = Number(data.absences);
+  if (data.absences !== undefined && data.absences !== '') {
+    if (isNaN(absences) || absences < 0) {
+      errors.push('Las faltas no pueden ser un valor negativo.');
+    }
+  }
+
+  return errors;
+}
+
 export async function addStudent(data) {
+  // ── 1. Server-side field validation ────────────────────────────────────────
+  const validationErrors = validateStudentPayload(data);
+  if (validationErrors.length > 0) {
+    const err = new Error(validationErrors.join(' '));
+    err.code = 'VALIDATION_ERROR';
+    err.details = validationErrors;
+    throw err;
+  }
+
+  // ── 2. Duplicate studentCode check → 409 Conflict ──────────────────────────
+  const normalizedCode = String(data.studentCode).trim().toUpperCase();
+  const duplicate = studentsDB.find(
+    s => s.studentCode && s.studentCode.toUpperCase() === normalizedCode
+  );
+  if (duplicate) {
+    const err = new Error(
+      `Ya existe un estudiante registrado con el código "${data.studentCode}". ` +
+      `El código de estudiante debe ser único.`
+    );
+    err.code = 'DUPLICATE_CODE';
+    throw err;
+  }
+
+  // ── 3. Build & persist the new record ──────────────────────────────────────
   const newId = Math.max(...studentsDB.map(s => s.id), 0) + 1;
+  const nameTrimmed = String(data.name).trim();
+  const initials = nameTrimmed
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase() || 'NE';
+
   const newStudent = {
     id: newId,
-    name: data.name,
-    studentCode: data.studentCode || '',
-    faculty: data.faculty || '',
-    program: data.program || '',
+    name: nameTrimmed,
+    studentCode: normalizedCode,
+    faculty: data.faculty ? String(data.faculty).trim() : '',
+    program: String(data.program).trim(),
     semester: Number(data.semester) || 1,
-    email: data.email || '',
-    avatar: data.name ? data.name.substring(0, 2).toUpperCase() : 'NE',
+    email: String(data.email).trim().toLowerCase(),
+    avatar: initials,
     absences: Number(data.absences) || 0,
     gpa: Number(data.gpa) || 0,
-    alerts: data.alerts || [],
-    tutorId: data.tutorId || null
+    alerts: Array.isArray(data.alerts) ? data.alerts : [],
+    tutorId: data.tutorId || null,
+    createdAt: new Date().toISOString(),
   };
+
   studentsDB.unshift(newStudent);
   await syncToDisk();
-  
-  // Invalidate cache so the new student appears immediately in next fetch
+
+  // ── 4. Invalidate cache & update search index ───────────────────────────────
   cacheTimestamp = 0;
-  
-  // Update search index
+  statsCacheTimestamp = 0;
+
   searchIndex.set(newStudent.id, {
     name: newStudent.name.toLowerCase(),
     program: newStudent.program.toLowerCase(),
     email: newStudent.email.toLowerCase(),
   });
 
-  // Invalidate cache
-  cacheTimestamp = 0;
-  statsCacheTimestamp = 0;
-
   const riskIndex = calculateRiskIndex(newStudent);
   const riskLevel = getRiskLevel(riskIndex);
-  
+
   return applyRules({
     ...newStudent,
     riskIndex,
-    riskLevel
+    riskLevel,
   });
 }
 

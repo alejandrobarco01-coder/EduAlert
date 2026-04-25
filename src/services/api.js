@@ -106,7 +106,18 @@ export async function createStudentAPI(data) {
     },
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error('Error creando estudiante');
+
+  if (!res.ok) {
+    // Parse server error body to propagate the descriptive message
+    let errBody = {};
+    try { errBody = await res.json(); } catch (_) { /* ignore */ }
+    const err = new Error(errBody.message || 'Error creando estudiante');
+    err.status = res.status;
+    err.code   = errBody.code || null;
+    err.details = errBody.details || null;
+    throw err;
+  }
+
   const json = await res.json();
   invalidateStudentCaches(null);
   return json.data;
