@@ -18,10 +18,33 @@ router.post('/', authorizeRoles('admin', 'coordinator'), async (req, res) => {
   try {
     console.log(`  ➕ Adding new student: ${req.body.name} (${req.body.studentCode})`);
     const newStudent = await addStudent(req.body);
+    console.log(`  ✅ Student created with id=${newStudent.id}, code=${newStudent.studentCode}`);
     res.status(201).json({ success: true, data: newStudent });
   } catch (error) {
+    // 409 – studentCode already exists
+    if (error.code === 'DUPLICATE_CODE') {
+      console.warn(`  ⚠️ Duplicate studentCode: ${req.body.studentCode}`);
+      return res.status(409).json({
+        success: false,
+        code: 'DUPLICATE_CODE',
+        message: error.message,
+      });
+    }
+
+    // 400 – server-side validation failed
+    if (error.code === 'VALIDATION_ERROR') {
+      console.warn(`  ⚠️ Validation error:`, error.details);
+      return res.status(400).json({
+        success: false,
+        code: 'VALIDATION_ERROR',
+        message: error.message,
+        details: error.details,
+      });
+    }
+
+    // 500 – unexpected error
     console.error('  ❌ Error adding student:', error);
-    res.status(500).json({ success: false, message: 'Error agregando estudiante: ' + error.message });
+    res.status(500).json({ success: false, message: 'Error interno al agregar estudiante: ' + error.message });
   }
 });
 

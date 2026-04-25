@@ -40,7 +40,14 @@ export default function AddStudentModal({ onClose, onSuccess }) {
       onSuccess();
     } catch (err) {
       console.error(err);
-      setError('Error al crear el estudiante. Intente nuevamente.');
+      // Show the descriptive server message when available
+      if (err.code === 'DUPLICATE_CODE') {
+        setError(`⚠️ Código duplicado: ${err.message}`);
+      } else if (err.code === 'VALIDATION_ERROR') {
+        setError(`Datos inválidos: ${err.message}`);
+      } else {
+        setError(err.message || 'Error al crear el estudiante. Intente nuevamente.');
+      }
       setLoading(false);
     }
   };
