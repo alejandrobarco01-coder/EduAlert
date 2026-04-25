@@ -18,6 +18,15 @@ import { JWT_SECRET, PORT } from './config.js';
 
 export { JWT_SECRET };
 
+// ─── Global Error Handling ───────────────────────────────────────────────────
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('  ❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('  ❌ Uncaught Exception:', err);
+});
+
 // ─── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
@@ -31,29 +40,6 @@ app.use((req, res, next) => {
   });
   next();
 });
-
-// ─── GZIP compression middleware for JSON responses ──────────────────────────
-const originalJson = express.response.json;
-express.response.json = function (body) {
-  const acceptEncoding = this.req.headers['accept-encoding'] || '';
-
-  if (acceptEncoding.includes('gzip')) {
-    const jsonStr = JSON.stringify(body);
-
-    return gzipAsync(Buffer.from(jsonStr))
-      .then(compressed => {
-        this.set('Content-Type', 'application/json');
-        this.set('Content-Encoding', 'gzip');
-        this.set('X-Response-Time', `${performance.now().toFixed(0)}ms`);
-        this.send(compressed);
-      })
-      .catch(() => {
-        return originalJson.call(this, body);
-      });
-  }
-
-  return originalJson.call(this, body);
-};
 
 // ─── Cache-Control headers ───────────────────────────────────────────────────
 app.use('/api', (req, res, next) => {
@@ -100,3 +86,5 @@ app.listen(PORT, '127.0.0.1', () => {
   console.log(`     GET /api/students/:id/recommendations — Recomendaciones IA`);
   console.log(`     GET /api/health            — Health check\n`);
 });
+
+setInterval(() => console.log(`  💓 Heartbeat: ${new Date().toLocaleTimeString()} | OK`), 60000);

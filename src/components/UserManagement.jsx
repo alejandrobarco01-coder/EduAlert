@@ -35,7 +35,7 @@ export default function UserManagement({ onUpdate }) {
   const filtered = staff.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.email.toLowerCase().includes(search.toLowerCase()) ||
-    s.department.toLowerCase().includes(search.toLowerCase())
+    s.department?.toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleStatus = async (id, currentStatus) => {

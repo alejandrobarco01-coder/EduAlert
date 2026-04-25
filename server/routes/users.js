@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
     // Si es estudiante, agregarlo también a la base de datos de estudiantes para que aparezca en el dashboard
     if (req.body.role === 'student' || req.body.role === 'estudiante') {
       try {
-        addStudent({
+        await addStudent({
           name: req.body.name,
           email: req.body.email,
           program: req.body.department, // Usamos departamento como programa por defecto

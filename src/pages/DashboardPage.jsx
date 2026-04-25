@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail
+  UserCheck, History, BrainCircuit, Settings, Mail, UserPlus
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -426,7 +426,7 @@ export default function DashboardPage() {
                         filters={filters}
                         onChange={(field, value) => setFilters(prev => ({ ...prev, [field]: value }))}
                         onReset={() => setFilters(DEFAULT_FILTERS)}
-                        resultCount={students.length}
+                        resultCount={students?.length || 0}
                       />
                     </div>
                   </div>
@@ -439,7 +439,7 @@ export default function DashboardPage() {
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.3em]">Listado General de Expedientes</h3>
                   </div>
                   <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                    {students.length} Resultados encontrados
+                    {(students?.length || 0)} Resultados encontrados
                   </div>
                 </div>
 
@@ -449,7 +449,7 @@ export default function DashboardPage() {
                     <Loader2 className="animate-spin text-uceva-500 mb-4" size={40} />
                     <p className="text-gray-500 font-medium tracking-wide">Analizando índices de deserción...</p>
                   </div>
-                ) : students.length > 0 ? (
+                ) : (students && students.length > 0) ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-result-in">
                     {students.map(student => (
                       <StudentCard

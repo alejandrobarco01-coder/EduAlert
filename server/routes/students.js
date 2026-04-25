@@ -14,13 +14,14 @@ router.use(authenticateToken);
 
 
 // ─── POST /api/students ── Agregar un nuevo estudiante ──────────────────────
-router.post('/', authorizeRoles('admin', 'coordinator'), (req, res) => {
+router.post('/', authorizeRoles('admin', 'coordinator'), async (req, res) => {
   try {
-    const newStudent = addStudent(req.body);
+    console.log(`  ➕ Adding new student: ${req.body.name} (${req.body.studentCode})`);
+    const newStudent = await addStudent(req.body);
     res.status(201).json({ success: true, data: newStudent });
   } catch (error) {
-    console.error('Error adding student:', error);
-    res.status(500).json({ success: false, message: 'Error agregando estudiante' });
+    console.error('  ❌ Error adding student:', error);
+    res.status(500).json({ success: false, message: 'Error agregando estudiante: ' + error.message });
   }
 });
 
@@ -38,7 +39,7 @@ router.get('/', (req, res) => {
 // ─── GET /api/students/stats ── Estadísticas cacheadas ───────────────────────
 router.get('/stats', (req, res) => {
   const stats = getStats();
-
+  console.log(`  📈 Stats requested: total=${stats.total}, high=${stats.high}`);
   res.json({
     success: true,
     data: stats,
@@ -47,13 +48,18 @@ router.get('/stats', (req, res) => {
 
 // ─── GET /api/students/risk-history ── Historial de riesgo ───────────────────
 router.get('/risk-history', (req, res) => {
-  const months = Number(req.query.months) || 6;
-  const history = getRiskHistory(months);
-
-  res.json({
-    success: true,
-    data: history,
-  });
+  try {
+    const months = Number(req.query.months) || 6;
+    const history = getRiskHistory(months);
+    console.log(`  📊 Risk history requested (months=${months}) → ${history.length} records`);
+    res.json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    console.error('  ❌ Error in risk-history:', error);
+    res.status(500).json({ success: false, message: 'Error cargando historial' });
+  }
 });
 
 // ─── GET /api/students/filter ── Filtros combinados dinámicos ────────────────
@@ -120,7 +126,7 @@ router.get('/:id', (req, res) => {
 });
 
 // ─── PATCH /api/students/:id/tutor ── Asignar tutor ──────────────────────────
-router.patch('/:id/tutor', authorizeRoles('admin', 'coordinator'), (req, res) => {
+router.patch('/:id/tutor', authorizeRoles('admin', 'coordinator'), async (req, res) => {
   const id = Number(req.params.id);
   const { tutorId } = req.body;
   const student = getStudentById(id);
@@ -130,7 +136,7 @@ router.patch('/:id/tutor', authorizeRoles('admin', 'coordinator'), (req, res) =>
   }
 
   try {
-    const updated = assignTutor(id, tutorId);
+    const updated = await assignTutor(id, tutorId);
     res.json({ success: true, data: updated });
   } catch (err) {
     console.error('Error in assignTutor:', err);

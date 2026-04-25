@@ -4,8 +4,14 @@ import { saveRiskRecord } from './riskHistory.js';
 import { getInterventionsByStudent } from './interventions.js';
 import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
 import { getRiskRules } from './riskRules.js';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const studentsDB = [
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DB_PATH = join(__dirname, 'students.json');
+
+let studentsDB = [
   {
     id: 1,
     name: 'Valentina Ospina Reyes',
@@ -140,6 +146,23 @@ const studentsDB = [
     tutorId: null,
   },
 ];
+
+// ─── Initial Load from Disk ──────────────────────────────────────────────────
+try {
+  const data = await readFile(DB_PATH, 'utf-8');
+  studentsDB = JSON.parse(data);
+} catch (err) {
+  // If file doesn't exist, use the default studentsDB defined above
+  console.log('  ℹ️ No existe students.json, usando datos iniciales.');
+}
+
+async function syncToDisk() {
+  try {
+    await writeFile(DB_PATH, JSON.stringify(studentsDB, null, 2));
+  } catch (err) {
+    console.error('  ❌ Error persistiendo estudiantes:', err);
+  }
+}
 
 // ─── Pre-computed search fields (lowercase) for fast filtering ───────────────
 const searchIndex = new Map();
@@ -594,7 +617,7 @@ export function getStudentById(id) {
   return students.find(s => s.id === id) || null;
 }
 
-export function addStudent(data) {
+export async function addStudent(data) {
   const newId = Math.max(...studentsDB.map(s => s.id), 0) + 1;
   const newStudent = {
     id: newId,
@@ -611,6 +634,10 @@ export function addStudent(data) {
     tutorId: data.tutorId || null
   };
   studentsDB.unshift(newStudent);
+  await syncToDisk();
+  
+  // Invalidate cache so the new student appears immediately in next fetch
+  cacheTimestamp = 0;
   
   // Update search index
   searchIndex.set(newStudent.id, {
@@ -633,7 +660,7 @@ export function addStudent(data) {
   });
 }
 
-export function assignTutor(studentId, tutorId) {
+export async function assignTutor(studentId, tutorId) {
   const sId = Number(studentId);
   const tId = tutorId ? Number(tutorId) : null;
   const student = studentsDB.find(s => s.id === sId);
@@ -643,6 +670,7 @@ export function assignTutor(studentId, tutorId) {
     // Invalidamos el cache
     cacheTimestamp = 0;
     statsCacheTimestamp = 0;
+    await syncToDisk();
     return student;
   }
   return null;
@@ -677,7 +705,7 @@ export function getRiskHistory(months = 6) {
     // For the current month (i === 0), use real data
     if (i === 0) {
       const total = students.length;
-      const avgRisk = Math.round((students.reduce((a, s) => a + s.riskIndex, 0) / total) * 10) / 10;
+      const avgRisk = total > 0 ? Math.round((students.reduce((a, s) => a + s.riskIndex, 0) / total) * 10) / 10 : 0;
       const highCount = students.filter(s => s.riskLevel === 'high').length;
       const mediumCount = students.filter(s => s.riskLevel === 'medium').length;
       const lowCount = students.filter(s => s.riskLevel === 'low').length;
@@ -686,7 +714,7 @@ export function getRiskHistory(months = 6) {
     } else {
       // For past months, apply variation to simulate realistic trends
       const variation = (seededRandom() - 0.45) * 12; // Slight upward bias to show improvement
-      const baseAvg = students.reduce((a, s) => a + s.riskIndex, 0) / students.length;
+      const baseAvg = students.length > 0 ? students.reduce((a, s) => a + s.riskIndex, 0) / students.length : 45;
       const pastAvg = Math.round(Math.max(10, Math.min(85, baseAvg + variation + i * 1.5)) * 10) / 10;
 
       // Distribute risk levels based on pastAvg
