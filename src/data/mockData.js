@@ -183,3 +183,12 @@ export const programs = [
 export const semesters = ['Todos', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const riskLevels = ['Todos', 'low', 'medium', 'high'];
+
+// ─── UCEVA Faculties ──────────────────────────────────────────────────────────
+export const faculties = [
+  'Facultad de Ingeniería',
+  'Facultad de Ciencias de la Salud',
+  'Facultad de Ciencias Económicas y Empresariales',
+  'Facultad de Ciencias Jurídicas y Políticas',
+  'Facultad de Ciencias Sociales y Humanas',
+];

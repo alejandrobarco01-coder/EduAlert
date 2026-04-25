@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail, Plus
+  UserCheck, History, BrainCircuit, Settings, Mail
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +38,7 @@ import NotificationPreview from '../components/NotificationPreview';
 import StudentRiskHistory from '../components/StudentRiskHistory';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
-import StudentForm from '../components/StudentForm';
+import AddStudentModal from '../components/AddStudentModal';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 const roleLabel = { admin: 'Administrador', tutor: 'Tutor', coordinator: 'Coordinador' };
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
 
   const [activeModalTab, setActiveModalTab] = useState('factors');
-  const [showAddStudentForm, setShowAddStudentForm] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     // 1. Fetch data only if user role allows it
@@ -286,7 +286,7 @@ export default function DashboardPage() {
             <div className="h-8 w-px bg-gray-800 mx-2"></div>
 
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 transition-colors ${showNotifications ? 'text-white' : 'text-gray-400 hover:text-white'}`}
               >
@@ -328,14 +328,14 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="p-3 border-t border-gray-800 bg-gray-950/50 text-center flex justify-between px-4">
-                    <button 
+                    <button
                       onClick={() => setHasUnread(false)}
                       disabled={!hasUnread}
                       className={`text-[10px] font-bold transition-colors ${hasUnread ? 'text-uceva-400 hover:text-white' : 'text-gray-600 cursor-default'}`}
                     >
                       {hasUnread ? 'Marcar leídas' : 'Todo leído'}
                     </button>
-                    <button 
+                    <button
                       onClick={() => setShowNotifications(false)}
                       className="text-[10px] text-gray-500 hover:text-gray-300 font-bold transition-colors"
                     >
@@ -403,6 +403,15 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="bg-gray-950 p-2 rounded-2xl border border-gray-800 shadow-inner flex items-center gap-2">
+                          {['admin', 'coordinator'].includes(user?.role) && (
+                            <button
+                              onClick={() => setIsAddModalOpen(true)}
+                              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-uceva-600 to-uceva-700 hover:from-uceva-500 hover:to-uceva-600 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-uceva-900/20 active:scale-95 group"
+                            >
+                              <UserPlus size={16} className="group-hover:rotate-12 transition-transform" />
+                              Agregar Estudiante
+                            </button>
+                          )}
                           <button
                             onClick={() => refetch()}
                             className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 group"
@@ -429,24 +438,10 @@ export default function DashboardPage() {
                     <div className="w-10 h-1 bg-gradient-to-r from-uceva-600 to-transparent rounded-full font-black"></div>
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.3em]">Listado General de Expedientes</h3>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setShowAddStudentForm(v => !v)}
-                      className="px-4 py-1.5 bg-uceva-600 hover:bg-uceva-500 rounded-full text-[10px] font-bold text-white uppercase tracking-widest transition-colors flex items-center gap-2"
-                    >
-                      <Plus size={14} /> Agregar Estudiante
-                    </button>
-                    <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden md:block">
-                      {students.length} Resultados encontrados
-                    </div>
+                  <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    {students.length} Resultados encontrados
                   </div>
                 </div>
-
-                {showAddStudentForm && (
-                  <div className="mb-8 animate-slide-up transition-all">
-                    <StudentForm onCancel={() => setShowAddStudentForm(false)} onSave={() => { setShowAddStudentForm(false); refetch(); }} />
-                  </div>
-                )}
 
                 {/* Students Grid */}
                 {loading ? (
@@ -609,7 +604,16 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {activeView === 'users' && <UserManagement />}
+            {activeView === 'users' && (
+              <UserManagement
+                onUpdate={(newUser) => {
+                  refetch();
+                  if (newUser?.role === 'student') {
+                    setActiveView('students');
+                  }
+                }}
+              />
+            )}
             {activeView === 'rules' && <RiskRulesManagement />}
 
           </div>
@@ -824,6 +828,16 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      )}
+      {/* Add Student Modal */}
+      {isAddModalOpen && (
+        <AddStudentModal 
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={() => {
+            setIsAddModalOpen(false);
+            refetch();
+          }}
+        />
       )}
     </div>
   );

@@ -155,6 +155,7 @@ export default function RegisterPage() {
               <label htmlFor="reg-role" className="text-xs font-medium text-gray-400 mb-1.5 block">Rol</label>
               <select id="reg-role" className="input-field" value={form.role} onChange={e => handleChange('role', e.target.value)}>
                 <option value="tutor">Tutor</option>
+                <option value="student">Estudiante</option>
                 <option value="coordinator">Coordinador</option>
                 <option value="welfare">Bienestar</option>
                 <option value="admin">Administrador</option>
