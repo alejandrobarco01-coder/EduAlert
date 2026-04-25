@@ -4,10 +4,10 @@ import {
 } from 'lucide-react';
 import { fetchUsers, saveUserAPI, updateUserStatusAPI, deleteUserAPI } from '../services/api';
 
-const roleLabel = { admin: 'Administrador', coordinator: 'Coordinador', welfare: 'Bienestar', tutor: 'Tutor' };
-const roleIcon = { admin: Shield, coordinator: Shield, welfare: Heart, tutor: GraduationCap };
+const roleLabel = { admin: 'Administrador', coordinator: 'Coordinador', welfare: 'Bienestar', tutor: 'Tutor', student: 'Estudiante' };
+const roleIcon = { admin: Shield, coordinator: Shield, welfare: Heart, tutor: GraduationCap, student: Users };
 
-export default function UserManagement() {
+export default function UserManagement({ onUpdate }) {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -35,7 +35,7 @@ export default function UserManagement() {
   const filtered = staff.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.email.toLowerCase().includes(search.toLowerCase()) ||
-    s.department.toLowerCase().includes(search.toLowerCase())
+    s.department?.toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleStatus = async (id, currentStatus) => {
@@ -88,6 +88,7 @@ export default function UserManagement() {
       setEditingId(null);
       setFormError('');
       setShowForm(false);
+      if (onUpdate) onUpdate(savedUser);
     } catch (error) {
       setFormError(error.message);
     }
@@ -114,7 +115,7 @@ export default function UserManagement() {
         <div className="card p-5 mb-5 animate-slide-up border-uceva-800/40">
           <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
             {editingId ? <Edit2 size={16} className="text-uceva-400" /> : <Plus size={16} className="text-uceva-400" />}
-            {editingId ? 'Editar usuario' : 'Nuevo miembro del staff'}
+            {editingId ? 'Editar usuario' : 'Registrar nuevo usuario'}
           </h3>
           {formError && <p className="text-red-400 text-xs mb-3 bg-red-900/20 border border-red-800/40 rounded-lg px-3 py-2">{formError}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -122,6 +123,7 @@ export default function UserManagement() {
             <input className="input-field" placeholder="Correo institucional" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} />
             <select className="input-field" value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}>
               <option value="tutor">Tutor</option>
+              <option value="student">Estudiante</option>
               <option value="coordinator">Coordinador</option>
               <option value="welfare">Bienestar</option>
               <option value="admin">Administrador</option>

@@ -154,5 +154,80 @@
     "valor_riesgo_anterior": null,
     "nivel_riesgo": "low",
     "delta": null
+  },
+  {
+    "id": 1777090358428,
+    "usuario_id": 3,
+    "valor_riesgo": 8,
+    "fecha_calculo": "2026-04-25T04:12:38.245Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
+  },
+  {
+    "id": 1777090359998,
+    "usuario_id": 3,
+    "valor_riesgo": 12,
+    "fecha_calculo": "2026-04-25T04:12:39.424Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
+  },
+  {
+    "id": 1777090360358,
+    "usuario_id": 3,
+    "valor_riesgo": 18,
+    "fecha_calculo": "2026-04-25T04:12:40.010Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
+  },
+  {
+    "id": 1777090364164,
+    "usuario_id": 3,
+    "valor_riesgo": 21,
+    "fecha_calculo": "2026-04-25T04:12:43.668Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
+  },
+  {
+    "id": 1777090365106,
+    "usuario_id": 3,
+    "valor_riesgo": 29,
+    "fecha_calculo": "2026-04-25T04:12:44.427Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar",
+      "Depresion"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
   }
 ]

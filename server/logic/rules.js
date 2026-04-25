@@ -18,6 +18,8 @@ const rules = [
           if (res.success) {
             console.log(`[NOTIF SENT] Email simulation for student ${student.id} completed.`);
           }
+        }).catch(err => {
+          console.error(`[NOTIF FAILED] Error for student ${student.id}:`, err.message);
         });
 
         console.log(`[RULE TRIGGERED] Critical Risk for student ${student.id}: ${student.name}`);

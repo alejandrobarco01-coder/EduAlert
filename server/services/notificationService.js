@@ -14,6 +14,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOG_DIR = join(__dirname, '..', 'logs');
 const NOTIF_LOG = join(LOG_DIR, 'notifications.log');
 
+// Ensure log directory exists to avoid crashes on appendFile
+import { mkdirSync } from 'node:fs';
+try {
+  mkdirSync(LOG_DIR, { recursive: true });
+} catch (err) {
+  // Directory already exists or cannot be created (log the error but don't crash)
+}
+
 // ─── Risk level labels ────────────────────────────────────────────────────────
 const RISK_LEVEL_LABELS = {
   critical: 'CRÍTICO',

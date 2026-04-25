@@ -1,5 +1,6 @@
 import express from 'express';
 import { getAllUsers, createUser, updateUser, deleteUser } from '../data/users.js';
+import { addStudent } from '../data/students.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -32,6 +33,23 @@ router.post('/', async (req, res) => {
   try {
     const newUser = await createUser(req.body);
     const { password, ...safeUser } = newUser;
+
+    // Si es estudiante, agregarlo también a la base de datos de estudiantes para que aparezca en el dashboard
+    if (req.body.role === 'student' || req.body.role === 'estudiante') {
+      try {
+        await addStudent({
+          name: req.body.name,
+          email: req.body.email,
+          program: req.body.department, // Usamos departamento como programa por defecto
+          semester: 1,
+          gpa: 0,
+          absences: 0
+        });
+      } catch (err) {
+        console.error('Error adding student during user creation:', err);
+      }
+    }
+
     res.status(201).json({
       success: true,
       data: safeUser,

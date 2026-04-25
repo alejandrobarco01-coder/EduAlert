@@ -1,6 +1,7 @@
 import express from 'express';
 import { findUserByEmail, createUser, getAllUsers } from '../data/users.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
+import { addStudent } from '../data/students.js';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
 
@@ -63,6 +64,20 @@ router.post('/register', async (req, res) => {
     
     // Fire-and-forget: el envío de correo no bloquea, ni revierte el registro si llegara a fallar
     sendWelcomeEmail(email, name, availableTutor.name).catch(err => console.error('[Auth] Fallo en el envío de correo no bloqueante:', err));
+
+    // También lo agregamos a la base de datos de estudiantes monitoreados
+    try {
+      addStudent({
+        name: name,
+        email: email,
+        program: department,
+        semester: 1,
+        gpa: 0,
+        absences: 0
+      });
+    } catch (err) {
+      console.error('Error adding student during registration:', err);
+    }
   }
 
   // Retornar éxito (sin password)
