@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import StudentRegistrationPage from './pages/StudentRegistrationPage';
 
 export function AppRoutes() {
   const { isInitialized } = useAuth();
@@ -23,6 +24,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/estudiantes/registro" element={<StudentRegistrationPage />} />
       <Route
         path="/dashboard"
         element={
