@@ -24,6 +24,7 @@ try {
 
 // ─── Risk level labels ────────────────────────────────────────────────────────
 const RISK_LEVEL_LABELS = {
+  unevaluated: 'SIN EVALUAR',
   critical: 'CRÍTICO',
   high: 'ALTO',
   medium: 'MODERADO',
@@ -31,6 +32,7 @@ const RISK_LEVEL_LABELS = {
 };
 
 const RISK_LEVEL_COLORS = {
+  unevaluated: '#9ca3af',
   critical: '#dc2626',
   high: '#ea580c',
   medium: '#d97706',

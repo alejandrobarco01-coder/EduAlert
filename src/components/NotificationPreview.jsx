@@ -8,6 +8,7 @@ import { previewNotification, sendNotificationAPI } from '../services/api';
 
 // ─── Risk level config ────────────────────────────────────────────────────────
 const RISK_CONFIG = {
+  unevaluated: { label: 'SIN EVALUAR', color: '#9ca3af', bg: 'bg-gray-900/30', border: 'border-gray-700/50', icon: <Info size={14} className="text-gray-400" /> },
   critical: { label: 'CRÍTICO',  color: '#dc2626', bg: 'bg-red-900/20',    border: 'border-red-800/40',    icon: <ShieldAlert size={14} className="text-red-400" /> },
   high:     { label: 'ALTO',     color: '#ea580c', bg: 'bg-orange-900/20', border: 'border-orange-800/40', icon: <AlertTriangle size={14} className="text-orange-400" /> },
   medium:   { label: 'MODERADO', color: '#d97706', bg: 'bg-amber-900/20',  border: 'border-amber-800/40',  icon: <Info size={14} className="text-amber-400" /> },
@@ -57,7 +58,7 @@ export default function NotificationPreview({ student }) {
     }
   };
 
-  const cfg = RISK_CONFIG[student.riskLevel] || RISK_CONFIG.low;
+  const cfg = RISK_CONFIG[student.riskLevel] || RISK_CONFIG.unevaluated;
 
   // ── Loading state ───────────────────────────────────────────────────────────
   if (loading) {
