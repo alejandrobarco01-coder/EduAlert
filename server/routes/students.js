@@ -192,10 +192,10 @@ router.post('/:id/factors', authorizeRoles('admin', 'coordinator', 'tutor'), asy
 
   try {
     const updatedIds = await setFactorsForStudent(id, factorIds);
-    
+
     // Disparar evento automático de cálculo de riesgo
     const historyRecord = await triggerRiskCalculation(id, 'checklist');
-    
+
     res.json({ success: true, data: updatedIds, riskUpdate: historyRecord });
   } catch (error) {
     console.error('Error saving factors:', error);
@@ -228,17 +228,17 @@ router.get('/:id/interventions', (req, res) => {
 // ─── POST /api/students/:id/interventions ── Registrar una nueva intervención ─
 router.post('/:id/interventions', authorizeRoles('admin', 'coordinator', 'tutor'), async (req, res) => {
   const id = Number(req.params.id);
-    const { description, text, type, priority } = req.body;
-    const finalDescription = description || text;
-  
-    if (!finalDescription) {
-      return res.status(400).json({ success: false, message: 'La descripción de la intervención es obligatoria' });
-    }
-  
-    try {
-      // 1. Guardar intervención (incluyendo tutorId obtenido del token)
-      const tutorId = req.user.id;
-      const intervention = await addIntervention(id, tutorId, { description: finalDescription, type, priority: priority || 'medium' });
+  const { description, text, type, priority } = req.body;
+  const finalDescription = description || text;
+
+  if (!finalDescription) {
+    return res.status(400).json({ success: false, message: 'La descripción de la intervención es obligatoria' });
+  }
+
+  try {
+    // 1. Guardar intervención (incluyendo tutorId obtenido del token)
+    const tutorId = req.user.id;
+    const intervention = await addIntervention(id, tutorId, { description: finalDescription, type, priority: priority || 'medium' });
 
     // 2. Disparar evento automático de cálculo de riesgo
     const riskUpdate = await triggerRiskCalculation(id, 'intervention');

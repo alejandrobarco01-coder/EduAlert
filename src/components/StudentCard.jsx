@@ -1,6 +1,12 @@
 import { AlertTriangle, TrendingDown, CheckCircle } from 'lucide-react';
 
 const riskConfig = {
+  unevaluated: {
+    label: 'Sin evaluar',
+    className: 'badge-low',
+    icon: AlertTriangle,
+    bar: 'bg-gray-700',
+  },
   low: {
     label: 'Riesgo Bajo',
     className: 'badge-low',
@@ -28,8 +34,10 @@ const riskConfig = {
 };
 
 export default function StudentCard({ student, onClick }) {
-  const cfg = riskConfig[student.riskLevel] || riskConfig.low;
+  const cfg = riskConfig[student.riskLevel] || riskConfig.unevaluated;
   const Icon = cfg.icon;
+  const isUnevaluated = student.riskLevel === 'unevaluated';
+  const riskIndex = Number.isFinite(Number(student.riskIndex)) ? Number(student.riskIndex) : 0;
 
   return (
     <div
@@ -78,12 +86,12 @@ export default function StudentCard({ student, onClick }) {
       <div className="mb-3">
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-xs text-gray-500">Índice de Riesgo IA</span>
-          <span className="text-xs font-bold text-gray-200">{student.riskIndex}%</span>
+          <span className="text-xs font-bold text-gray-200">{isUnevaluated ? '—' : `${riskIndex}%`}</span>
         </div>
         <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-700 ${cfg.bar}`}
-            style={{ width: `${student.riskIndex}%` }}
+            style={{ width: `${isUnevaluated ? 0 : riskIndex}%` }}
           />
         </div>
       </div>

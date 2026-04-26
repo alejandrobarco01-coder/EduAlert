@@ -1,6 +1,7 @@
 import { getFactorsForStudent } from './studentFactors.js';
 import { getAllFactors } from './factors.js';
 import { saveRiskRecord } from './riskHistory.js';
+import { getLatestRiskRecords } from './riskHistory.js';
 import { getInterventionsByStudent } from './interventions.js';
 import { applyRules, CRITICAL_RISK_THRESHOLD } from '../logic/rules.js';
 import { getRiskRules } from './riskRules.js';
@@ -293,9 +294,19 @@ export function getAllStudents() {
     return cachedStudents;
   }
 
+  const latestRisk = getLatestRiskRecords();
+
   cachedStudents = studentsDB.map(student => {
-    const riskIndex = calculateRiskIndex(student);
-    const updatedStudent = { ...student, riskIndex, riskLevel: getRiskLevel(riskIndex) };
+    const latest = latestRisk[String(student.id)];
+    if (!latest) {
+      // Student has never been evaluated by the risk engine yet.
+      const updatedStudent = { ...student, riskIndex: 0, riskLevel: 'unevaluated' };
+      return applyRules(updatedStudent);
+    }
+
+    const riskIndex = Number(latest.riskValue);
+    const riskLevel = latest.nivel_riesgo || latest.riskLevel || getRiskLevel(riskIndex);
+    const updatedStudent = { ...student, riskIndex, riskLevel };
     return applyRules(updatedStudent);
   });
   cacheTimestamp = now;
@@ -715,6 +726,24 @@ export async function addStudent(data) {
     alerts: Array.isArray(data.alerts) ? data.alerts : [],
     tutorId: data.tutorId || null,
     createdAt: new Date().toISOString(),
+    // SCRUM-40: initialize risk factors object with neutral values
+    factores: {
+      academico: {
+        gpa: Number(data.gpa) || 0,
+        absences: Number(data.absences) || 0,
+        semester: Number(data.semester) || 1,
+      },
+      checklist: {
+        factorIds: [],
+        totalWeight: 0,
+      },
+      intervenciones: {
+        alertsCount: Array.isArray(data.alerts) ? data.alerts.length : 0,
+        interventionsCount: 0,
+      },
+      estado: 'sin_datos',
+      lastUpdatedAt: new Date().toISOString(),
+    }
   };
 
   studentsDB.unshift(newStudent);
@@ -730,13 +759,11 @@ export async function addStudent(data) {
     email: newStudent.email.toLowerCase(),
   });
 
-  const riskIndex = calculateRiskIndex(newStudent);
-  const riskLevel = getRiskLevel(riskIndex);
-
+  // Initial state: show "Sin evaluar" until the engine creates a risk_history record
   return applyRules({
     ...newStudent,
-    riskIndex,
-    riskLevel,
+    riskIndex: 0,
+    riskLevel: 'unevaluated'
   });
 }
 
