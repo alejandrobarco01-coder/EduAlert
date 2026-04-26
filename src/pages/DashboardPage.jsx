@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail
+  UserCheck, History, BrainCircuit, Settings, Mail, Download
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -161,6 +161,54 @@ export default function DashboardPage() {
   const handleSaveIntervention = async (data) => {
     const newI = await saveIntervention(selectedStudent.id, data);
     setInterventions(prev => [newI, ...prev]);
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      'Nombre', 'Código', 'Programa', 'Semestre', 'Nivel de riesgo', 
+      'Factores activos', 'Tutor asignado', 'Última intervención', 'Fecha de registro'
+    ];
+
+    const escapeCSV = (value) => {
+      if (value === null || value === undefined) return '';
+      const str = String(value);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const rows = students.map(s => {
+      const tutorName = tutors.find(t => t.id === s.tutorId)?.name || 'Sin asignar';
+      const factorsStr = s.alerts ? s.alerts.join(', ') : '';
+      
+      return [
+        escapeCSV(s.name),
+        escapeCSV(s.id),
+        escapeCSV(s.program),
+        escapeCSV(s.semester),
+        escapeCSV(s.riskLevel),
+        escapeCSV(factorsStr),
+        escapeCSV(tutorName),
+        escapeCSV('N/A'),
+        escapeCSV('N/A')
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `edualert-export-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -401,6 +449,13 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="bg-gray-950 p-2 rounded-2xl border border-gray-800 shadow-inner flex items-center gap-2">
+                          <button
+                            onClick={handleExportCSV}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 group"
+                          >
+                            <Download size={16} className="group-hover:scale-110 transition-transform" />
+                            Exportar CSV
+                          </button>
                           <button
                             onClick={() => refetch()}
                             className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 group"
