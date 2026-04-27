@@ -96,5 +96,13 @@
     "password": "Password123!",
     "role": "tutor",
     "department": "Facultad de Ciencias Básicas y Salud"
+  },
+  {
+    "id": 1777327871680,
+    "name": "Lisandro",
+    "email": "Licha.martinez01@uceva.edu.co",
+    "password": "Lisandro1234",
+    "role": "student",
+    "department": "Facultad de Ciencias de la Educación"
   }
 ]
