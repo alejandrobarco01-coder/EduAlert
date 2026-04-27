@@ -76,6 +76,7 @@ app.use('/api/:path', (req, res) => {
 // ─── Start ───────────────────────────────────────────────────────────────────
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n  🚀 EduAlert API corriendo en http://127.0.0.1:${PORT}`);
+  console.log(`  🔗 PORTAL DE ESTUDIANTES: http://localhost:5173/estudiantes/registro`);
   console.log(`  ⚡ Optimizaciones activas: Cache, GZIP, Search Index`);
   console.log(`  📚 Endpoints disponibles:`);
   console.log(`     GET /api/students          — Lista de estudiantes con índice de riesgo`);

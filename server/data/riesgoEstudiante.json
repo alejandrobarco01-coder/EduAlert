@@ -229,5 +229,38 @@
     "valor_riesgo_anterior": null,
     "nivel_riesgo": "low",
     "delta": null
+  },
+  {
+    "id": 1777327696276,
+    "usuario_id": 2,
+    "valor_riesgo": 40,
+    "fecha_calculo": "2026-04-27T22:08:16.055Z",
+    "factores_detectados": [
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar",
+      "Depresion"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1777327697217,
+    "usuario_id": 2,
+    "valor_riesgo": 47,
+    "fecha_calculo": "2026-04-27T22:08:17.105Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico",
+      "Inasistencias reiteradas",
+      "Problemas financieros",
+      "Falta de apoyo familiar",
+      "Depresion"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
   }
 ]
