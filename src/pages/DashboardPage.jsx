@@ -5,7 +5,8 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail, UserPlus
+  UserCheck, History, BrainCircuit, Settings, Mail, UserPlus,
+  Download,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -39,6 +40,7 @@ import StudentRiskHistory from '../components/StudentRiskHistory';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
 import AddStudentModal from '../components/AddStudentModal';
+import ExportModal from '../components/ExportModal';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 const roleLabel = { admin: 'Administrador', tutor: 'Tutor', coordinator: 'Coordinador' };
@@ -73,6 +75,7 @@ export default function DashboardPage() {
 
   const [activeModalTab, setActiveModalTab] = useState('factors');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     // 1. Fetch data only if user role allows it
@@ -432,14 +435,44 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Section Divider */}
+                {/* Section Divider — Barra de acciones de la lista */}
                 <div className="flex items-center justify-between mb-8 mt-12">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-1 bg-gradient-to-r from-uceva-600 to-transparent rounded-full font-black"></div>
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.3em]">Listado General de Expedientes</h3>
                   </div>
-                  <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                    {(students?.length || 0)} Resultados encontrados
+
+                  <div className="flex items-center gap-3">
+                    {/* ✓ Criterio: el botón NO aparece para tutor/estudiante */}
+                    {['admin', 'coordinator'].includes(user?.role) && (
+                      <div className="relative group/export">
+                        <button
+                          id="btn-exportar-datos"
+                          onClick={() => students?.length > 0 && setShowExportModal(true)}
+                          disabled={!students || students.length === 0}
+                          aria-disabled={!students || students.length === 0}
+                          className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold border transition-all duration-200
+                            ${ students?.length > 0
+                              ? 'bg-gray-900 hover:bg-emerald-900/30 border-gray-700 hover:border-emerald-600/50 text-gray-400 hover:text-emerald-300 cursor-pointer'
+                              : 'bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed opacity-50'
+                            }`}
+                        >
+                          <Download size={13} />
+                          Exportar datos
+                        </button>
+                        {/* ✓ Criterio: tooltip explicativo si no hay estudiantes */}
+                        {(!students || students.length === 0) && (
+                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-[10px] text-gray-400 text-center shadow-xl pointer-events-none opacity-0 group-hover/export:opacity-100 transition-opacity duration-200 z-50">
+                            No hay estudiantes registrados para exportar
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="px-4 py-1.5 bg-gray-900/50 rounded-full border border-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      {(students?.length || 0)} Resultados encontrados
+                    </div>
                   </div>
                 </div>
 
@@ -829,7 +862,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-      {/* Add Student Modal */}
       {isAddModalOpen && (
         <AddStudentModal 
           onClose={() => setIsAddModalOpen(false)}
@@ -837,6 +869,18 @@ export default function DashboardPage() {
             setIsAddModalOpen(false);
             refetch();
           }}
+        />
+      )}
+
+      {/* ✓ Criterio: modal de selección de filtros y formato — solo admin/coordinator */}
+      {showExportModal && ['admin', 'coordinator'].includes(user?.role) && (
+        <ExportModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          filteredStudents={students ?? []}
+          allStudents={students ?? []}  
+          tutors={tutors}
+          activeFilters={filters}
         />
       )}
     </div>
