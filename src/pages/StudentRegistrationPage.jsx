@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  BookOpen,
-  User,
-  Mail,
-  GraduationCap,
-  Hash,
-  ChevronRight,
-  CheckCircle,
-  ShieldAlert,
+  BookOpen, User, Mail, GraduationCap, Hash,
+  ChevronRight, CheckCircle, ShieldAlert,
+  ChevronLeft, AlertTriangle, TrendingUp, DollarSign,
+  Home, Briefcase, Award, Loader2,
 } from 'lucide-react';
 
 // ─── Constantes del wizard ────────────────────────────────────────────────────
@@ -340,31 +336,246 @@ function Step1PersonalData({ data, onNext }) {
   );
 }
 
-// ─── Placeholders para los pasos 2 y 3 ───────────────────────────────────────
-function Step2Placeholder({ onBack }) {
+// ─── Paso 2: Encuesta Socioeconómica ─────────────────────────────────────────
+function YesNoToggle({ id, value, onChange }) {
   return (
-    <div className="text-center py-8 space-y-4">
-      <p className="text-gray-400 text-sm">Paso 2: Encuesta socioeconómica (próximamente)</p>
-      <button
-        onClick={onBack}
-        className="text-uceva-400 hover:text-uceva-300 text-sm underline"
-      >
-        ← Volver al Paso 1
-      </button>
+    <div className="flex gap-2">
+      {[{ v: true, label: 'Sí' }, { v: false, label: 'No' }].map(({ v, label }) => (
+        <button
+          key={label}
+          type="button"
+          id={`${id}-${label.toLowerCase()}`}
+          onClick={() => onChange(v)}
+          className={`flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all duration-200
+            ${value === v
+              ? 'bg-uceva-600 border-uceva-500 text-white shadow-lg shadow-uceva-900/40'
+              : 'bg-gray-950 border-gray-700 text-gray-400 hover:border-gray-600'
+            }`}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
 
-function Step3Placeholder({ onBack }) {
+function Step2SocioeconomicSurvey({ data, onNext, onBack }) {
+  const [form, setForm] = useState({
+    hasDificultadEconomica: data.hasDificultadEconomica ?? null,
+    tieneApoyoFamiliar:      data.tieneApoyoFamiliar ?? null,
+    tieneEmpleo:             data.tieneEmpleo ?? null,
+    tieneBecaSubsidio:       data.tieneBecaSubsidio ?? null,
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  const questions = [
+    { key: 'hasDificultadEconomica', label: '¿Tienes dificultades económicas actualmente?', icon: DollarSign },
+    { key: 'tieneApoyoFamiliar',      label: '¿Cuentas con apoyo de tu familia?',              icon: Home },
+    { key: 'tieneEmpleo',             label: '¿Tienes empleo o actividad laboral?',            icon: Briefcase },
+    { key: 'tieneBecaSubsidio',       label: '¿Cuentas con beca, subsidio o auxilios?',       icon: Award },
+  ];
+
+  const allAnswered = questions.every(q => form[q.key] !== null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    if (!allAnswered) return;
+    onNext(form);
+  };
+
   return (
-    <div className="text-center py-8 space-y-4">
-      <p className="text-gray-400 text-sm">Paso 3: Confirmación (próximamente)</p>
-      <button
-        onClick={onBack}
-        className="text-uceva-400 hover:text-uceva-300 text-sm underline"
-      >
-        ← Volver al Paso 2
-      </button>
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <div className="mb-1">
+        <h3 className="text-lg font-bold text-white">Encuesta Socioeconómica</h3>
+        <p className="text-xs text-gray-500 mt-0.5">Tus respuestas nos ayudan a personalizar tu acompañamiento.</p>
+      </div>
+
+      {questions.map(({ key, label, icon: Icon }) => (
+        <div key={key}>
+          <div className="flex items-center gap-2 mb-2">
+            <Icon size={15} className="text-uceva-400 flex-shrink-0" />
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+          </div>
+          <YesNoToggle id={key} value={form[key]} onChange={(v) => setForm(p => ({ ...p, [key]: v }))} />
+          {submitted && form[key] === null && (
+            <p className="mt-1 text-xs text-red-400">• Por favor selecciona una opción.</p>
+          )}
+        </div>
+      ))}
+
+      <div className="bg-gray-800/40 p-3.5 rounded-xl border border-gray-800 flex items-start gap-3">
+        <ShieldAlert className="text-uceva-400 flex-shrink-0 mt-0.5" size={16} />
+        <p className="text-xs text-gray-400 leading-relaxed">
+          Tus respuestas son confidenciales y sólo las verá el equipo de Bienestar Universitario.
+        </p>
+      </div>
+
+      <div className="flex gap-3">
+        <button type="button" onClick={onBack}
+          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-gray-700 bg-gray-800 text-gray-300 text-sm font-bold hover:bg-gray-700 transition-all duration-200">
+          <ChevronLeft size={16} /> Atrás
+        </button>
+        <button type="submit"
+          id="btn-siguiente-paso2"
+          className={`flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300
+            ${allAnswered
+              ? 'bg-uceva-600 hover:bg-uceva-500 text-white shadow-lg shadow-uceva-900/40 hover:-translate-y-0.5 active:translate-y-0'
+              : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
+            }`}>
+          Siguiente <ChevronRight size={16} />
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Badges de nivel de riesgo ────────────────────────────────────────────────
+const RISK_CONFIG = {
+  bajo:    { bg: 'bg-emerald-900/40', border: 'border-emerald-500/40', text: 'text-emerald-400', dot: 'bg-emerald-400', label: 'Riesgo Bajo' },
+  medio:   { bg: 'bg-yellow-900/40',  border: 'border-yellow-500/40',  text: 'text-yellow-400',  dot: 'bg-yellow-400',  label: 'Riesgo Medio' },
+  alto:    { bg: 'bg-orange-900/40',  border: 'border-orange-500/40',  text: 'text-orange-400',  dot: 'bg-orange-400',  label: 'Riesgo Alto' },
+  crítico: { bg: 'bg-red-900/40',     border: 'border-red-500/40',     text: 'text-red-400',     dot: 'bg-red-400',     label: 'Riesgo Crítico' },
+};
+
+// ─── Paso 3: Confirmación y resultado del motor ───────────────────────────────
+function Step3Confirmation({ wizardData, onBack }) {
+  const [status, setStatus]   = useState('idle'); // idle | loading | success | error
+  const [result, setResult]   = useState(null);
+  const [errMsg, setErrMsg]   = useState('');
+
+  const { step1, step2 } = wizardData;
+
+  const handleFinish = async () => {
+    setStatus('loading');
+    setErrMsg('');
+    try {
+      const payload = {
+        name:       step1.nombre,
+        email:      step1.correo,
+        password:   step1.codigo,   // código como contraseña provisional
+        role:       'estudiante',
+        department: step1.programa,
+        wizardStep1: {
+          codigo:   step1.codigo,
+          semestre: step1.semestre,
+          gpa:      0,
+          absences: 0,
+        },
+        wizardStep2: step2,
+      };
+
+      const res = await fetch('http://127.0.0.1:3001/api/auth/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      const json = await res.json();
+
+      if (!res.ok) throw new Error(json.message || 'Error en el registro');
+
+      // ✓ Criterio: nivel calculado se guarda y se retorna con fecha de evaluación
+      setResult(json.data?.initialRisk ?? null);
+      setStatus('success');
+    } catch (err) {
+      setErrMsg(err.message);
+      setStatus('error');
+    }
+  };
+
+  // ── Estado: éxito ──────────────────────────────────────────────────────────
+  if (status === 'success') {
+    const nivel   = result?.riskLevelEs ?? 'bajo';
+    const cfg     = RISK_CONFIG[nivel] ?? RISK_CONFIG.bajo;
+    const pct     = result?.riskValue ?? 0;
+    const evalAt  = result?.evaluatedAt
+      ? new Date(result.evaluatedAt).toLocaleDateString('es-CO', { dateStyle: 'medium' })
+      : '—';
+
+    return (
+      <div className="space-y-5 text-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-16 h-16 rounded-full bg-uceva-600/20 border-2 border-uceva-500 flex items-center justify-center animate-pulse">
+            <CheckCircle size={32} className="text-uceva-400" />
+          </div>
+          <h3 className="text-lg font-bold text-white">¡Registro Exitoso!</h3>
+          <p className="text-xs text-gray-500">Tu perfil ha sido creado y tu nivel de riesgo inicial fue calculado.</p>
+        </div>
+
+        {/* Badge de nivel de riesgo — ✓ Criterio: motor retorna nivel */}
+        <div className={`${cfg.bg} border ${cfg.border} rounded-2xl p-5 space-y-3`}>
+          <div className="flex items-center justify-center gap-2">
+            <TrendingUp size={18} className={cfg.text} />
+            <span className={`text-sm font-bold uppercase tracking-widest ${cfg.text}`}>
+              {cfg.label}
+            </span>
+          </div>
+          <div className="text-4xl font-black text-white">{pct}%</div>
+          <div className="w-full bg-gray-800 rounded-full h-2">
+            <div
+              className={`h-2 rounded-full transition-all duration-1000 ${cfg.dot}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-500">Fecha de evaluación: {evalAt}</p>
+        </div>
+
+        <Link
+          to="/login"
+          className="block w-full py-3 px-4 rounded-xl bg-uceva-600 hover:bg-uceva-500 text-white text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5"
+        >
+          Ir al Inicio de Sesión
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Estado: formulario de confirmación ────────────────────────────────────
+  const summaryItems = [
+    { label: 'Nombre',   value: step1.nombre },
+    { label: 'Correo',   value: step1.correo },
+    { label: 'Código',   value: step1.codigo },
+    { label: 'Programa', value: step1.programa },
+    { label: 'Semestre', value: `Semestre ${step1.semestre}` },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <div className="mb-1">
+        <h3 className="text-lg font-bold text-white">Confirmación</h3>
+        <p className="text-xs text-gray-500 mt-0.5">Revisa tus datos antes de finalizar el registro.</p>
+      </div>
+
+      <div className="bg-gray-800/40 border border-gray-800 rounded-xl divide-y divide-gray-800/60">
+        {summaryItems.map(({ label, value }) => (
+          <div key={label} className="flex justify-between items-center px-4 py-2.5">
+            <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{label}</span>
+            <span className="text-xs text-gray-200 font-medium max-w-[55%] text-right truncate">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {status === 'error' && (
+        <div className="bg-red-900/30 border border-red-500/30 rounded-xl p-3 flex items-start gap-2">
+          <AlertTriangle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-red-300">{errMsg}</p>
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <button type="button" onClick={onBack} disabled={status === 'loading'}
+          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-gray-700 bg-gray-800 text-gray-300 text-sm font-bold hover:bg-gray-700 transition-all duration-200 disabled:opacity-50">
+          <ChevronLeft size={16} /> Atrás
+        </button>
+        <button
+          id="btn-finalizar-registro"
+          onClick={handleFinish}
+          disabled={status === 'loading'}
+          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl bg-uceva-600 hover:bg-uceva-500 text-white text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+        >
+          {status === 'loading' ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : <>Finalizar Registro <CheckCircle size={16} /></>}
+        </button>
+      </div>
     </div>
   );
 }
@@ -372,28 +583,26 @@ function Step3Placeholder({ onBack }) {
 // ─── Página principal del wizard ──────────────────────────────────────────────
 export default function StudentRegistrationPage() {
   const [currentStep, setCurrentStep] = useState(1);
-
-  // ✓ Criterio: datos del paso 1 se conservan en memoria para el envío final
-  const [wizardData, setWizardData] = useState({
-    step1: {},
-    step2: {},
-  });
+  const [wizardData, setWizardData] = useState({ step1: {}, step2: {} });
 
   const handleStep1Next = (step1Data) => {
     setWizardData((prev) => ({ ...prev, step1: step1Data }));
     setCurrentStep(2);
   };
 
+  const handleStep2Next = (step2Data) => {
+    setWizardData((prev) => ({ ...prev, step2: step2Data }));
+    setCurrentStep(3);
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
-      {/* Fondos decorativos */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-uceva-600/8 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-uceva-800/8 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-uceva-950/20 rounded-full blur-3xl" />
       </div>
 
-      {/* Header de la app */}
       <div className="sm:mx-auto sm:w-full sm:max-w-lg relative z-10 text-center mb-6">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-uceva-700 to-uceva-900 shadow-2xl shadow-uceva-950/60 mb-4 border border-uceva-700/30">
           <BookOpen size={24} className="text-white" />
@@ -401,30 +610,31 @@ export default function StudentRegistrationPage() {
         <h1 className="text-3xl font-extrabold text-white tracking-tight uppercase">
           Edu<span className="text-uceva-500">Alert</span>
         </h1>
-        <p className="mt-1 text-xs text-gray-400 uppercase tracking-widest font-bold">
-          Auto-Registro Estudiantil
-        </p>
+        <p className="mt-1 text-xs text-gray-400 uppercase tracking-widest font-bold">Auto-Registro Estudiantil</p>
       </div>
 
-      {/* Tarjeta principal del wizard */}
       <div className="sm:mx-auto sm:w-full sm:max-w-lg relative z-10">
         <div className="bg-gray-900/70 backdrop-blur-xl py-8 px-6 shadow-2xl sm:rounded-2xl sm:px-10 border border-gray-800">
-          {/* ✓ Criterio: barra de progreso muestra 'Paso X de 3' */}
           <WizardProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-          {/* Contenido dinámico por paso */}
           {currentStep === 1 && (
             <Step1PersonalData data={wizardData.step1} onNext={handleStep1Next} />
           )}
           {currentStep === 2 && (
-            <Step2Placeholder onBack={() => setCurrentStep(1)} />
+            <Step2SocioeconomicSurvey
+              data={wizardData.step2}
+              onNext={handleStep2Next}
+              onBack={() => setCurrentStep(1)}
+            />
           )}
           {currentStep === 3 && (
-            <Step3Placeholder onBack={() => setCurrentStep(2)} />
+            <Step3Confirmation
+              wizardData={wizardData}
+              onBack={() => setCurrentStep(2)}
+            />
           )}
         </div>
 
-        {/* Link de vuelta al login */}
         <p className="mt-6 text-center text-xs text-gray-600">
           ¿Ya tienes cuenta?{' '}
           <Link to="/login" className="text-uceva-400 hover:text-uceva-300 font-semibold transition-colors">

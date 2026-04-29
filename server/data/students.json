@@ -1,5 +1,37 @@
 [
   {
+    "id": 14,
+    "name": "Ana Torres Ruiz",
+    "studentCode": "2024001234",
+    "faculty": "",
+    "program": "Ingeniería de Sistemas",
+    "semester": 3,
+    "email": "ana.torres@uceva.edu.co",
+    "avatar": "AT",
+    "absences": 0,
+    "gpa": 0,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-04-29T17:13:09.993Z",
+    "factores": {
+      "academico": {
+        "gpa": 0,
+        "absences": 0,
+        "semester": 3
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-04-29T17:13:09.993Z"
+    }
+  },
+  {
     "id": 13,
     "name": "Juan Pablo Arenas",
     "studentCode": "202410005",

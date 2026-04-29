@@ -104,5 +104,13 @@
     "password": "Lisandro1234",
     "role": "student",
     "department": "Facultad de Ciencias de la Educación"
+  },
+  {
+    "id": 1777482789968,
+    "name": "Ana Torres Ruiz",
+    "email": "ana.torres@uceva.edu.co",
+    "password": "2024001234",
+    "role": "estudiante",
+    "department": "Ingeniería de Sistemas"
   }
 ]
