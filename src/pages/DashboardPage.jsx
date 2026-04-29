@@ -5,7 +5,8 @@ import {
   LayoutDashboard, Shield, ChevronRight, X, GraduationCap,
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
-  UserCheck, History, BrainCircuit, Settings, Mail, UserPlus
+  UserCheck, History, BrainCircuit, Settings, Mail, UserPlus,
+  Download,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -24,6 +25,8 @@ import {
   previewNotification,
   sendNotificationAPI
 } from '../services/api';
+
+import { exportStudentsToCSV } from '../utils/csvExport';
 
 import StudentCard from '../components/StudentCard';
 import FilterPanel from '../components/FilterPanel';
@@ -402,7 +405,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="bg-gray-950 p-2 rounded-2xl border border-gray-800 shadow-inner flex items-center gap-2">
+                        <div className="bg-gray-950 p-2 rounded-2xl border border-gray-800 shadow-inner flex items-center gap-2 flex-wrap">
                           {['admin', 'coordinator'].includes(user?.role) && (
                             <button
                               onClick={() => setIsAddModalOpen(true)}
@@ -412,6 +415,19 @@ export default function DashboardPage() {
                               Agregar Estudiante
                             </button>
                           )}
+
+                          {/* ✓ Criterio: CSV generado en cliente, sin llamadas adicionales al backend */}
+                          <button
+                            id="btn-exportar-csv"
+                            onClick={() => exportStudentsToCSV(students, tutors)}
+                            disabled={!students || students.length === 0}
+                            title={`Exportar ${students?.length ?? 0} estudiantes a CSV`}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-emerald-900/40 text-gray-400 hover:text-emerald-300 rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 hover:border-emerald-700/50 group disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
+                            Exportar CSV
+                          </button>
+
                           <button
                             onClick={() => refetch()}
                             className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 group"
