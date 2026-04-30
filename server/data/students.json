@@ -1,5 +1,69 @@
 [
   {
+    "id": 16,
+    "name": "Juan Fernando Vargas Angel",
+    "studentCode": "230231015",
+    "faculty": "Facultad de Ingeniería",
+    "program": "Ingeniería de Sistemas",
+    "semester": 1,
+    "email": "juan.vargas01@uceva.edu.co",
+    "avatar": "JF",
+    "absences": 12,
+    "gpa": 1.4,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-04-30T22:21:30.706Z",
+    "factores": {
+      "academico": {
+        "gpa": 1.4,
+        "absences": 12,
+        "semester": 1
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-04-30T22:21:30.706Z"
+    }
+  },
+  {
+    "id": 15,
+    "name": "Alejandro Barco Ruiz",
+    "studentCode": "230231013",
+    "faculty": "Facultad de Ingeniería",
+    "program": "Ingeniería de Sistemas",
+    "semester": 7,
+    "email": "alejandro.barco01@uceva.edu.co",
+    "avatar": "AB",
+    "absences": 6,
+    "gpa": 4,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-04-30T22:04:48.760Z",
+    "factores": {
+      "academico": {
+        "gpa": 4,
+        "absences": 6,
+        "semester": 7
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-04-30T22:04:48.760Z"
+    }
+  },
+  {
     "id": 14,
     "name": "Ana Torres Ruiz",
     "studentCode": "2024001234",
