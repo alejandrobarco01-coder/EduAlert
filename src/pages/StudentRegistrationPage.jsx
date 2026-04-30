@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   BookOpen, User, Mail, GraduationCap, Hash,
   ChevronRight, CheckCircle, ShieldAlert,
-  ChevronLeft, AlertTriangle, TrendingUp, DollarSign,
-  Home, Briefcase, Award, Loader2,
+  ChevronLeft, AlertTriangle, TrendingUp,
+  Home, Briefcase, Wifi, Users, Loader2,
 } from 'lucide-react';
 
 // ─── Constantes del wizard ────────────────────────────────────────────────────
@@ -324,7 +324,7 @@ function Step1PersonalData({ data, onNext }) {
           text-sm font-bold uppercase tracking-widest transition-all duration-300
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uceva-600 focus:ring-offset-gray-900
           ${valid
-            ? 'bg-uceva-600 hover:bg-uceva-500 text-white shadow-lg shadow-uceva-900/40 hover:shadow-uceva-800/50 hover:-translate-y-0.5 active:translate-y-0'
+            ? 'bg-uceva-600 hover:bg-uceva-500 text-white shadow-lg shadow-uceva-900/40 hover:-translate-y-0.5 active:translate-y-0'
             : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
           }
         `}
@@ -336,93 +336,196 @@ function Step1PersonalData({ data, onNext }) {
   );
 }
 
-// ─── Paso 2: Encuesta Socioeconómica ─────────────────────────────────────────
-function YesNoToggle({ id, value, onChange }) {
+// ─── Paso 2: Área Socioeconómica ─────────────────────────────────────────────
+
+// Componente de grupo de opciones estilo card (radio)
+function OptionGroup({ id, options, value, onChange, submitted, errorMsg }) {
   return (
-    <div className="flex gap-2">
-      {[{ v: true, label: 'Sí' }, { v: false, label: 'No' }].map(({ v, label }) => (
-        <button
-          key={label}
-          type="button"
-          id={`${id}-${label.toLowerCase()}`}
-          onClick={() => onChange(v)}
-          className={`flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all duration-200
-            ${value === v
-              ? 'bg-uceva-600 border-uceva-500 text-white shadow-lg shadow-uceva-900/40'
-              : 'bg-gray-950 border-gray-700 text-gray-400 hover:border-gray-600'
-            }`}
-        >
-          {label}
-        </button>
-      ))}
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {options.map(({ v, label }) => (
+          <button
+            key={String(v)}
+            type="button"
+            id={`${id}-${String(v).replace(/\s+/g, '-').toLowerCase()}`}
+            onClick={() => onChange(v)}
+            className={`flex-1 min-w-[80px] py-2 px-3 rounded-xl text-sm font-bold border-2 transition-all duration-200 focus:outline-none
+              ${value === v
+                ? 'bg-uceva-600 border-uceva-500 text-white shadow-lg shadow-uceva-900/40 scale-[1.03]'
+                : 'bg-gray-950 border-gray-700 text-gray-400 hover:border-uceva-700 hover:text-gray-200'
+              }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {submitted && (value === null || value === '' || value === undefined) && (
+        <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+          <span className="inline-block w-1 h-1 rounded-full bg-red-400 flex-shrink-0" />
+          {errorMsg || 'Por favor selecciona una opción.'}
+        </p>
+      )}
     </div>
   );
 }
 
+// Validadores del paso 2
+const step2Validators = {
+  estrato:      (v) => (v !== null && v !== '' && v !== undefined ? '' : 'Selecciona tu estrato socioeconómico.'),
+  situacionLaboral: (v) => (v ? '' : 'Indica tu situación laboral.'),
+  accesoInternet:   (v) => (v ? '' : 'Indica tu acceso a internet.'),
+  dependientes:     (v) => (v !== null && v !== '' && v !== undefined ? '' : 'Indica la cantidad de dependientes económicos.'),
+};
+
+function isStep2Valid(form) {
+  return Object.values(step2Validators).every((fn, i) => {
+    const keys = ['estrato', 'situacionLaboral', 'accesoInternet', 'dependientes'];
+    return fn(form[keys[i]]) === '';
+  });
+}
+
 function Step2SocioeconomicSurvey({ data, onNext, onBack }) {
   const [form, setForm] = useState({
-    hasDificultadEconomica: data.hasDificultadEconomica ?? null,
-    tieneApoyoFamiliar:      data.tieneApoyoFamiliar ?? null,
-    tieneEmpleo:             data.tieneEmpleo ?? null,
-    tieneBecaSubsidio:       data.tieneBecaSubsidio ?? null,
+    estrato:          data.estrato ?? null,
+    situacionLaboral: data.situacionLaboral ?? '',
+    accesoInternet:   data.accesoInternet ?? '',
+    dependientes:     data.dependientes ?? null,
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const questions = [
-    { key: 'hasDificultadEconomica', label: '¿Tienes dificultades económicas actualmente?', icon: DollarSign },
-    { key: 'tieneApoyoFamiliar',      label: '¿Cuentas con apoyo de tu familia?',              icon: Home },
-    { key: 'tieneEmpleo',             label: '¿Tienes empleo o actividad laboral?',            icon: Briefcase },
-    { key: 'tieneBecaSubsidio',       label: '¿Cuentas con beca, subsidio o auxilios?',       icon: Award },
-  ];
+  const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const allAnswered = questions.every(q => form[q.key] !== null);
+  const allValid = isStep2Valid(form);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    if (!allAnswered) return;
+    if (!allValid) return;
     onNext(form);
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div className="mb-1">
-        <h3 className="text-lg font-bold text-white">Encuesta Socioeconómica</h3>
-        <p className="text-xs text-gray-500 mt-0.5">Tus respuestas nos ayudan a personalizar tu acompañamiento.</p>
-      </div>
-
-      {questions.map(({ key, label, icon: Icon }) => (
-        <div key={key}>
-          <div className="flex items-center gap-2 mb-2">
-            <Icon size={15} className="text-uceva-400 flex-shrink-0" />
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
-          </div>
-          <YesNoToggle id={key} value={form[key]} onChange={(v) => setForm(p => ({ ...p, [key]: v }))} />
-          {submitted && form[key] === null && (
-            <p className="mt-1 text-xs text-red-400">• Por favor selecciona una opción.</p>
-          )}
-        </div>
-      ))}
-
-      <div className="bg-gray-800/40 p-3.5 rounded-xl border border-gray-800 flex items-start gap-3">
-        <ShieldAlert className="text-uceva-400 flex-shrink-0 mt-0.5" size={16} />
-        <p className="text-xs text-gray-400 leading-relaxed">
-          Tus respuestas son confidenciales y sólo las verá el equipo de Bienestar Universitario.
+        <h3 className="text-lg font-bold text-white">Área Socioeconómica</h3>
+        <p className="text-xs text-gray-500 mt-0.5">
+          Tus respuestas son confidenciales y nos permiten brindarte el apoyo adecuado.
         </p>
       </div>
 
+      {/* ── 1. Estrato socioeconómico ───────────────────────────────────── */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Home size={15} className="text-uceva-400 flex-shrink-0" />
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Estrato Socioeconómico
+          </span>
+        </div>
+        <OptionGroup
+          id="estrato"
+          value={form.estrato}
+          onChange={(v) => set('estrato', v)}
+          submitted={submitted}
+          errorMsg="Selecciona tu estrato (1 = más bajo, 6 = más alto)."
+          options={[1, 2, 3, 4, 5, 6].map(n => ({ v: n, label: String(n) }))}
+        />
+      </div>
+
+      {/* ── 2. Situación laboral ────────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Briefcase size={15} className="text-uceva-400 flex-shrink-0" />
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Situación Laboral
+          </span>
+        </div>
+        <OptionGroup
+          id="situacion-laboral"
+          value={form.situacionLaboral}
+          onChange={(v) => set('situacionLaboral', v)}
+          submitted={submitted}
+          errorMsg="Indica tu situación laboral actual."
+          options={[
+            { v: 'trabaja',    label: 'Trabaja' },
+            { v: 'no_trabaja', label: 'No trabaja' },
+          ]}
+        />
+      </div>
+
+      {/* ── 3. Acceso a internet ────────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Wifi size={15} className="text-uceva-400 flex-shrink-0" />
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Acceso a Internet
+          </span>
+        </div>
+        <OptionGroup
+          id="acceso-internet"
+          value={form.accesoInternet}
+          onChange={(v) => set('accesoInternet', v)}
+          submitted={submitted}
+          errorMsg="Indica tu tipo de acceso a internet."
+          options={[
+            { v: 'si',           label: 'Sí' },
+            { v: 'no',           label: 'No' },
+            { v: 'intermitente', label: 'Intermitente' },
+          ]}
+        />
+      </div>
+
+      {/* ── 4. Dependientes económicos ──────────────────────────────────── */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Users size={15} className="text-uceva-400 flex-shrink-0" />
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Dependientes Económicos
+          </span>
+        </div>
+        <OptionGroup
+          id="dependientes"
+          value={form.dependientes}
+          onChange={(v) => set('dependientes', v)}
+          submitted={submitted}
+          errorMsg="Selecciona cuántas personas dependen económicamente de ti."
+          options={[
+            { v: 0, label: '0' },
+            { v: 1, label: '1' },
+            { v: 2, label: '2' },
+            { v: 3, label: '3' },
+            { v: 4, label: '4+' },
+          ]}
+        />
+      </div>
+
+      {/* Aviso de privacidad */}
+      <div className="bg-gray-800/40 p-3.5 rounded-xl border border-gray-800 flex items-start gap-3">
+        <ShieldAlert className="text-uceva-400 flex-shrink-0 mt-0.5" size={16} />
+        <p className="text-xs text-gray-400 leading-relaxed">
+          Esta información es estrictamente confidencial y solo la utilizará el equipo de
+          Bienestar Universitario para ofrecerte apoyos pertinentes.
+        </p>
+      </div>
+
+      {/* Botones de navegación */}
       <div className="flex gap-3">
-        <button type="button" onClick={onBack}
-          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-gray-700 bg-gray-800 text-gray-300 text-sm font-bold hover:bg-gray-700 transition-all duration-200">
+        <button
+          type="button"
+          onClick={onBack}
+          id="btn-atras-paso2"
+          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-gray-700 bg-gray-800 text-gray-300 text-sm font-bold hover:bg-gray-700 transition-all duration-200"
+        >
           <ChevronLeft size={16} /> Atrás
         </button>
-        <button type="submit"
+        <button
+          type="submit"
           id="btn-siguiente-paso2"
           className={`flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300
-            ${allAnswered
+            ${allValid
               ? 'bg-uceva-600 hover:bg-uceva-500 text-white shadow-lg shadow-uceva-900/40 hover:-translate-y-0.5 active:translate-y-0'
               : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
-            }`}>
+            }`}
+        >
           Siguiente <ChevronRight size={16} />
         </button>
       </div>
@@ -595,52 +698,69 @@ export default function StudentRegistrationPage() {
     setCurrentStep(3);
   };
 
+  const handleStep2Back = () => {
+    setCurrentStep(1);
+  };
+
+  const handleStep3Back = () => {
+    setCurrentStep(2);
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
+      {/* Fondos animados / Decoración */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-uceva-600/8 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-uceva-800/8 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-uceva-950/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg relative z-10 text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-uceva-700 to-uceva-900 shadow-2xl shadow-uceva-950/60 mb-4 border border-uceva-700/30">
-          <BookOpen size={24} className="text-white" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="flex justify-center mb-6">
+          <div className="bg-uceva-600 p-3 rounded-2xl shadow-xl shadow-uceva-900/20 ring-4 ring-uceva-900/30">
+            <GraduationCap className="h-10 w-10 text-white" />
+          </div>
         </div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight uppercase">
+        <h2 className="text-center text-3xl font-black text-white tracking-tight">
           Edu<span className="text-uceva-500">Alert</span>
-        </h1>
-        <p className="mt-1 text-xs text-gray-400 uppercase tracking-widest font-bold">Auto-Registro Estudiantil</p>
+        </h2>
+        <p className="mt-2 text-center text-sm font-medium text-gray-400">
+          Formulario de Caracterización Estudiantil
+        </p>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg relative z-10">
-        <div className="bg-gray-900/70 backdrop-blur-xl py-8 px-6 shadow-2xl sm:rounded-2xl sm:px-10 border border-gray-800">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-gray-900/50 backdrop-blur-xl py-8 px-6 shadow-2xl rounded-3xl border border-gray-800 ring-1 ring-white/5">
           <WizardProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-          {currentStep === 1 && (
-            <Step1PersonalData data={wizardData.step1} onNext={handleStep1Next} />
-          )}
-          {currentStep === 2 && (
-            <Step2SocioeconomicSurvey
-              data={wizardData.step2}
-              onNext={handleStep2Next}
-              onBack={() => setCurrentStep(1)}
-            />
-          )}
-          {currentStep === 3 && (
-            <Step3Confirmation
-              wizardData={wizardData}
-              onBack={() => setCurrentStep(2)}
-            />
-          )}
+          <div className="transition-all duration-500 ease-in-out">
+            {currentStep === 1 && (
+              <Step1PersonalData data={wizardData.step1} onNext={handleStep1Next} />
+            )}
+            {currentStep === 2 && (
+              <Step2SocioeconomicSurvey
+                data={wizardData.step2}
+                onNext={handleStep2Next}
+                onBack={handleStep2Back}
+              />
+            )}
+            {currentStep === 3 && (
+              <Step3Confirmation
+                wizardData={wizardData}
+                onBack={handleStep3Back}
+              />
+            )}
+          </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-600">
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-uceva-400 hover:text-uceva-300 font-semibold transition-colors">
-            Inicia sesión aquí
-          </Link>
-        </p>
+        <div className="mt-8 text-center">
+          <p className="text-xs text-gray-600 font-medium">
+            ¿Ya tienes una cuenta?{' '}
+            <Link to="/login" className="text-uceva-500 hover:text-uceva-400 font-bold transition-colors">
+              Inicia sesión aquí
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
