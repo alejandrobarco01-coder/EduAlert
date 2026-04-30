@@ -300,7 +300,10 @@ export function getAllStudents() {
     const latest = latestRisk[String(student.id)];
     if (!latest) {
       // Student has never been evaluated by the risk engine yet.
-      const updatedStudent = { ...student, riskIndex: 0, riskLevel: 'unevaluated' };
+      // Calculate risk on-the-fly based on current academic data and assigned factors.
+      const computedRisk = calculateRiskIndex(student);
+      const computedLevel = getRiskLevel(computedRisk);
+      const updatedStudent = { ...student, riskIndex: computedRisk, riskLevel: computedLevel };
       return applyRules(updatedStudent);
     }
 

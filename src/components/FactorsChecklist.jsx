@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default function FactorsChecklist({ factors, studentFactorIds, onSave }) {
@@ -6,9 +6,22 @@ export default function FactorsChecklist({ factors, studentFactorIds, onSave }) 
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Track the previous prop value to avoid resetting state when the IDs haven't actually changed
+  const prevIdsRef = useRef(studentFactorIds);
+
   useEffect(() => {
-    setSelectedIds(new Set(studentFactorIds || []));
-  }, [studentFactorIds]);
+    const prev = prevIdsRef.current || [];
+    const next = studentFactorIds || [];
+
+    // Only reset if the actual IDs changed (not just array reference)
+    const prevSorted = [...prev].sort().join(',');
+    const nextSorted = [...next].sort().join(',');
+
+    if (prevSorted !== nextSorted && !saving) {
+      setSelectedIds(new Set(next));
+    }
+    prevIdsRef.current = next;
+  }, [studentFactorIds, saving]);
 
   const toggleFactor = async (id) => {
     const newSelected = new Set(selectedIds);
@@ -25,6 +38,8 @@ export default function FactorsChecklist({ factors, studentFactorIds, onSave }) 
     try {
       await onSave(Array.from(newSelected));
       setSaveSuccess(true);
+      // Update the ref so the useEffect doesn't reset our state
+      prevIdsRef.current = Array.from(newSelected);
       setTimeout(() => setSaveSuccess(false), 2000);
     } catch (e) {
       console.error('Error auto-saving factor:', e);
