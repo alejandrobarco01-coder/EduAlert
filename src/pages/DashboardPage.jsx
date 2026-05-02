@@ -42,6 +42,7 @@ import StudentRiskHistory from '../components/StudentRiskHistory';
 import RiskHistoryChart from '../components/RiskHistoryChart';
 import RiskRulesManagement from '../components/RiskRulesManagement';
 import AddStudentModal from '../components/AddStudentModal';
+import ExportModal from '../components/ExportModal';
 
 const DEFAULT_FILTERS = { program: 'Todos', semester: 'Todos', riskLevel: 'Todos' };
 const roleLabel = { admin: 'Administrador', tutor: 'Tutor', coordinator: 'Coordinador' };
@@ -76,6 +77,7 @@ export default function DashboardPage() {
 
   const [activeModalTab, setActiveModalTab] = useState('factors');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {
     // 1. Fetch data only if user role allows it
@@ -419,13 +421,13 @@ export default function DashboardPage() {
                           {/* ✓ Criterio: CSV generado en cliente, sin llamadas adicionales al backend */}
                           <button
                             id="btn-exportar-csv"
-                            onClick={() => exportStudentsToCSV(students, tutors)}
+                            onClick={() => setIsExportModalOpen(true)}
                             disabled={!students || students.length === 0}
-                            title={`Exportar ${students?.length ?? 0} estudiantes a CSV`}
+                            title={`Exportar ${students?.length ?? 0} estudiantes`}
                             className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-emerald-900/40 text-gray-400 hover:text-emerald-300 rounded-xl text-sm font-bold transition-all shadow-sm border border-gray-800/50 hover:border-emerald-700/50 group disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
-                            Exportar CSV
+                            Exportar
                           </button>
 
                           <button
@@ -855,6 +857,13 @@ export default function DashboardPage() {
           }}
         />
       )}
+
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+        students={students || []} 
+        tutors={tutors || []} 
+      />
     </div>
   );
 }
