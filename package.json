@@ -23,7 +23,8 @@
     "recharts": "^3.8.1",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
-    "reselect": "^5.1.1"
+    "reselect": "^5.1.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
