@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import factorsRouter from './routes/factors.js';
@@ -6,6 +7,7 @@ import studentsRouter from './routes/students.js';
 import rulesRouter from './routes/rules.js';
 import notificationsRouter from './routes/notifications.js';
 import riesgoEstudianteRouter from './routes/riesgoEstudiante.js';
+import aiRouter from './routes/ai.js';
 
 import cors from 'cors';
 import express from 'express';
@@ -56,6 +58,7 @@ app.use('/api/interventions', interventionsRouter);
 app.use('/api/rules', rulesRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/riesgo-estudiante', riesgoEstudianteRouter);
+app.use('/api/ai', aiRouter);
 
 // ─── Health check ────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
