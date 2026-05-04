@@ -111,6 +111,9 @@ router.get('/filters/options', (req, res) => {
 });
 
 // ─── GET /api/students/:id/recommendations ── Recomendaciones IA ─────────────
+// SCRUM-95: El botón del modal llama a este endpoint real con el studentId.
+// La generación interna usa generateAIRecommendations() (reglas estáticas, marcada
+// como @deprecated). Pendiente integración con motor de IA externo.
 router.get('/:id/recommendations', (req, res) => {
   const id = Number(req.params.id);
   const student = getStudentById(id);
@@ -125,7 +128,8 @@ router.get('/:id/recommendations', (req, res) => {
     data: recommendations,
     meta: {
       generatedAt: new Date().toISOString(),
-      studentName: student.name
+      studentName: student.name,
+      source: 'rule-based-mock' // SCRUM-95: cambiar a 'ai-engine' cuando se integre IA real
     }
   });
 });

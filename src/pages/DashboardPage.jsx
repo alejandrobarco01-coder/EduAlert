@@ -152,6 +152,10 @@ export default function DashboardPage() {
     }
   };
 
+  // SCRUM-95: Handler que conecta el botón 'Generar recomendaciones IA' del modal
+  // al endpoint real. Recibe `id` = selectedStudent.id y lo pasa a fetchAIRecommendations,
+  // que realiza GET /api/students/:id/recommendations con el token de autorización.
+  // No existe ninguna función mock/simulada en el frontend; toda la lógica vive en el backend.
   const handleAnalyzeAI = async (id) => {
     setAnalyzing(true);
     setRecommendations([]);
