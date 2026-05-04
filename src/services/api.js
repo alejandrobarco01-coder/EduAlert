@@ -241,6 +241,18 @@ function invalidateStudentCaches(studentId) {
 
 export { fetchStudents as fetchStudentsFiltered };
 
+/**
+ * SCRUM-95: Conectar botón del modal al endpoint real.
+ * Realiza la llamada real a `GET /api/students/:studentId/recommendations`.
+ *
+ * Esta función REEMPLAZA cualquier implementación simulada (mock) que pudiera
+ * haber existido en el frontend. El botón 'Generar recomendaciones IA' del modal
+ * de estudiante invoca esta función con el `studentId` correcto del estudiante
+ * seleccionado.
+ *
+ * @param {number} studentId - ID único del estudiante obtenido de `selectedStudent.id`
+ * @returns {Promise<Array<{id: string, icon: string, text: string, priority: string}>>}
+ */
 export async function fetchAIRecommendations(studentId) {
   const res = await fetch(`${API_BASE}/students/${studentId}/recommendations`, {
     headers: getAuthHeaders()

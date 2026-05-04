@@ -548,7 +548,15 @@ export function getAvailableFilters() {
 }
 
 /**
- * Generates AI-powered intervention recommendations based on student risk factors.
+ * @deprecated SCRUM-95 — Esta función es una simulación basada en reglas estáticas (mock).
+ * NO es un motor de IA real. Debe ser reemplazada por una llamada a un servicio
+ * de IA externo (p.ej. OpenAI, Vertex AI) en la historia técnica correspondiente.
+ *
+ * Se mantiene operativa para no romper el endpoint `GET /students/:id/recommendations`
+ * mientras el servicio externo de IA no esté integrado.
+ *
+ * @param {object} student - Objeto estudiante con riskLevel, gpa, absences y alerts.
+ * @returns {Array<{id: string, icon: string, text: string, priority: string}>}
  */
 export function generateAIRecommendations(student) {
   const recommendations = [];
