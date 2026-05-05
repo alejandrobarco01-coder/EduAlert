@@ -4,7 +4,7 @@
  * Utilidad cliente para generar y descargar un archivo CSV con los datos
  * actuales de estudiantes.  No realiza llamadas adicionales al backend.
  *
- * Criterios de aceptación:
+ * Criterios de aceptación (SCRUM-90):
  *  ✓ Generado en el cliente con datos del estado actual.
  *  ✓ Las comas dentro de celdas se encierran en comillas.
  *  ✓ El nombre del archivo incluye la fecha de exportación.
