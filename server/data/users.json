@@ -112,5 +112,13 @@
     "password": "2024001234",
     "role": "estudiante",
     "department": "Ingeniería de Sistemas"
+  },
+  {
+    "id": 1778032418698,
+    "name": "Student Test",
+    "email": "student.test@uceva.edu.co",
+    "password": "Password123!",
+    "role": "student",
+    "department": "Facultad de Ciencias Administrativas, Económicas y Contables"
   }
 ]

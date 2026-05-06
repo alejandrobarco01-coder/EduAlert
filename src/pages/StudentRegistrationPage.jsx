@@ -93,7 +93,7 @@ function WizardProgressBar({ currentStep, totalSteps }) {
                   isCurrent ? 'text-uceva-400' : isCompleted ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
-                {step === 1 ? 'Personal' : step === 2 ? 'Socioeconóm.' : 'Confirmación'}
+                {step === 1 ? 'Personal' : step === 2 ? 'Socioeconóm.' : 'Académica'}
               </span>
             </div>
           );
@@ -541,29 +541,79 @@ const RISK_CONFIG = {
   crítico: { bg: 'bg-red-900/40',     border: 'border-red-500/40',     text: 'text-red-400',     dot: 'bg-red-400',     label: 'Riesgo Crítico' },
 };
 
-// ─── Paso 3: Confirmación y resultado del motor ───────────────────────────────
-function Step3Confirmation({ wizardData, onBack }) {
-  const [status, setStatus]   = useState('idle'); // idle | loading | success | error
+// ─── Paso 3: Área Académica y resultado del motor ───────────────────────────────
+function Step3AcademicArea({ wizardData, onBack }) {
+  const [status, setStatus]   = useState('idle');
   const [result, setResult]   = useState(null);
   const [errMsg, setErrMsg]   = useState('');
 
+  const [form, setForm] = useState({
+    promedio: '',
+    materiasCursando: '',
+    materiasReprobadas: '',
+    inasistencias: ''
+  });
+  const [touched, setTouched] = useState({});
+
   const { step1, step2 } = wizardData;
 
-  const handleFinish = async () => {
+  const validators = {
+    promedio: (v) => {
+      if(v === '') return 'Requerido';
+      const num = parseFloat(v);
+      if(isNaN(num) || num < 0.0 || num > 5.0 || !/^[0-5](\.\d+)?$/.test(v.trim())) return 'Debe ser numérico entre 0.0 y 5.0';
+      return '';
+    },
+    materiasCursando: (v) => v === '' ? 'Requerido' : '',
+    materiasReprobadas: (v) => v === '' ? 'Requerido' : '',
+    inasistencias: (v) => {
+      if(v === '') return 'Requerido';
+      const num = parseInt(v, 10);
+      if(isNaN(num) || num < 0 || num.toString() !== v.trim()) return 'Solo enteros positivos';
+      return '';
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isValid = Object.keys(validators).every(k => validators[k](form[k]) === '');
+
+  const getErrors = () => {
+    const errs = {};
+    for (let k in validators) {
+      if (touched[k]) errs[k] = validators[k](form[k]);
+    }
+    return errs;
+  };
+  const currentErrors = getErrors();
+
+  const handleFinish = async (e) => {
+    e?.preventDefault();
+    Object.keys(form).forEach(k => handleBlur(k));
+    if (!isValid) return;
+
     setStatus('loading');
     setErrMsg('');
     try {
       const payload = {
         name:       step1.nombre,
         email:      step1.correo,
-        password:   step1.codigo,   // código como contraseña provisional
+        password:   step1.codigo,
         role:       'estudiante',
         department: step1.programa,
         wizardStep1: {
           codigo:   step1.codigo,
           semestre: step1.semestre,
-          gpa:      0,
-          absences: 0,
+          gpa:      parseFloat(form.promedio) || 0,
+          absences: parseInt(form.inasistencias, 10) || 0,
+          materiasCursando: parseInt(form.materiasCursando, 10) || 0,
+          materiasReprobadas: parseInt(form.materiasReprobadas, 10) || 0,
         },
         wizardStep2: step2,
       };
@@ -577,7 +627,6 @@ function Step3Confirmation({ wizardData, onBack }) {
 
       if (!res.ok) throw new Error(json.message || 'Error en el registro');
 
-      // ✓ Criterio: nivel calculado se guarda y se retorna con fecha de evaluación
       setResult(json.data?.initialRisk ?? null);
       setStatus('success');
     } catch (err) {
@@ -586,7 +635,6 @@ function Step3Confirmation({ wizardData, onBack }) {
     }
   };
 
-  // ── Estado: éxito ──────────────────────────────────────────────────────────
   if (status === 'success') {
     const nivel   = result?.riskLevelEs ?? 'bajo';
     const cfg     = RISK_CONFIG[nivel] ?? RISK_CONFIG.bajo;
@@ -605,7 +653,6 @@ function Step3Confirmation({ wizardData, onBack }) {
           <p className="text-xs text-gray-500">Tu perfil ha sido creado y tu nivel de riesgo inicial fue calculado.</p>
         </div>
 
-        {/* Badge de nivel de riesgo — ✓ Criterio: motor retorna nivel */}
         <div className={`${cfg.bg} border ${cfg.border} rounded-2xl p-5 space-y-3`}>
           <div className="flex items-center justify-center gap-2">
             <TrendingUp size={18} className={cfg.text} />
@@ -633,29 +680,40 @@ function Step3Confirmation({ wizardData, onBack }) {
     );
   }
 
-  // ── Estado: formulario de confirmación ────────────────────────────────────
-  const summaryItems = [
-    { label: 'Nombre',   value: step1.nombre },
-    { label: 'Correo',   value: step1.correo },
-    { label: 'Código',   value: step1.codigo },
-    { label: 'Programa', value: step1.programa },
-    { label: 'Semestre', value: `Semestre ${step1.semestre}` },
-  ];
+  const inputClass = (err) => 
+    err
+      ? "block w-full pl-3 pr-3 py-2.5 border rounded-xl bg-gray-950 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-200 border-red-500/60 focus:ring-red-500/40"
+      : "block w-full pl-3 pr-3 py-2.5 border rounded-xl bg-gray-950 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-200 border-gray-800 focus:ring-uceva-600";
 
   return (
-    <div className="space-y-5">
+    <form onSubmit={handleFinish} noValidate className="space-y-5">
       <div className="mb-1">
-        <h3 className="text-lg font-bold text-white">Confirmación</h3>
-        <p className="text-xs text-gray-500 mt-0.5">Revisa tus datos antes de finalizar el registro.</p>
+        <h3 className="text-lg font-bold text-white">Área Académica</h3>
+        <p className="text-xs text-gray-500 mt-0.5">Detalla tu situación académica actual.</p>
       </div>
 
-      <div className="bg-gray-800/40 border border-gray-800 rounded-xl divide-y divide-gray-800/60">
-        {summaryItems.map(({ label, value }) => (
-          <div key={label} className="flex justify-between items-center px-4 py-2.5">
-            <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{label}</span>
-            <span className="text-xs text-gray-200 font-medium max-w-[55%] text-right truncate">{value}</span>
-          </div>
-        ))}
+      <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Promedio Académico Actual (0.0 - 5.0)</label>
+          <input type="text" className={inputClass(currentErrors.promedio)} value={form.promedio} onChange={(e) => handleChange('promedio', e.target.value)} onBlur={() => handleBlur('promedio')} placeholder="Ej: 3.8" />
+          {currentErrors.promedio && <p className="mt-1.5 text-xs text-red-400">{currentErrors.promedio}</p>}
+      </div>
+
+      <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Número de Materias Cursando</label>
+          <input type="number" className={inputClass(currentErrors.materiasCursando)} value={form.materiasCursando} onChange={(e) => handleChange('materiasCursando', e.target.value)} onBlur={() => handleBlur('materiasCursando')} placeholder="Ej: 5" min="0" />
+          {currentErrors.materiasCursando && <p className="mt-1.5 text-xs text-red-400">{currentErrors.materiasCursando}</p>}
+      </div>
+
+      <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Materias Reprobadas Históricas</label>
+          <input type="number" className={inputClass(currentErrors.materiasReprobadas)} value={form.materiasReprobadas} onChange={(e) => handleChange('materiasReprobadas', e.target.value)} onBlur={() => handleBlur('materiasReprobadas')} placeholder="Ej: 1" min="0" />
+          {currentErrors.materiasReprobadas && <p className="mt-1.5 text-xs text-red-400">{currentErrors.materiasReprobadas}</p>}
+      </div>
+
+      <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Inasistencias en el último mes</label>
+          <input type="text" className={inputClass(currentErrors.inasistencias)} value={form.inasistencias} onChange={(e) => handleChange('inasistencias', e.target.value.replace(/[^0-9]/g, ''))} onBlur={() => handleBlur('inasistencias')} placeholder="Solo enteros positivos. Ej: 2" />
+          {currentErrors.inasistencias && <p className="mt-1.5 text-xs text-red-400">{currentErrors.inasistencias}</p>}
       </div>
 
       {status === 'error' && (
@@ -665,21 +723,21 @@ function Step3Confirmation({ wizardData, onBack }) {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-4">
         <button type="button" onClick={onBack} disabled={status === 'loading'}
           className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl border border-gray-700 bg-gray-800 text-gray-300 text-sm font-bold hover:bg-gray-700 transition-all duration-200 disabled:opacity-50">
           <ChevronLeft size={16} /> Atrás
         </button>
         <button
           id="btn-finalizar-registro"
-          onClick={handleFinish}
-          disabled={status === 'loading'}
-          className="flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl bg-uceva-600 hover:bg-uceva-500 text-white text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+          type="submit"
+          disabled={status === 'loading' || !isValid}
+          className={`flex-1 flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300 ${isValid ? 'bg-uceva-600 hover:bg-uceva-500 text-white shadow-lg shadow-uceva-900/40 hover:-translate-y-0.5 active:translate-y-0' : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'}`}
         >
-          {status === 'loading' ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : <>Finalizar Registro <CheckCircle size={16} /></>}
+          {status === 'loading' ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : (isValid ? <>Finalizar registro <CheckCircle size={16} /></> : <>Siguiente <ChevronRight size={16} /></>)}
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 
@@ -745,7 +803,7 @@ export default function StudentRegistrationPage() {
               />
             )}
             {currentStep === 3 && (
-              <Step3Confirmation
+              <Step3AcademicArea
                 wizardData={wizardData}
                 onBack={handleStep3Back}
               />
