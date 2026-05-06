@@ -1,35 +1,5 @@
 [
   {
-    "id": 17,
-    "name": "Test Student",
-    "studentCode": "2024001",
-    "faculty": "Facultad de Ingeniería",
-    "program": "Ingeniería de Sistemas",
-    "semester": 1,
-    "email": "testtest1@uceva.edu.co",
-    "avatar": "TS",
-    "absences": 0,
-    "gpa": 0,
-    "alerts": [],
-    "tutorId": null,
-    "createdAt": "2026-05-06T01:49:09.987Z",
-    "factores": {
-      "academico": {
-        "gpa": 0,
-        "absences": 0,
-        "semester": 1
-      },
-      "checklist": {
-        "factorIds": [],
-        "totalWeight": 0
-      },
-      "intervenciones": {
-        "alertsCount": 0,
-        "interventionsCount": 0
-      },
-      "estado": "sin_datos",
-      "lastUpdatedAt": "2026-05-06T01:49:09.987Z"
-    }
   },
   {
     "id": 16,
