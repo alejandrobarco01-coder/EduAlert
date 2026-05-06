@@ -1,0 +1,101 @@
+[
+  {
+    "id": 1775070958859,
+    "studentId": 42,
+    "tutorId": 7,
+    "date": "2026-04-01T19:15:58.859Z",
+    "text": "Sesión de prueba relacional",
+    "type": "social",
+    "priority": "high",
+    "status": "completed"
+  },
+  {
+    "id": 1775069949807,
+    "studentId": 999,
+    "tutorId": 2,
+    "date": "2026-04-01T18:59:09.808Z",
+    "text": "Tutoría académica",
+    "type": "académica",
+    "status": "completed"
+  },
+  {
+    "id": 1775069949841,
+    "studentId": 999,
+    "tutorId": 2,
+    "date": "2026-04-01T18:59:09.841Z",
+    "text": "Apoyo psicológico",
+    "type": "bienestar",
+    "status": "completed"
+  },
+  {
+    "id": 1775069949842,
+    "studentId": 999,
+    "tutorId": 2,
+    "date": "2026-04-01T18:59:09.841Z",
+    "text": "Acuerdo financiero",
+    "type": "socioeconómico",
+    "status": "completed"
+  },
+  {
+    "id": 1775069949843,
+    "studentId": 999,
+    "tutorId": 2,
+    "date": "2026-04-01T18:59:09.841Z",
+    "text": "Seguimiento familiar",
+    "type": "familiar",
+    "status": "completed"
+  },
+  {
+    "id": 1775254013590,
+    "studentId": 1,
+    "tutorId": 1,
+    "type": "llamada",
+    "priority": "low",
+    "date": "2026-04-03T22:06:53.590Z",
+    "status": "completed",
+    "createdAt": "2026-04-03T22:06:53.590Z"
+  },
+  {
+    "id": 1775419241843,
+    "studentId": 10,
+    "tutorId": 1,
+    "type": "cita",
+    "priority": "medium",
+    "date": "2026-04-05T20:00:41.843Z",
+    "status": "completed",
+    "createdAt": "2026-04-05T20:00:41.843Z"
+  },
+  {
+    "id": 1775922247658,
+    "studentId": 1,
+    "tutorId": 1775922190332,
+    "type": "cita",
+    "description": "short desc",
+    "priority": "medium",
+    "date": "2026-04-11T15:44:07.658Z",
+    "status": "completed",
+    "createdAt": "2026-04-11T15:44:07.658Z"
+  },
+  {
+    "id": 1775922563480,
+    "studentId": 1,
+    "tutorId": 1775922190332,
+    "type": "cita",
+    "description": "Esta es una descripciEsta es una descripcion corta.",
+    "priority": "medium",
+    "date": "2026-04-11T15:49:23.480Z",
+    "status": "completed",
+    "createdAt": "2026-04-11T15:49:23.480Z"
+  },
+  {
+    "id": 1776134213459,
+    "studentId": 3,
+    "tutorId": 1,
+    "type": "cita",
+    "description": "esta es una intervencion detallada de lo que sucede con camila herrera",
+    "priority": "medium",
+    "date": "2026-04-14T02:36:53.459Z",
+    "status": "completed",
+    "createdAt": "2026-04-14T02:36:53.459Z"
+  }
+]

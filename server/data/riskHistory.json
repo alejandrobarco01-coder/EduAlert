@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1774736248552,
+    "studentId": 1,
+    "riskValue": 46,
+    "timestamp": "2026-03-28T22:17:28.176Z"
+  },
+  {
+    "id": 1775073646774,
+    "studentId": 2,
+    "riskValue": 43,
+    "timestamp": "2026-04-01T20:00:46.614Z",
+    "triggerSource": "intervention",
+    "previousRiskValue": 43,
+    "riskLevel": "medium",
+    "delta": 0
+  },
+  {
+    "id": 1775073683358,
+    "studentId": 2,
+    "riskValue": 40,
+    "timestamp": "2026-04-01T20:01:22.523Z",
+    "triggerSource": "intervention",
+    "previousRiskValue": 40,
+    "riskLevel": "medium",
+    "delta": 0
+  }
+]
