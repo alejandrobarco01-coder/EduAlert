@@ -11,6 +11,7 @@ import cors from 'cors';
 import express from 'express';
 import { gzip } from 'node:zlib';
 import { promisify } from 'node:util';
+import { securityHeaders, sanitizeResponse } from './middleware/security.js';
 
 const gzipAsync = promisify(gzip);
 const app = express();
@@ -28,6 +29,8 @@ process.on('uncaughtException', (err) => {
 });
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
+app.use(securityHeaders);
+app.use(sanitizeResponse);
 app.use(cors());
 app.use(express.json());
 

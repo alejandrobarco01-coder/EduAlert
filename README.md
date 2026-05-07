@@ -19,6 +19,8 @@
 - **Lucide-react** (Iconografía)
 - **React Router 7** (Navegación)
 - **Context API** (Gestión de Autenticación)
+- **Node.js + Express 5** (Backend API)
+- **dotenv** (Manejo seguro de variables de entorno)
 
 ## 📦 Instalación y Uso 
 
@@ -33,15 +35,49 @@
    npm install
    ```
 
-3. **Correr en modo desarrollo:**
+3. **⚙️ Configurar variables de entorno:**
    ```bash
-   npm run dev
+   # Copiar la plantilla de variables de entorno
+   cp server/.env.example server/.env
+   ```
+   Luego edita `server/.env` con tus valores reales:
+   ```env
+   # API Key de Gemini (o OpenAI)
+   GEMINI_API_KEY=tu-api-key-aqui
+
+   # Secreto para JWT (cambia esto en producción)
+   JWT_SECRET=un-secreto-seguro-aqui
+
+   # Puerto del servidor (opcional, default: 3001)
+   PORT=3001
    ```
 
-4. **Construir para producción:**
+   > ⚠️ **IMPORTANTE**: El archivo `server/.env` está en `.gitignore` y **nunca** debe subirse al repositorio. Contiene secretos como API keys y tokens de autenticación.
+
+4. **Correr en modo desarrollo:**
+   ```bash
+   # Frontend + Backend simultáneamente
+   npm run dev:full
+
+   # O por separado:
+   npm run server   # Backend en puerto 3001
+   npm run dev      # Frontend en puerto 5173
+   ```
+
+5. **Construir para producción:**
    ```bash
    npm run build
    ```
+
+## 🔐 Seguridad
+
+- **Variables de entorno**: Todas las API keys y secretos se almacenan exclusivamente en `server/.env`.
+- **`.gitignore`**: El archivo `.env` está excluido del control de versiones.
+- **Middleware de seguridad**: El servidor incluye middleware que:
+  - Elimina el header `X-Powered-By` para no exponer la tecnología.
+  - Agrega headers de seguridad (`X-Content-Type-Options`, `X-Frame-Options`, etc.).
+  - Sanitiza automáticamente las respuestas JSON para prevenir filtraciones accidentales de API keys.
+- **Sin hardcoding**: Las API keys no tienen valores por defecto en el código fuente.
 
 ## 🔑 Credenciales de Prueba
 
