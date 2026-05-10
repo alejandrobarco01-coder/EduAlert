@@ -1,5 +1,35 @@
 [
   {
+    "id": 17,
+    "name": "Andres",
+    "studentCode": "230231007",
+    "faculty": "Facultad de Ingeniería",
+    "program": "Ingeniería de Sistemas",
+    "semester": 7,
+    "email": "andres@uceva.edu.co",
+    "avatar": "A",
+    "absences": 6,
+    "gpa": 3.9,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-05-10T18:43:28.655Z",
+    "factores": {
+      "academico": {
+        "gpa": 3.9,
+        "absences": 6,
+        "semester": 7
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-05-10T18:43:28.655Z"
+    }
   },
   {
     "id": 16,
