@@ -40,7 +40,8 @@ router.post('/', async (req, res) => {
         await addStudent({
           name: req.body.name,
           email: req.body.email,
-          program: req.body.department, // Usamos departamento como programa por defecto
+          studentCode: req.body.studentCode || `EST-${Date.now().toString().slice(-6)}`,
+          program: req.body.department || 'General',
           semester: 1,
           gpa: 0,
           absences: 0

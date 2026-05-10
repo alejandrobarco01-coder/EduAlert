@@ -151,10 +151,12 @@ let studentsDB = [
 // ─── Initial Load from Disk ──────────────────────────────────────────────────
 try {
   const data = await readFile(DB_PATH, 'utf-8');
-  studentsDB = JSON.parse(data);
+  const parsed = JSON.parse(data);
+  // Filtrar objetos vacíos o corruptos al cargar
+  studentsDB = Array.isArray(parsed) ? parsed.filter(s => s && Object.keys(s).length > 0) : studentsDB;
 } catch (err) {
   // If file doesn't exist, use the default studentsDB defined above
-  console.log('  ℹ️ No existe students.json, usando datos iniciales.');
+  console.log('  ℹ️ No existe students.json o está vacío, usando datos iniciales.');
 }
 
 async function syncToDisk() {
@@ -171,9 +173,9 @@ const searchIndex = new Map();
 function buildSearchIndex(students) {
   students.forEach(s => {
     searchIndex.set(s.id, {
-      name: s.name.toLowerCase(),
-      program: s.program.toLowerCase(),
-      email: s.email.toLowerCase(),
+      name: (s.name || '').toLowerCase(),
+      program: (s.program || '').toLowerCase(),
+      email: (s.email || '').toLowerCase(),
     });
   });
 }
@@ -713,7 +715,8 @@ export async function addStudent(data) {
   }
 
   // ── 3. Build & persist the new record ──────────────────────────────────────
-  const newId = Math.max(...studentsDB.map(s => s.id), 0) + 1;
+  const validIds = studentsDB.map(s => Number(s.id)).filter(id => !isNaN(id));
+  const newId = Math.max(...validIds, 0) + 1;
   const nameTrimmed = String(data.name).trim();
   const initials = nameTrimmed
     .split(' ')

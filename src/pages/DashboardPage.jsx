@@ -61,6 +61,7 @@ export default function DashboardPage() {
 
   const [recommendations, setRecommendations] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   const [tutors, setTutors] = useState([]);
   const [pendingTutorId, setPendingTutorId] = useState(null);
@@ -158,12 +159,17 @@ export default function DashboardPage() {
   // No existe ninguna función mock/simulada en el frontend; toda la lógica vive en el backend.
   const handleAnalyzeAI = async (id) => {
     setAnalyzing(true);
+    setAiError('');
     setRecommendations([]);
     try {
       const data = await fetchAIRecommendations(id);
+      if (!data || data.length === 0) {
+        throw new Error('No se generaron recomendaciones.');
+      }
       setRecommendations(data);
     } catch (e) {
-      console.error(e);
+      console.error('AI Error:', e);
+      setAiError('No fue posible generar recomendaciones. Intenta de nuevo.');
     } finally {
       setAnalyzing(false);
     }
@@ -817,18 +823,46 @@ export default function DashboardPage() {
                     </button>
                   </div>
 
-                  {recommendations.length > 0 && (
-                    <div className="space-y-3 animate-result-in">
-                      {recommendations.map((rec, i) => (
-                        <div key={i} className="flex gap-3 bg-gray-900/60 p-4 rounded-xl border border-gray-800 animate-slide-up" style={{ animationDelay: `${i * 0.05}s` }}>
-                          <div className="w-6 h-6 rounded-lg bg-violet-900/40 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5">
-                            {i + 1}
-                          </div>
-                          <p className="text-sm text-gray-300 leading-relaxed">{rec.text}</p>
+                  {/* AI Status / Recommendations Area */}
+                  <div className="min-h-[200px] flex flex-col items-center justify-center">
+                    {analyzing ? (
+                      <div className="flex flex-col items-center gap-4 py-12 animate-pulse">
+                        <div className="relative">
+                          <div className="w-16 h-16 border-4 border-violet-500/20 border-t-violet-500 rounded-full animate-spin"></div>
+                          <BrainCircuit className="absolute inset-0 m-auto text-violet-400" size={24} />
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <p className="text-sm text-violet-400 font-bold animate-pulse">Consultando Red Neuronal...</p>
+                      </div>
+                    ) : aiError ? (
+                      <div className="w-full p-8 bg-red-950/20 border border-red-900/30 rounded-2xl flex flex-col items-center text-center animate-shake">
+                        <AlertTriangle className="text-red-500 mb-3" size={32} />
+                        <p className="text-sm text-red-200 font-medium mb-4">{aiError}</p>
+                        <button
+                          onClick={() => handleAnalyzeAI(selectedStudent.id)}
+                          className="flex items-center gap-2 px-6 py-2 bg-red-900/40 hover:bg-red-900/60 text-red-300 text-xs font-bold rounded-xl border border-red-800/50 transition-all"
+                        >
+                          <TrendingUp size={14} />
+                          Reintentar Generación
+                        </button>
+                      </div>
+                    ) : recommendations.length > 0 ? (
+                      <div className="w-full space-y-3 animate-result-in">
+                        {recommendations.map((rec, i) => (
+                          <div key={i} className="flex gap-3 bg-gray-900/60 p-4 rounded-xl border border-gray-800 animate-slide-up" style={{ animationDelay: `${i * 0.05}s` }}>
+                            <div className="w-6 h-6 rounded-lg bg-violet-900/40 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5 font-bold text-xs">
+                              {i + 1}
+                            </div>
+                            <p className="text-sm text-gray-300 leading-relaxed">{rec.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-12 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
+                        <BrainCircuit size={48} className="text-gray-600 mx-auto mb-4" />
+                        <p className="text-xs text-gray-500 font-medium">Esperando instrucciones para procesar...</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
