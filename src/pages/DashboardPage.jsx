@@ -153,20 +153,50 @@ export default function DashboardPage() {
     }
   };
 
-  // SCRUM-95: Handler que conecta el botón 'Generar recomendaciones IA' del modal
-  // al endpoint real. Recibe `id` = selectedStudent.id y lo pasa a fetchAIRecommendations,
-  // que realiza GET /api/students/:id/recommendations con el token de autorización.
-  // No existe ninguna función mock/simulada en el frontend; toda la lógica vive en el backend.
+  // SCRUM-97: Handler que conecta el botón 'Generar recomendaciones IA' del modal
+  // al endpoint real. Recibe `id` = selectedStudent.id y lo pasa a fetchAIRecommendations.
+  // Parseamos la respuesta para extraer prioridad y factor de riesgo.
   const handleAnalyzeAI = async (id) => {
     setAnalyzing(true);
     setAiError('');
     setRecommendations([]);
     try {
       const data = await fetchAIRecommendations(id);
-      if (!data || data.length === 0) {
-        throw new Error('No se generaron recomendaciones.');
+      if (!data) throw new Error('No se generaron recomendaciones.');
+
+      // Si el backend retorna un string, lo parseamos. Si es un array (mock), lo adaptamos.
+      let parsed = [];
+      if (typeof data === 'string') {
+        const lines = data.split('\n').filter(l => l.trim().length > 5);
+        parsed = lines.map((line, idx) => {
+          const priorityMatch = line.match(/\[Prioridad\s+(Alta|Media|Baja)\]/i);
+          const priority = priorityMatch ? priorityMatch[1].toLowerCase() : 'medium';
+          
+          // Intentar extraer el factor de riesgo si se menciona
+          const factorMatch = line.match(/factor\s+de\s+([a-zA-Záéíóúñ\s]+)/i) || line.match(/debido\s+a\s+([a-zA-Záéíóúñ\s]+)/i);
+          const factor = factorMatch ? factorMatch[1].trim() : null;
+
+          // Limpiar el texto de la acción
+          const cleanText = line.replace(/^[0-9.]+\s*/, '').replace(/\[Prioridad\s+(Alta|Media|Baja)\]\s*Acción:\s*/i, '').trim();
+
+          return {
+            id: `ai-rec-${idx}`,
+            title: `Estrategia de Intervención`,
+            text: cleanText,
+            priority: priority === 'alta' ? 'high' : priority === 'baja' ? 'low' : 'medium',
+            factor: factor
+          };
+        });
+      } else if (Array.isArray(data)) {
+        parsed = data.map(rec => ({
+          ...rec,
+          title: rec.title || 'Acción Recomendada',
+          priority: rec.priority || 'medium',
+          factor: rec.factor || null
+        }));
       }
-      setRecommendations(data);
+
+      setRecommendations(parsed);
     } catch (e) {
       console.error('AI Error:', e);
       setAiError('No fue posible generar recomendaciones. Intenta de nuevo.');
@@ -846,15 +876,61 @@ export default function DashboardPage() {
                         </button>
                       </div>
                     ) : recommendations.length > 0 ? (
-                      <div className="w-full space-y-3 animate-result-in">
-                        {recommendations.map((rec, i) => (
-                          <div key={i} className="flex gap-3 bg-gray-900/60 p-4 rounded-xl border border-gray-800 animate-slide-up" style={{ animationDelay: `${i * 0.05}s` }}>
-                            <div className="w-6 h-6 rounded-lg bg-violet-900/40 flex items-center justify-center text-violet-400 flex-shrink-0 mt-0.5 font-bold text-xs">
-                              {i + 1}
-                            </div>
-                            <p className="text-sm text-gray-300 leading-relaxed">{rec.text}</p>
+                      <div className="w-full space-y-4 animate-result-in">
+                        {/* Warning if < 3 recommendations */}
+                        {recommendations.length < 3 && (
+                          <div className="p-3 bg-orange-950/30 border border-orange-900/40 rounded-xl flex items-center gap-3 text-orange-400 text-xs mb-2">
+                            <AlertTriangle size={14} className="flex-shrink-0" />
+                            <p>El motor de IA generó menos de 3 acciones. Se recomienda una revisión manual exhaustiva.</p>
                           </div>
-                        ))}
+                        )}
+
+                        {recommendations.map((rec, i) => {
+                          const isHigh = rec.priority === 'high';
+                          const isMedium = rec.priority === 'medium';
+                          
+                          return (
+                            <div key={rec.id || i} className="group flex flex-col gap-3 bg-gray-900/80 p-5 rounded-2xl border border-gray-800 hover:border-gray-700 transition-all shadow-sm animate-slide-up" style={{ animationDelay: `${i * 0.08}s` }}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shadow-inner ${
+                                    isHigh ? 'bg-red-500/20 text-red-400' : 
+                                    isMedium ? 'bg-orange-500/20 text-orange-400' : 
+                                    'bg-blue-500/20 text-blue-400'
+                                  }`}>
+                                    {isHigh ? <AlertTriangle size={14} /> : isMedium ? <TrendingUp size={14} /> : <Award size={14} />}
+                                  </div>
+                                  <h4 className="text-sm font-bold text-gray-200">{rec.title}</h4>
+                                </div>
+                                
+                                <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest border ${
+                                  isHigh ? 'bg-red-950/40 text-red-400 border-red-900/50' : 
+                                  isMedium ? 'bg-orange-950/40 text-orange-400 border-orange-900/50' : 
+                                  'bg-blue-950/40 text-blue-400 border-blue-900/50'
+                                }`}>
+                                  {isHigh ? 'Alta' : isMedium ? 'Media' : 'Baja'}
+                                </span>
+                              </div>
+                              
+                              <p className="text-sm text-gray-400 leading-relaxed pl-11">
+                                {rec.text}
+                              </p>
+
+                              {/* Risk factor reference */}
+                              <div className="mt-2 pl-11 flex items-center gap-2">
+                                <span className="text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Originado por:</span>
+                                {rec.factor ? (
+                                  <span className="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-md border border-gray-700 flex items-center gap-1">
+                                    <Shield size={10} className="text-uceva-500" />
+                                    {rec.factor}
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] bg-gray-900/40 text-gray-600 px-2 py-0.5 rounded-md italic">Perfil general</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="py-12 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
