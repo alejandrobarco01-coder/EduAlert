@@ -127,6 +127,12 @@ export default function DashboardPage() {
         .then(setInterventions)
         .catch(console.error)
         .finally(() => setLoadingInterventions(false));
+
+      if (selectedStudent.recomendaciones_ia) {
+        setRecommendations(selectedStudent.recomendaciones_ia.data);
+      } else {
+        setRecommendations([]);
+      }
     } else {
       setStudentFactorsIds([]);
       setInterventions([]);
@@ -197,6 +203,13 @@ export default function DashboardPage() {
       }
 
       setRecommendations(parsed);
+      setSelectedStudent(prev => ({
+        ...prev,
+        recomendaciones_ia: {
+          fecha: new Date().toISOString(),
+          data: parsed
+        }
+      }));
     } catch (e) {
       console.error('AI Error:', e);
       setAiError('No fue posible generar recomendaciones. Intenta de nuevo.');
@@ -843,13 +856,19 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-bold text-white mb-2">Recomendaciones de IA</h3>
                     <p className="text-sm text-gray-400 mb-6 max-w-sm">Genera una estrategia de mitigación personalizada basada en el perfil actual del estudiante.</p>
 
+                    {selectedStudent.recomendaciones_ia && (
+                      <p className="text-xs text-violet-400 font-medium mb-4">
+                        Última generación: {new Date(selectedStudent.recomendaciones_ia.fecha).toLocaleString()}
+                      </p>
+                    )}
+
                     <button
                       onClick={() => handleAnalyzeAI(selectedStudent.id)}
                       disabled={analyzing}
                       className="btn-primary w-auto px-8 bg-violet-600 hover:bg-violet-500"
                     >
                       {analyzing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                      {analyzing ? 'Procesando factores...' : 'Generar Recomendaciones'}
+                      {analyzing ? 'Procesando factores...' : (selectedStudent.recomendaciones_ia ? 'Regenerar Recomendaciones' : 'Generar Recomendaciones')}
                     </button>
                   </div>
 

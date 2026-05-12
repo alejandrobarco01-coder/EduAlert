@@ -648,6 +648,23 @@ export function getStudentById(id) {
   return students.find(s => s.id === id) || null;
 }
 
+export async function saveAIRecommendations(studentId, data) {
+  const sId = Number(studentId);
+  const student = studentsDB.find(s => s.id === sId);
+  
+  if (student) {
+    student.recomendaciones_ia = {
+      fecha: new Date().toISOString(),
+      data: data
+    };
+    cacheTimestamp = 0; // invalidate cache
+    statsCacheTimestamp = 0;
+    await syncToDisk();
+    return student;
+  }
+  return null;
+}
+
 // ─── Server-side validation helper ──────────────────────────────────────────
 function validateStudentPayload(data) {
   const errors = [];
