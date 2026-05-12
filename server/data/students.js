@@ -570,15 +570,17 @@ export function generateAIRecommendations(student) {
   if (student.gpa < 3.0) {
     recommendations.push({
       id: 'gpa-1',
-      icon: 'BookOpen',
-      text: 'Remisión prioritaria a tutorías académicas en materias núcleo.',
-      priority: 'high'
+      title: 'Tutoría Académica',
+      text: 'Remisión prioritaria a tutorías académicas en materias núcleo debido al bajo promedio.',
+      priority: 'high',
+      factor: 'Bajo promedio'
     });
     recommendations.push({
       id: 'gpa-2',
-      icon: 'ClipboardCheck',
+      title: 'Nivelación de Competencias',
       text: 'Inclusión en programa de nivelación de competencias básicas.',
-      priority: 'medium'
+      priority: 'medium',
+      factor: 'Rendimiento académico'
     });
   }
 
@@ -586,9 +588,10 @@ export function generateAIRecommendations(student) {
   if (student.absences > 10) {
     recommendations.push({
       id: 'abs-1',
-      icon: 'PhoneCall',
-      text: 'Entrevista de seguimiento con tutor para identificar causas de inasistencia.',
-      priority: 'high'
+      title: 'Seguimiento de Asistencia',
+      text: 'Entrevista de seguimiento con tutor para identificar causas de inasistencia crítica.',
+      priority: 'high',
+      factor: 'Inasistencias'
     });
   }
 
@@ -598,18 +601,20 @@ export function generateAIRecommendations(student) {
   if (alertStr.includes('socioeconómicas') || alertStr.includes('pagos')) {
     recommendations.push({
       id: 'socio-1',
-      icon: 'Handshake',
+      title: 'Apoyo Socioeconómico',
       text: 'Evaluación por Bienestar Universitario para posibles apoyos financieros o becas.',
-      priority: 'high'
+      priority: 'high',
+      factor: 'Socioeconómico'
     });
   }
 
   if (alertStr.includes('tutor') || alertStr.includes('laboral')) {
     recommendations.push({
       id: 'tutor-1',
-      icon: 'Users',
-      text: 'Ajuste de cronograma académico personalizado para equilibrio vida-estudio.',
-      priority: 'medium'
+      title: 'Ajuste de Carga',
+      text: 'Ajuste de cronograma académico personalizado para equilibrio vida-estudio debido a carga laboral.',
+      priority: 'medium',
+      factor: 'Carga laboral'
     });
   }
 
@@ -617,9 +622,10 @@ export function generateAIRecommendations(student) {
   if (student.riskLevel === 'high' && recommendations.length < 3) {
     recommendations.push({
       id: 'risk-1',
-      icon: 'AlertTriangle',
+      title: 'Protocolo de Retención',
       text: 'Activación de protocolo de retención inmediata con acompañamiento psicológico.',
-      priority: 'high'
+      priority: 'high',
+      factor: 'Riesgo Crítico'
     });
   }
 
@@ -627,9 +633,10 @@ export function generateAIRecommendations(student) {
   if (recommendations.length === 0) {
     recommendations.push({
       id: 'stable-1',
-      icon: 'Award',
+      title: 'Monitoreo Preventivo',
       text: 'Mantener monitoreo estándar. Estudiante presenta indicadores de estabilidad.',
-      priority: 'low'
+      priority: 'low',
+      factor: 'Estabilidad'
     });
   }
 
