@@ -1,0 +1,20 @@
+
+> edualert@0.0.0 build
+> vite build
+
+[36mvite v8.0.1 [32mbuilding client environment for production...[36m[39m
+[2Ktransforming...✓ 2313 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.89 kB │ gzip:   0.48 kB
+dist/assets/index-DwcqBc5S.css   34.82 kB │ gzip:   6.69 kB
+dist/assets/index-DPDDQc1h.js   635.80 kB │ gzip: 191.30 kB
+
+[33m[33m[INEFFECTIVE_DYNAMIC_IMPORT] Warning:[0m src/data/mockData.js is dynamically imported by src/hooks/useStudents.js but also statically imported by src/components/FilterPanel.jsx, dynamic import will not move module into another chunk.
+[39m
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 1.88s[39m
