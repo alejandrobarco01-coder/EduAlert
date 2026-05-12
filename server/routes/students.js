@@ -1,5 +1,5 @@
 import express from 'express';
-import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory, addStudent } from '../data/students.js';
+import { queryStudents, getStudentById, getStats, queryStudentsAdvanced, getAvailableFilters, generateAIRecommendations, assignTutor, getRiskHistory, addStudent, saveAIRecommendations } from '../data/students.js';
 import { getRiskHistoryByStudent } from '../data/riskHistory.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFactors.js';
@@ -114,7 +114,7 @@ router.get('/filters/options', (req, res) => {
 // SCRUM-95: El botón del modal llama a este endpoint real con el studentId.
 // La generación interna usa generateAIRecommendations() (reglas estáticas, marcada
 // como @deprecated). Pendiente integración con motor de IA externo.
-router.get('/:id/recommendations', (req, res) => {
+router.get('/:id/recommendations', async (req, res) => {
   const id = Number(req.params.id);
   const student = getStudentById(id);
 
@@ -123,6 +123,9 @@ router.get('/:id/recommendations', (req, res) => {
   }
 
   const recommendations = generateAIRecommendations(student);
+  
+  await saveAIRecommendations(id, recommendations);
+
   res.json({
     success: true,
     data: recommendations,

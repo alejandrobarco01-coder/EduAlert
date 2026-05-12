@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStudentById } from '../data/students.js';
+import { getStudentById, saveAIRecommendations } from '../data/students.js';
 import { getFactorsForStudent } from '../data/studentFactors.js';
 import { getAllFactors } from '../data/factors.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -85,6 +85,8 @@ router.post('/recommendations', async (req, res) => {
     
     const jsonMatch = rawContent.match(/\[.*\]/s);
     const parsedRecommendations = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(rawContent);
+
+    await saveAIRecommendations(Number(studentId), parsedRecommendations);
 
     res.json({
       success: true,
