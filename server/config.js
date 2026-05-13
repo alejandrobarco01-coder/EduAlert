@@ -9,6 +9,7 @@ dotenv.config({ path: join(__dirname, '.env') });
 // ─── Variables del Servidor ─────────────────────────────────────────────────
 export const PORT = process.env.PORT || 3001;
 export const JWT_SECRET = process.env.JWT_SECRET || 'edualert-secret-key-2024';
+export const DATA_ENCRYPTION_KEY = process.env.DATA_ENCRYPTION_KEY || 'edualert-data-protection-key-2024';
 
 // ─── API Keys de IA ─────────────────────────────────────────────────────────
 // Se lee exclusivamente de .env — nunca se expone un fallback en el código

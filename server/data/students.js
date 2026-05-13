@@ -8,6 +8,7 @@ import { getRiskRules } from './riskRules.js';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { encrypt, decrypt } from '../logic/crypto.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = join(__dirname, 'students.json');
@@ -154,6 +155,14 @@ try {
   const parsed = JSON.parse(data);
   // Filtrar objetos vacíos o corruptos al cargar
   studentsDB = Array.isArray(parsed) ? parsed.filter(s => s && Object.keys(s).length > 0) : studentsDB;
+  
+  // Desencriptar campos sensibles al cargar en memoria
+  studentsDB = studentsDB.map(s => ({
+    ...s,
+    name: decrypt(s.name),
+    email: decrypt(s.email),
+    studentCode: decrypt(s.studentCode)
+  }));
 } catch (err) {
   // If file doesn't exist, use the default studentsDB defined above
   console.log('  ℹ️ No existe students.json o está vacío, usando datos iniciales.');
@@ -161,7 +170,14 @@ try {
 
 async function syncToDisk() {
   try {
-    await writeFile(DB_PATH, JSON.stringify(studentsDB, null, 2));
+    // Encriptar campos sensibles antes de guardar a disco
+    const encryptedDB = studentsDB.map(s => ({
+      ...s,
+      name: encrypt(s.name),
+      email: encrypt(s.email),
+      studentCode: encrypt(s.studentCode)
+    }));
+    await writeFile(DB_PATH, JSON.stringify(encryptedDB, null, 2));
   } catch (err) {
     console.error('  ❌ Error persistiendo estudiantes:', err);
   }

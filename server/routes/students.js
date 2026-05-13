@@ -6,15 +6,19 @@ import { getFactorsForStudent, setFactorsForStudent } from '../data/studentFacto
 import { getAllFactors } from '../data/factors.js';
 import { addIntervention, getInterventionsByStudent } from '../data/interventions.js';
 import { triggerRiskCalculation } from '../events/riskEngine.js';
+import { auditMiddleware } from '../services/auditService.js';
 
 const router = express.Router();
 
 // Todas las rutas de estudiantes requieren autenticación
 router.use(authenticateToken);
 
+// Auditar accesos generales a la lista de estudiantes
+router.use(auditMiddleware('ACCESS_STUDENT_LIST'));
+
 
 // ─── POST /api/students ── Agregar un nuevo estudiante ──────────────────────
-router.post('/', authorizeRoles('admin', 'coordinator'), async (req, res) => {
+router.post('/', authorizeRoles('admin', 'coordinator'), auditMiddleware('CREATE_STUDENT'), async (req, res) => {
   try {
     console.log(`  ➕ Adding new student: ${req.body.name} (${req.body.studentCode})`);
     const newStudent = await addStudent(req.body);
@@ -138,7 +142,7 @@ router.get('/:id/recommendations', async (req, res) => {
 });
 
 // ─── GET /api/students/:id ── Detalle de un estudiante ───────────────────────
-router.get('/:id', (req, res) => {
+router.get('/:id', auditMiddleware('ACCESS_STUDENT_DETAIL'), (req, res) => {
   const id = Number(req.params.id);
   const student = getStudentById(id);
 
