@@ -7,6 +7,7 @@ import { triggerRiskCalculation } from '../events/riskEngine.js';
 import { mapWizardToFactorIds, riskValueToLevel, riskLevelToSpanish } from '../logic/wizardRiskMapper.js';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
+import { auditMiddleware } from '../services/auditService.js';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ const router = express.Router();
  * POST /api/auth/register
  * Registra un nuevo usuario
  */
-router.post('/register', async (req, res) => {
+router.post('/register', auditMiddleware('USER_REGISTER'), async (req, res) => {
   const { name, email, password, role, department } = req.body;
 
   // Validaciones básicas
@@ -128,7 +129,7 @@ router.post('/register', async (req, res) => {
  * POST /api/auth/login
  * Autenticación de usuario (añadido para consistencia)
  */
-router.post('/login', (req, res) => {
+router.post('/login', auditMiddleware('USER_LOGIN'), (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(email);
 

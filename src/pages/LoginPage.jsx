@@ -119,11 +119,17 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-gray-800 text-center">
+          <div className="mt-6 pt-5 border-t border-gray-800 text-center space-y-3">
             <p className="text-sm text-gray-500">
               ¿No tienes cuenta?{' '}
               <Link to="/register" id="go-register" className="text-uceva-400 hover:text-uceva-300 font-medium transition-colors">
                 Solicitar acceso
+              </Link>
+            </p>
+            <p className="text-xs text-gray-600">
+              Al ingresar, aceptas nuestra{' '}
+              <Link to="/privacy-policy" className="text-gray-500 hover:text-uceva-400 underline underline-offset-2">
+                Política de Tratamiento de Datos (Ley 1581)
               </Link>
             </p>
           </div>
