@@ -1,5 +1,107 @@
 [
   {
+    "id": 19,
+    "name": "No Factors",
+    "studentCode": "9999",
+    "faculty": "Facultad de Ciencias de la Salud",
+    "program": "Derecho",
+    "semester": 1,
+    "email": "nofactors@uceva.edu.co",
+    "avatar": "NF",
+    "absences": 0,
+    "gpa": 0,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-05-13T01:31:35.695Z",
+    "factores": {
+      "academico": {
+        "gpa": 0,
+        "absences": 0,
+        "semester": 1
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-05-13T01:31:35.695Z"
+    },
+    "recomendaciones_ia": {
+      "fecha": "2026-05-13T01:32:05.483Z",
+      "data": [
+        {
+          "id": "gpa-1",
+          "title": "Tutoría Académica",
+          "text": "Remisión prioritaria a tutorías académicas en materias núcleo debido al bajo promedio.",
+          "priority": "high",
+          "factor": "Bajo promedio"
+        },
+        {
+          "id": "gpa-2",
+          "title": "Nivelación de Competencias",
+          "text": "Inclusión en programa de nivelación de competencias básicas.",
+          "priority": "medium",
+          "factor": "Rendimiento académico"
+        }
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "name": "Test Student",
+    "studentCode": "12345",
+    "faculty": "Facultad de Ingeniería",
+    "program": "Ingeniería de Sistemas",
+    "semester": 5,
+    "email": "test@uceva.edu.co",
+    "avatar": "TS",
+    "absences": 0,
+    "gpa": 0,
+    "alerts": [],
+    "tutorId": null,
+    "createdAt": "2026-05-13T01:29:31.564Z",
+    "factores": {
+      "academico": {
+        "gpa": 0,
+        "absences": 0,
+        "semester": 5
+      },
+      "checklist": {
+        "factorIds": [],
+        "totalWeight": 0
+      },
+      "intervenciones": {
+        "alertsCount": 0,
+        "interventionsCount": 0
+      },
+      "estado": "sin_datos",
+      "lastUpdatedAt": "2026-05-13T01:29:31.564Z"
+    },
+    "recomendaciones_ia": {
+      "fecha": "2026-05-13T01:44:53.641Z",
+      "data": [
+        {
+          "id": "gpa-1",
+          "title": "Tutoría Académica",
+          "text": "Remisión prioritaria a tutorías académicas en materias núcleo debido al bajo promedio.",
+          "priority": "high",
+          "factor": "Bajo promedio"
+        },
+        {
+          "id": "gpa-2",
+          "title": "Nivelación de Competencias",
+          "text": "Inclusión en programa de nivelación de competencias básicas.",
+          "priority": "medium",
+          "factor": "Rendimiento académico"
+        }
+      ]
+    }
+  },
+  {
     "id": 17,
     "name": "Andres",
     "studentCode": "230231007",
@@ -29,6 +131,18 @@
       },
       "estado": "sin_datos",
       "lastUpdatedAt": "2026-05-10T18:43:28.655Z"
+    },
+    "recomendaciones_ia": {
+      "fecha": "2026-05-13T01:45:16.813Z",
+      "data": [
+        {
+          "id": "stable-1",
+          "title": "Monitoreo Preventivo",
+          "text": "Mantener monitoreo estándar. Estudiante presenta indicadores de estabilidad.",
+          "priority": "low",
+          "factor": "Estabilidad"
+        }
+      ]
     }
   },
   {
@@ -61,6 +175,32 @@
       },
       "estado": "sin_datos",
       "lastUpdatedAt": "2026-04-30T22:21:30.706Z"
+    },
+    "recomendaciones_ia": {
+      "fecha": "2026-05-13T01:32:55.406Z",
+      "data": [
+        {
+          "id": "gpa-1",
+          "title": "Tutoría Académica",
+          "text": "Remisión prioritaria a tutorías académicas en materias núcleo debido al bajo promedio.",
+          "priority": "high",
+          "factor": "Bajo promedio"
+        },
+        {
+          "id": "gpa-2",
+          "title": "Nivelación de Competencias",
+          "text": "Inclusión en programa de nivelación de competencias básicas.",
+          "priority": "medium",
+          "factor": "Rendimiento académico"
+        },
+        {
+          "id": "abs-1",
+          "title": "Seguimiento de Asistencia",
+          "text": "Entrevista de seguimiento con tutor para identificar causas de inasistencia crítica.",
+          "priority": "high",
+          "factor": "Inasistencias"
+        }
+      ]
     }
   },
   {
@@ -93,6 +233,18 @@
       },
       "estado": "sin_datos",
       "lastUpdatedAt": "2026-04-30T22:04:48.760Z"
+    },
+    "recomendaciones_ia": {
+      "fecha": "2026-05-13T01:33:16.543Z",
+      "data": [
+        {
+          "id": "stable-1",
+          "title": "Monitoreo Preventivo",
+          "text": "Mantener monitoreo estándar. Estudiante presenta indicadores de estabilidad.",
+          "priority": "low",
+          "factor": "Estabilidad"
+        }
+      ]
     }
   },
   {
