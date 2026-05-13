@@ -138,7 +138,7 @@ export default function DashboardPage() {
       setInterventions([]);
       setRecommendations([]);
     }
-  }, [selectedStudent]);
+  }, [selectedStudent?.id]);
 
   const { students, stats, loading, refetch } = useStudents(filters, globalSearch);
 
