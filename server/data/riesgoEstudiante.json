@@ -452,5 +452,42 @@
     "valor_riesgo_anterior": null,
     "nivel_riesgo": "medium",
     "delta": null
+  },
+  {
+    "id": 1778987240450,
+    "usuario_id": 7,
+    "valor_riesgo": 44,
+    "fecha_calculo": "2026-05-17T03:07:19.532Z",
+    "factores_detectados": [
+      "Bajo rendimiento académico"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1778987240668,
+    "usuario_id": 7,
+    "valor_riesgo": 40,
+    "fecha_calculo": "2026-05-17T03:07:20.485Z",
+    "factores_detectados": [],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "medium",
+    "delta": null
+  },
+  {
+    "id": 1779007663316,
+    "usuario_id": 20,
+    "valor_riesgo": 22,
+    "fecha_calculo": "2026-05-17T08:47:43.182Z",
+    "factores_detectados": [
+      "Problemas financieros"
+    ],
+    "trigger_source": "checklist",
+    "valor_riesgo_anterior": null,
+    "nivel_riesgo": "low",
+    "delta": null
   }
 ]
