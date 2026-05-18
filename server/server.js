@@ -79,6 +79,30 @@ app.use('/api/:path', (req, res) => {
   });
 });
 
+// ─── Servir frontend estático (producción) ───────────────────────────────────
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+const distPath   = path.join(__dirname, '..', 'dist');
+
+if (fs.existsSync(distPath)) {
+  // Archivos estáticos con cache de largo plazo para assets hasheados
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    immutable: true,
+  }));
+
+  // Catch-all: devolver index.html para rutas del SPA (React Router)
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+
+  console.log(`  📦 Frontend estático servido desde: ${distPath}`);
+}
+
 // ─── Start ───────────────────────────────────────────────────────────────────
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n  🚀 EduAlert API corriendo en http://127.0.0.1:${PORT}`);
@@ -95,3 +119,4 @@ app.listen(PORT, '127.0.0.1', () => {
 });
 
 setInterval(() => console.log(`  💓 Heartbeat: ${new Date().toLocaleTimeString()} | OK`), 60000);
+

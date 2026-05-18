@@ -618,7 +618,8 @@ function Step3AcademicArea({ wizardData, onBack }) {
         wizardStep2: step2,
       };
 
-      const res = await fetch('http://127.0.0.1:3001/api/auth/register', {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
