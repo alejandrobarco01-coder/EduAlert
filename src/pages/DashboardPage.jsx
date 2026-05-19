@@ -6,11 +6,12 @@ import {
   BarChart2, Search, Menu, Calendar, Loader2, Sparkles,
   PhoneCall, Handshake, Award, ClipboardCheck, Sliders,
   UserCheck, History, BrainCircuit, Settings, Mail, UserPlus,
-  Download,
+  Download, Sun, Moon,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { useStudents } from '../hooks/useStudents';
+import { useTheme } from '../context/ThemeContext';
 
 import {
   fetchAIRecommendations,
@@ -50,6 +51,15 @@ const roleLabel = { admin: 'Administrador', tutor: 'Tutor', coordinator: 'Coordi
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+
+  // Notification preferences with localStorage persistence
+  const [notifPrefs, setNotifPrefs] = useState(() => {
+    try {
+      const stored = localStorage.getItem('edualert_notif_prefs');
+      return stored ? JSON.parse(stored) : { email: true, critical: true, tutoring: true };
+    } catch { return { email: true, critical: true, tutoring: true }; }
+  });
 
   const [activeView, setActiveView] = useState('students');
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -145,6 +155,14 @@ export default function DashboardPage() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleToggleNotif = (key) => {
+    setNotifPrefs(prev => {
+      const updated = { ...prev, [key]: !prev[key] };
+      localStorage.setItem('edualert_notif_prefs', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleAssignTutor = async () => {
@@ -649,20 +667,63 @@ export default function DashboardPage() {
                       <h3 className="text-lg font-bold text-white mb-6">Preferencias de Notificaciones</h3>
                       <div className="space-y-6">
                         {[
-                          { label: 'Alertas por Email', desc: 'Recibe resúmenes semanales de riesgo.' },
-                          { label: 'Notificaciones Críticas', desc: 'Alertas inmediatas cuando un estudiante entra en riesgo alto.' },
-                          { label: 'Reportes de Tutoría', desc: 'Notificaciones sobre nuevas respuestas de tutores.' }
-                        ].map((item, i) => (
-                          <div key={i} className="flex items-center justify-between">
+                          { key: 'email', label: 'Alertas por Email', desc: 'Recibe resúmenes semanales de riesgo.' },
+                          { key: 'critical', label: 'Notificaciones Críticas', desc: 'Alertas inmediatas cuando un estudiante entra en riesgo alto.' },
+                          { key: 'tutoring', label: 'Reportes de Tutoría', desc: 'Notificaciones sobre nuevas respuestas de tutores.' }
+                        ].map((item) => (
+                          <div key={item.key} className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-bold text-gray-200">{item.label}</p>
                               <p className="text-xs text-gray-500">{item.desc}</p>
                             </div>
-                            <div className="w-10 h-5 bg-uceva-600 rounded-full relative">
-                              <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
-                            </div>
+                            <button
+                              id={`toggle-notif-${item.key}`}
+                              onClick={() => handleToggleNotif(item.key)}
+                              className={`w-11 h-6 rounded-full relative transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-uceva-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${notifPrefs[item.key] ? 'bg-uceva-600' : 'bg-gray-700'}`}
+                              role="switch"
+                              aria-checked={notifPrefs[item.key]}
+                              aria-label={item.label}
+                            >
+                              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ${notifPrefs[item.key] ? 'translate-x-[22px]' : 'translate-x-1'}`} />
+                            </button>
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Theme Switcher */}
+                    <div className="card p-8 bg-gray-900/40 border border-gray-800">
+                      <h3 className="text-lg font-bold text-white mb-6">Apariencia</h3>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-bold text-gray-200">Tema de la Interfaz</p>
+                          <p className="text-xs text-gray-500">Alterna entre modo oscuro y modo claro.</p>
+                        </div>
+                        <button
+                          id="toggle-theme"
+                          onClick={toggleTheme}
+                          className="relative flex items-center w-20 h-10 rounded-full border border-gray-700 overflow-hidden transition-colors duration-500 focus:outline-none focus:ring-2 focus:ring-uceva-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                          style={{ background: theme === 'dark' ? 'linear-gradient(135deg, #1e293b, #0f172a)' : 'linear-gradient(135deg, #93c5fd, #60a5fa)' }}
+                          aria-label="Cambiar tema"
+                        >
+                          <div className={`absolute top-1 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ${theme === 'dark' ? 'translate-x-1 bg-gray-800 border border-gray-600' : 'translate-x-[42px] bg-white border border-blue-200'}`}>
+                            {theme === 'dark' ? <Moon size={16} className="text-yellow-300" /> : <Sun size={16} className="text-amber-500" />}
+                          </div>
+                        </button>
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          onClick={() => { if (theme !== 'light') toggleTheme(); }}
+                          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all border ${theme === 'light' ? 'bg-white text-gray-900 border-gray-300 shadow-lg' : 'bg-gray-800/50 text-gray-500 border-gray-800 hover:border-gray-700 hover:text-gray-300'}`}
+                        >
+                          <Sun size={14} /> Modo Claro
+                        </button>
+                        <button
+                          onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+                          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all border ${theme === 'dark' ? 'bg-gray-800 text-white border-uceva-700 shadow-lg shadow-uceva-900/20' : 'bg-gray-100 text-gray-400 border-gray-200 hover:border-gray-400 hover:text-gray-600'}`}
+                        >
+                          <Moon size={14} /> Modo Oscuro
+                        </button>
                       </div>
                     </div>
 

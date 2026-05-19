@@ -109,3 +109,214 @@
 .animate-result-in {
   animation: result-in 0.25s ease-out both;
 }
+
+/* ─── Light Mode Overrides ────────────────────────────────────────────── */
+/* When the HTML root has class="light", we override the hardcoded dark   */
+/* Tailwind classes via higher-specificity selectors.                     */
+
+:root.light {
+  color-scheme: light;
+}
+
+/* ── Global background & text ───────────────────────────────────────── */
+html.light body {
+  background-color: #f4f7fb !important;   /* A cool, slightly blueish bright background */
+  color: #0f172a !important;              /* High contrast dark text */
+}
+
+/* ── Main layout backgrounds ────────────────────────────────────────── */
+html.light .min-h-screen.bg-gray-950,
+html.light .bg-gray-950 {
+  background-color: #eff3f8 !important;   /* Richer light gray for main canvas */
+}
+
+html.light .bg-gray-900,
+html.light .bg-gray-900\/95,
+html.light .bg-gray-900\/80,
+html.light .bg-gray-900\/50,
+html.light .bg-gray-900\/40,
+html.light .bg-gray-900\/20 {
+  background-color: #ffffff !important;   /* Pure white for panels and cards */
+}
+
+html.light .bg-gray-950\/80,
+html.light .bg-gray-950\/50 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+html.light .bg-gray-800,
+html.light .bg-gray-800\/40,
+html.light .bg-gray-800\/50,
+html.light .bg-gray-800\/80 {
+  background-color: #e2e8f0 !important;   /* Deeper slate for secondary boxes/buttons */
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
+html.light .card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  /* Rich, premium shadow instead of flat */
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01) !important;
+  transition: all 0.3s ease;
+}
+
+html.light .card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ── Borders ────────────────────────────────────────────────────────── */
+html.light .border-gray-800,
+html.light .border-gray-800\/50,
+html.light .border-gray-900 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-gray-700 {
+  border-color: #cbd5e1 !important;
+}
+
+/* ── Text colors ────────────────────────────────────────────────────── */
+html.light .text-white {
+  color: #0f172a !important;              /* slate-900 */
+}
+
+html.light .text-gray-200,
+html.light .text-gray-300 {
+  color: #1e293b !important;              /* slate-800, very readable */
+}
+
+html.light .text-gray-400 {
+  color: #475569 !important;              /* slate-600 */
+}
+
+html.light .text-gray-500 {
+  color: #64748b !important;              /* slate-500 */
+}
+
+html.light .text-gray-600 {
+  color: #64748b !important;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────── */
+html.light aside {
+  background-color: #ffffff !important;
+  border-right-color: #e2e8f0 !important;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.03) !important;
+}
+
+html.light .sidebar-item {
+  color: #475569 !important;
+}
+
+html.light .sidebar-item:hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+html.light .sidebar-item.active {
+  color: #15803d !important;
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  box-shadow: inset 2px 0 0 #15803d !important; /* Striking green accent */
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+html.light header.sticky {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom-color: #e2e8f0 !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
+}
+
+/* ── Inputs ─────────────────────────────────────────────────────────── */
+html.light .input-field,
+html.light input[type="text"] {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light input[type="text"]:focus {
+  background-color: #ffffff !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2) !important;
+}
+
+html.light input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ── Stat boxes ─────────────────────────────────────────────────────── */
+html.light .card.p-4 .bg-gray-800 {
+  background-color: #f1f5f9 !important;
+}
+
+/* ── Notification dropdown ──────────────────────────────────────────── */
+html.light .absolute.top-full .bg-gray-900 {
+  background-color: #ffffff !important;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────── */
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* ── Modal / Slide-over ─────────────────────────────────────────────── */
+html.light .bg-gray-950.h-full,
+html.light .relative.w-full.max-w-2xl.bg-gray-950 {
+  background-color: #ffffff !important;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Gradients fix for light mode ───────────────────────────────────── */
+html.light .bg-gradient-to-br.from-gray-900.to-gray-950 {
+  background: linear-gradient(135deg, #ffffff, #f0fdf4) !important; /* Gentle green tint */
+  border-color: #dcfce8 !important;
+}
+
+/* Vibrant gradients for AI cards */
+html.light .bg-gradient-to-br.from-violet-900\/20.to-fuchsia-900\/10 {
+  background: linear-gradient(135deg, #f3e8ff, #fae8ff) !important;
+  border-color: #e9d5ff !important;
+}
+html.light .text-violet-400 { color: #7e22ce !important; }
+
+/* ── Placeholder text ───────────────────────────────────────────────── */
+html.light .placeholder\:text-gray-600::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ── Select elements ────────────────────────────────────────────────── */
+html.light select {
+  color: #1e293b !important;
+}
+
+html.light select option {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* ── Badges and Colored blocks ──────────────────────────────────────── */
+html.light .bg-red-900\/10 { background-color: #fef2f2 !important; border-color: #fecaca !important; }
+html.light .text-red-300, html.light .text-red-400 { color: #ef4444 !important; }
+
+html.light .bg-orange-900\/10 { background-color: #fff7ed !important; border-color: #fed7aa !important; }
+html.light .text-orange-300, html.light .text-orange-400 { color: #f97316 !important; }
+
+html.light .bg-uceva-900\/10 { background-color: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+html.light .text-uceva-300, html.light .text-uceva-400 { color: #16a34a !important; }
+
+html.light .text-blue-400 { color: #3b82f6 !important; }
+html.light .bg-blue-900\/10 { background-color: #eff6ff !important; border-color: #bfdbfe !important; }
