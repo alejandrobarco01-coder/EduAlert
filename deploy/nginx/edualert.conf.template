@@ -1,0 +1,49 @@
+# EduAlert UCEVA — Nginx (despliegue nativo en el host)
+# Sustituye __EDUALERT_ROOT__ por la ruta absoluta del proyecto antes de instalar.
+# Ejemplo: scripts/setup-nginx.sh
+
+upstream edualert_api {
+    server 127.0.0.1:3001;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+
+    root __EDUALERT_ROOT__/dist;
+    index index.html;
+
+    # ─── API: proxy reverso hacia Node.js ───────────────────────────────────
+    location /api {
+        proxy_pass http://edualert_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+    }
+
+    # ─── Assets con hash (Vite): cache largo ────────────────────────────────
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # ─── Frontend SPA ───────────────────────────────────────────────────────
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # No exponer archivos ocultos
+    location ~ /\. {
+        deny all;
+    }
+}

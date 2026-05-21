@@ -8,6 +8,8 @@ dotenv.config({ path: join(__dirname, '.env') });
 
 // ─── Variables del Servidor ─────────────────────────────────────────────────
 export const PORT = process.env.PORT || 3001;
+// 127.0.0.1 en host (solo Nginx accede); 0.0.0.0 en Docker para red interna
+export const HOST = process.env.HOST || '127.0.0.1';
 export const JWT_SECRET = process.env.JWT_SECRET || 'edualert-secret-key-2024';
 export const DATA_ENCRYPTION_KEY = process.env.DATA_ENCRYPTION_KEY || 'edualert-data-protection-key-2024';
 

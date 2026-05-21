@@ -7,18 +7,28 @@ services:
       dockerfile: Dockerfile
     container_name: edualert-service
     restart: always
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
-      # Cargar variables de entorno adicionales desde un archivo local .env en producción
+      - HOST=0.0.0.0
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
     env_file:
       - ./server/.env
     volumes:
-      # Persistir logs del servidor fuera del contenedor para auditoría y depuración
       - ./logs:/app/logs
-      # En caso de persistencia física de datos JSON en local (server/data)
       - ./server/data:/app/server/data
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: edualert-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/edualert.docker.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dist:/usr/share/nginx/html:ro
+    depends_on:
+      - edualert-app

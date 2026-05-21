@@ -120,10 +120,72 @@ sudo ufw default allow outgoing
 sudo ufw allow ssh             # Permite puerto 22
 sudo ufw allow http            # Permite puerto 80
 sudo ufw allow https           # Permite puerto 443
-sudo ufw allow 3001/tcp        # Permite el puerto de la API de EduAlert (temporal)
 sudo ufw enable                # Habilita el firewall
 ```
 Para ver el estado actual:
 ```bash
 sudo ufw status verbose
 ```
+
+> **Nota:** No expongas el puerto `3001` al público una vez configurado Nginx (sección 6). El backend escucha solo en `127.0.0.1` y Nginx actúa como única entrada en los puertos 80/443.
+
+---
+
+## 🌐 6. Proxy inverso y enrutamiento (Nginx)
+
+Nginx sirve el frontend compilado y reenvía las peticiones de la API al proceso Node.js en el puerto interno `3001`.
+
+| Ruta | Destino |
+|------|---------|
+| `/` | Archivos estáticos de `dist/` (SPA React) |
+| `/api` | Proxy reverso → `http://127.0.0.1:3001` |
+
+### Requisitos previos
+
+```bash
+npm install
+npm run build                    # Genera dist/
+pm2 startOrReload ecosystem.config.js --env production
+```
+
+### Instalación automática
+
+Desde la raíz del proyecto:
+
+```bash
+bash scripts/setup-nginx.sh
+```
+
+El script instala Nginx (si falta), genera el sitio desde `deploy/nginx/edualert.conf.template` y recarga el servicio.
+
+### Instalación manual
+
+```bash
+sudo apt install -y nginx
+sed "s|__EDUALERT_ROOT__|$(pwd)|g" deploy/nginx/edualert.conf.template | sudo tee /etc/nginx/sites-available/edualert
+sudo ln -sf /etc/nginx/sites-available/edualert /etc/nginx/sites-enabled/edualert
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Verificación (criterios de aceptación)
+
+```bash
+# Interfaz de usuario en la raíz
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost/
+
+# API enrutada por el proxy
+curl -s http://localhost/api/health
+```
+
+Respuestas esperadas: `200` en `/` y JSON con `"status":"ok"` en `/api/health`.
+
+### Docker Compose
+
+Con `docker-compose up -d --build`, el servicio `nginx` publica el puerto **80** y monta `./dist` para los estáticos. El backend (`edualert-app`) solo es accesible en la red interna de Docker.
+
+Configuración: `deploy/nginx/edualert.docker.conf`.
+
+### HTTPS (opcional)
+
+Para TLS en producción, instala Certbot y extiende el bloque `server` con certificados Let's Encrypt, o coloca un balanceador TLS delante de Nginx.

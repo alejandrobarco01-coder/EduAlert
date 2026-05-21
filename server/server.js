@@ -17,7 +17,7 @@ import { securityHeaders, sanitizeResponse } from './middleware/security.js';
 
 const gzipAsync = promisify(gzip);
 const app = express();
-import { JWT_SECRET, PORT } from './config.js';
+import { JWT_SECRET, PORT, HOST } from './config.js';
 
 export { JWT_SECRET };
 
@@ -104,8 +104,8 @@ if (fs.existsSync(distPath)) {
 }
 
 // ─── Start ───────────────────────────────────────────────────────────────────
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`\n  🚀 EduAlert API corriendo en http://127.0.0.1:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`\n  🚀 EduAlert API corriendo en http://${HOST}:${PORT}`);
   console.log(`  🔗 PORTAL DE ESTUDIANTES: http://localhost:5173/estudiantes/registro`);
   console.log(`  ⚡ Optimizaciones activas: Cache, GZIP, Search Index`);
   console.log(`  📚 Endpoints disponibles:`);

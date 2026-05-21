@@ -78,6 +78,8 @@ if [ "$DEPLOY_METHOD" == "1" ]; then
     echo -e "\n${GREEN}✅ ¡Despliegue con PM2 completado con éxito!${NC}"
     echo -e "Puedes ver el estado con: ${BLUE}pm2 status${NC}"
     echo -e "Puedes ver los logs con: ${BLUE}pm2 logs edualert-api${NC}"
+    echo -e "\n${YELLOW}🌐 Proxy inverso (Nginx):${NC} ejecuta ${BLUE}bash scripts/setup-nginx.sh${NC}"
+    echo -e "   para servir / desde dist/ y enrutar /api → puerto 3001"
 
 elif [ "$DEPLOY_METHOD" == "2" ]; then
     # --- DESPLIEGUE CON DOCKER ---
@@ -89,8 +91,17 @@ elif [ "$DEPLOY_METHOD" == "2" ]; then
         exit 1
     fi
 
+    # Compilar frontend para que Nginx sirva los estáticos (volumen ./dist)
+    echo -e "${YELLOW}🧱 Compilando frontend (React + Vite)...${NC}"
+    npm install
+    npm run build
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Error en npm run build.${NC}"
+        exit 1
+    fi
+
     # Construir y levantar contenedores en segundo plano
-    echo -e "${YELLOW}🏗️ Reconstruyendo imágenes y levantando servicio...${NC}"
+    echo -e "${YELLOW}🏗️ Reconstruyendo imágenes y levantando servicios (API + Nginx)...${NC}"
     docker-compose up -d --build
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌ Error al ejecutar docker-compose.${NC}"
@@ -98,6 +109,7 @@ elif [ "$DEPLOY_METHOD" == "2" ]; then
     fi
 
     echo -e "\n${GREEN}✅ ¡Despliegue con Docker completado con éxito!${NC}"
+    echo -e "Interfaz y API vía Nginx en puerto ${GREEN}80${NC} ( / → frontend, /api → backend )"
     echo -e "Puedes ver los contenedores corriendo con: ${BLUE}docker ps${NC}"
     echo -e "Puedes ver los logs con: ${BLUE}docker-compose logs -f${NC}"
 
