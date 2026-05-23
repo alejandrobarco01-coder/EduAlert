@@ -2,6 +2,24 @@
 
 Sigue estos pasos para configurar y ejecutar el proyecto EduAlert en tu máquina local.
 
+## 0. Requisitos del Sistema
+
+Antes de comenzar, asegúrate de tener instaladas las siguientes herramientas en las versiones especificadas para garantizar la compatibilidad del entorno:
+
+| Herramienta | Versión Recomendada | Notas |
+|---|---|---|
+| **Node.js** | `v20.x` (LTS) | Versión estricta recomendada (usada en el Dockerfile). |
+| **npm** | `v10.x` o superior | Viene incluido con Node 20. |
+| **Git** | `v2.40` o superior | Necesario para la gestión del repositorio. |
+| **Docker** | `v24.x` o superior | Necesario para levantar la base de datos local. |
+| **Docker Compose** | `v2.x` o superior | Para gestionar los contenedores del proyecto. |
+| **PostgreSQL** | `v16.x` | Versión específica de la imagen oficial del proyecto. |
+
+> [!TIP]
+> Se recomienda el uso de [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) para gestionar múltiples versiones de Node.js en tu equipo.
+
+---
+
 ## 1. Clonar el Repositorio
 
 Primero, clona el repositorio desde GitHub y accede a la carpeta del proyecto:
