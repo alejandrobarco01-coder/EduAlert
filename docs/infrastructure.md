@@ -186,6 +186,47 @@ Con `docker-compose up -d --build`, el servicio `nginx` publica el puerto **80**
 
 Configuración: `deploy/nginx/edualert.docker.conf`.
 
+---
+
+## 🗄️ 7. Base de Datos (PostgreSQL)
+
+Para gestionar los datos de forma persistente, segura y escalable, EduAlert UCEVA utiliza PostgreSQL orquestado a través de Docker Compose.
+
+### Configuración Segura de Credenciales
+
+Las credenciales no se encuentran expuestas en el código. Para configurar la base de datos de producción:
+1. Asegúrate de tener el archivo `server/.env` correctamente configurado a partir de `.env.example`:
+   ```env
+   DB_USER=usuario_fuerte
+   DB_PASSWORD=contraseña_super_segura
+   DB_NAME=edualert_prod
+   ```
+2. Estas variables son inyectadas en tiempo de ejecución en el contenedor `edualert-postgres`.
+
+### Verificación y Conexión por Consola
+
+Puedes verificar la conexión y administrar la base de datos localmente desde la consola del servidor.
+
+**1. Entrar a la consola de PostgreSQL (psql):**
+```bash
+docker exec -it edualert-postgres psql -U usuario_fuerte -d edualert_prod
+```
+Dentro de psql, puedes usar comandos como `\dt` (para listar tablas) o `\q` (para salir).
+
+**2. Verificar que el servicio está activo:**
+```bash
+docker ps | grep edualert-postgres
+# o viendo los logs:
+docker logs edualert-postgres
+```
+
+### Respaldos (Backups)
+
+Para realizar un respaldo manual de la base de datos de producción, ejecuta:
+```bash
+docker exec -t edualert-postgres pg_dumpall -c -U usuario_fuerte > dump_edualert_$(date +%Y-%m-%d).sql
+```
+
 ### HTTPS (opcional)
 
 Para TLS en producción, instala Certbot y extiende el bloque `server` con certificados Let's Encrypt, o coloca un balanceador TLS delante de Nginx.
