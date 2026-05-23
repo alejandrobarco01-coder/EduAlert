@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: edualert-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-supersecreto}
+      - POSTGRES_DB=${DB_NAME:-edualert_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  edualert-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: edualert-service
+    restart: always
+    expose:
+      - "3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-supersecreto}@db:5432/${DB_NAME:-edualert_db}
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./logs:/app/logs
+      - ./server/data:/app/server/data
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: edualert-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/edualert.docker.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dist:/usr/share/nginx/html:ro
+    depends_on:
+      - edualert-app
+
+volumes:
+  postgres_data:
