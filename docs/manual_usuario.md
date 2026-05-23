@@ -1,19 +1,54 @@
 # Manual de Usuario - Sistema EduAlert
 
-Bienvenido al manual de usuario del sistema **EduAlert**. Este documento está diseñado para guiar a los administradores, coordinadores y docentes (tutores) en el uso de la plataforma institucional para la detección temprana y seguimiento del riesgo de deserción estudiantil.
+## Introducción al Sistema EduAlert
+
+**EduAlert** es una plataforma tecnológica integral diseñada para la detección temprana, prevención y seguimiento continuo del riesgo de deserción estudiantil. Su propósito principal es dotar a las instituciones educativas de herramientas avanzadas basadas en análisis de datos e inteligencia artificial, permitiendo identificar de forma proactiva a estudiantes en situación de vulnerabilidad académica, económica o psicosocial. Al centralizar la información y facilitar la gestión de intervenciones, EduAlert busca mejorar significativamente las tasas de retención, promoviendo el bienestar integral y el éxito académico de la comunidad estudiantil.
 
 ---
 
 ## Índice
-1. [Acceso al Sistema](#1-acceso-al-sistema)
-2. [Panel de Control Principal (Dashboard)](#2-panel-de-control-principal-dashboard)
-3. [Módulo de Análisis y Reportes](#3-módulo-de-análisis-y-reportes)
-4. [Gestión de Estudiantes: Creación y Seguimiento](#4-gestión-de-estudiantes-creación-y-seguimiento)
-5. [Gestión de Usuarios y Roles](#5-gestión-de-usuarios-y-roles)
+1. [Roles y Permisos de Usuario](#1-roles-y-permisos-de-usuario)
+2. [Acceso al Sistema](#2-acceso-al-sistema)
+3. [Panel de Control Principal (Dashboard)](#3-panel-de-control-principal-dashboard)
+4. [Módulo de Análisis y Reportes](#4-módulo-de-análisis-y-reportes)
+5. [Gestión de Estudiantes: Creación y Seguimiento](#5-gestión-de-estudiantes-creación-y-seguimiento)
+6. [Gestión de Usuarios y Roles](#6-gestión-de-usuarios-y-roles)
 
 ---
 
-## 1. Acceso al Sistema
+## 1. Roles y Permisos de Usuario
+
+El sistema EduAlert está diseñado para ser operado por diferentes actores dentro de la comunidad educativa. Cada rol cuenta con un conjunto específico de permisos y accesos para garantizar la seguridad de la información y enfocar las herramientas según las responsabilidades de cada usuario.
+
+### Administrador
+El **Administrador** es el usuario con el nivel de acceso más alto en la plataforma, encargado de la configuración global y supervisión del sistema.
+- **Permisos:** Acceso total a todos los módulos internos.
+- **Responsabilidades:** 
+  - Gestión integral de usuarios (creación, edición, eliminación y asignación de roles).
+  - Acceso irrestricto al módulo de análisis y reportes estadísticos a nivel institucional.
+  - Configuración de parámetros globales y reglas del motor de riesgo.
+  - Supervisión general del estado de las alertas e intervenciones.
+
+### Docente (Tutor)
+El **Docente** o Tutor es el actor principal en el seguimiento directo del estudiante. Su enfoque está en el monitoreo del rendimiento académico y la ejecución de intervenciones tempranas.
+- **Permisos:** Acceso limitado a los estudiantes asignados a su cargo, programa o facultad.
+- **Responsabilidades:**
+  - Registro de nuevos estudiantes y actualización de sus perfiles en el sistema.
+  - Identificación y registro de factores de riesgo (rendimiento, asistencia, problemas socioeconómicos).
+  - Registro y seguimiento de intervenciones, tutorías y observaciones en el historial del estudiante.
+  - Consulta de recomendaciones generadas por la IA para la toma de decisiones.
+
+### Estudiante
+El **Estudiante** interactúa con el sistema de manera autogestionada, con el fin de proporcionar la información base para la evaluación de riesgo.
+- **Permisos:** Acceso exclusivo a los formularios de auto-registro y encuestas. Sin acceso al panel de control administrativo.
+- **Responsabilidades:**
+  - Completar el proceso de auto-registro en el sistema.
+  - Llenar las encuestas de caracterización de factores de riesgo iniciales.
+  - Recibir notificaciones e información de seguimiento enviadas a su correo institucional.
+
+---
+
+## 2. Acceso al Sistema
 
 Para ingresar a la plataforma, diríjase a la URL oficial del sistema. Se le presentará la pantalla de inicio de sesión donde deberá usar sus credenciales institucionales.
 
@@ -27,7 +62,7 @@ Para ingresar a la plataforma, diríjase a la URL oficial del sistema. Se le pre
 
 ---
 
-## 2. Panel de Control Principal (Dashboard)
+## 3. Panel de Control Principal (Dashboard)
 
 Una vez haya ingresado, se encontrará con el panel principal de gestión. Este espacio centraliza la información más crítica de la población estudiantil bajo su supervisión.
 
@@ -54,7 +89,7 @@ Cada tarjeta proporciona una vista rápida de:
 
 ---
 
-## 3. Módulo de Análisis y Reportes
+## 4. Módulo de Análisis y Reportes
 
 Este módulo (disponible para Administradores y Coordinadores) consolida los datos de toda la institución en gráficos claros para la toma de decisiones.
 
@@ -66,7 +101,7 @@ Este módulo (disponible para Administradores y Coordinadores) consolida los dat
 
 ---
 
-## 4. Gestión de Estudiantes: Creación y Seguimiento
+## 5. Gestión de Estudiantes: Creación y Seguimiento
 
 El flujo principal de los **Docentes / Tutores** consiste en registrar estudiantes y hacerles seguimiento detallado mediante intervenciones y análisis de factores de riesgo.
 
@@ -95,7 +130,7 @@ En este panel encontrará distintas pestañas funcionales:
 
 ---
 
-## 5. Gestión de Usuarios y Roles
+## 6. Gestión de Usuarios y Roles
 
 La configuración del equipo de trabajo se realiza en la vista de **Gestión de Usuarios** (solo para administradores).
 
