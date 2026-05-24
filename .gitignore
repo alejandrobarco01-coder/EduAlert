@@ -18,6 +18,12 @@ dist-ssr
 .env.*.local
 !.env.example
 
+# SSL/TLS certificates (generated with Certbot/Let's Encrypt)
+certificates/
+!certificates/.gitkeep
+certbot/
+!certbot/www/.gitkeep
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
