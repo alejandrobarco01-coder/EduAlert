@@ -92,3 +92,32 @@ Si prefieres ejecutarlos por separado, puedes usar:
 | **Administrador** | admin@uceva.edu.co | Admin@2024 |
 | **Tutor** | tutor@uceva.edu.co | Tutor@2024 |
 | **Coordinador** | coord@uceva.edu.co | Coord@2024 |
+
+---
+
+## 🛠️ Solución a Problemas Frecuentes
+
+Aquí se listan los errores más comunes al intentar levantar el proyecto y cómo solucionarlos:
+
+### 1. Error: `EADDRINUSE: address already in use :::3001` o `:::5173`
+Este error ocurre cuando el puerto del Backend (3001) o del Frontend (5173) ya está siendo utilizado por otro proceso.
+
+**Solución:**
+- **Windows:** Abre la terminal y ejecuta `netstat -ano | findstr :3001` para encontrar el PID del proceso. Luego ejecuata `taskkill /PID <PID> /F` para finalizarlo.
+- **Alternativa:** Puedes cambiar los puertos en `package.json` o simplemente cerrar otras terminales que puedan tener el proyecto corriendo.
+
+### 2. Funciones de IA no responden o Error de API Key
+Si al interactuar con las funciones de IA (Gemini) no recibes respuesta o ves errores en la consola del servidor.
+
+**Solución:**
+- Verifica que el archivo `server/.env` exista (no confundir con `.env.example`).
+- Asegúrate de que la variable `GEMINI_API_KEY` tenga una clave válida de [Google AI Studio](https://aistudio.google.com/).
+- Reinicia el servidor después de hacer cambios en el archivo `.env`.
+
+### 3. Errores de Sintaxis o `Module not found` al iniciar
+Generalmente ocurre por una discrepancia en la versión de Node.js o una instalación de dependencias incompleta.
+
+**Solución:**
+- Asegúrate de usar **Node.js v20.x**. Verifica con `node -v`.
+- Borra la carpeta `node_modules` y el archivo `package-lock.json`, luego ejecuta `npm install` nuevamente.
+- Si estás en Windows, intenta ejecutar la terminal como Administrador para la instalación inicial.
