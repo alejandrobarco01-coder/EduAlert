@@ -230,3 +230,34 @@ docker exec -t edualert-postgres pg_dumpall -c -U usuario_fuerte > dump_edualert
 ### HTTPS (opcional)
 
 Para TLS en producción, instala Certbot y extiende el bloque `server` con certificados Let's Encrypt, o coloca un balanceador TLS delante de Nginx.
+
+---
+
+## 📊 8. Validación de Conectividad y Monitoreo de Logs
+
+Para garantizar la estabilidad y salud del sistema, se debe monitorear activamente que el backend esté conectado a la base de datos y que no existan ciclos de reinicio por errores no controlados (*crash loops*).
+
+### Verificación de Logs en Docker
+Si desplegaste utilizando `docker-compose`:
+```bash
+# Ver los últimos 100 logs del backend (API) y seguirlos en tiempo real:
+docker-compose logs -f --tail=100 edualert-app
+```
+**Resultado Esperado:** Al final del log inicial, deberías observar explícitamente el mensaje: `🗄️  Conexión exitosa a la base de datos de producción` sin ningún stacktrace de error a continuación.
+
+### Verificación de Logs en PM2
+Si desplegaste nativamente utilizando `PM2`:
+```bash
+# Ver métricas, salud y consumo en un dashboard en tiempo real:
+pm2 monit
+
+# Ver el registro de logs unificados (salidas y errores):
+pm2 logs edualert-api
+```
+**Resultado Esperado:** El estado de la aplicación en la tabla de `pm2 list` debe ser `online` constante (sin incrementar los `restarts` continuamente, lo que indicaría un crash loop).
+
+### ¿Qué hacer en caso de Crash Loops?
+Si el sistema registra que no puede conectarse a la base de datos (mostrando el log `❌ Error fatal: No se pudo conectar a la base de datos`), valida de inmediato que el archivo `.env` exista en producción y que los parámetros (`DB_USER`, `DB_PASSWORD`, `DB_NAME`) sean correctos utilizando el script de asistencia:
+```bash
+bash scripts/setup-env.sh
+```
