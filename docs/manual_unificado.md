@@ -52,7 +52,7 @@ El **Estudiante** interactúa con el sistema de manera autogestionada, con el fi
 
 Para ingresar a la plataforma, diríjase a la URL oficial del sistema. Se le presentará la pantalla de inicio de sesión donde deberá usar sus credenciales institucionales.
 
-![Pantalla de Inicio de Sesión](./images/login_page_1779303637700.png)
+![Pantalla de Inicio de Sesión](./images/login_page_new.png)
 
 1. Ingrese su **Correo Institucional** (ej. usuario@uceva.edu.co).
 2. Digite su **Contraseña** segura.
@@ -66,7 +66,7 @@ Para ingresar a la plataforma, diríjase a la URL oficial del sistema. Se le pre
 
 Una vez haya ingresado, se encontrará con el panel principal de gestión. Este espacio centraliza la información más crítica de la población estudiantil bajo su supervisión.
 
-![Panel de Control Principal](./images/dashboard_main_1779303750266.png)
+![Panel de Control Principal](./images/dashboard_main_new.png)
 
 ### Elementos del Dashboard:
 - **Barra de Navegación Lateral (Menú):** Permite cambiar entre el Tablero, Analíticas, Gestión de Usuarios y Configuraciones (las opciones varían según el rol).
@@ -78,7 +78,7 @@ Una vez haya ingresado, se encontrará con el panel principal de gestión. Este 
 
 Debajo de los filtros encontrará el listado de estudiantes en formato de tarjetas individuales. 
 
-![Listado de Estudiantes](./images/student_cards_1779303788264.png)
+![Listado de Estudiantes](./images/student_cards_new.png)
 
 Cada tarjeta proporciona una vista rápida de:
 - Programa y Semestre del estudiante.
@@ -93,7 +93,7 @@ Cada tarjeta proporciona una vista rápida de:
 
 Este módulo (disponible para Administradores y Coordinadores) consolida los datos de toda la institución en gráficos claros para la toma de decisiones.
 
-![Módulo de Analíticas](./images/analytics_view_1779304066539.png)
+![Módulo de Analíticas](./images/analytics_view_new.png)
 
 - **Histórico Institucional de Riesgo:** Gráfico que muestra la evolución promedio del índice de riesgo de los estudiantes a través de los últimos 6 meses.
 - **Distribución de Alarmas:** Un conteo rápido y visual de la cantidad exacta de alumnos en los diferentes rangos de riesgo en tiempo real.
@@ -119,7 +119,7 @@ Si tiene los permisos, en el panel principal seleccione **"Agregar Estudiante"**
 ### Paso 2: Seguimiento e Intervención (Vista Detallada)
 Para gestionar el caso de un estudiante, haga clic sobre su tarjeta en el panel principal. Esto abrirá el **Panel Lateral de Detalles del Estudiante**.
 
-![Detalles del Estudiante e Intervenciones](./images/student_detail_modal_1779304014648.png)
+![Detalles del Estudiante e Intervenciones](./images/student_detail_modal_new.png)
 
 En este panel encontrará distintas pestañas funcionales:
 - **Factores:** Seleccione los factores de riesgo activos del estudiante (ej. "Bajo rendimiento académico", "Problemas socioeconómicos") para actualizar el algoritmo de cálculo. 
@@ -134,7 +134,7 @@ En este panel encontrará distintas pestañas funcionales:
 
 La configuración del equipo de trabajo se realiza en la vista de **Gestión de Usuarios** (solo para administradores).
 
-![Gestión de Usuarios](./images/user_management_1779304211521.png)
+![Gestión de Usuarios](./images/user_management_new.png)
 
 - **Agregar Personal:** Utilice el botón superior para dar de alta a nuevos Docentes, Coordinadores o personal de Bienestar.
 - **Roles:** Defina correctamente el rol de la persona. Esto limitará o habilitará su acceso a módulos sensibles como la sección de Estadísticas.
