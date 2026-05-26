@@ -168,7 +168,7 @@ Para iniciar, debes ingresar a la dirección del portal de estudiantes y seguir 
 
 Al ingresar a la pantalla de registro, encontrarás el **Paso 1 de 3: Datos Personales**.
 
-![Paso 1 - Datos Personales](./images/student_reg_step1_1779306815773.png)
+![Paso 1 - Datos Personales](./images/student_reg_step1_new.png)
 
 En esta sección deberás proporcionar tu información básica:
 1. **Nombre Completo:** Ingresa tus nombres y apellidos completos.
@@ -185,7 +185,7 @@ Una vez validados todos los datos, el botón **"Siguiente"** se iluminará y te 
 
 El bienestar integral no solo se trata de notas. En el **Paso 2**, deberás completar una breve encuesta sobre tus condiciones socioeconómicas.
 
-![Paso 2 - Área Socioeconómica](./images/student_reg_step2_1779306838835.png)
+![Paso 2 - Área Socioeconómica](./images/student_reg_step2_new.png)
 
 Las preguntas incluyen:
 - **Estrato Socioeconómico:** Selecciona un número del 1 al 6.
@@ -205,7 +205,7 @@ En el último paso, se te solicitará información sobre tu estado académico ac
 
 Una vez finalices y envíes la encuesta, el algoritmo de inteligencia artificial de EduAlert calculará de forma automática e inmediata tu **Índice de Riesgo**.
 
-![Resultado del Registro](./images/student_reg_success_1779307124203.png)
+![Resultado del Registro](./images/student_reg_success_new.png)
 
 Se te presentará la pantalla de **¡Registro Exitoso!** en donde podrás visualizar:
 - Un **porcentaje** que representa tu índice calculado por la IA.
